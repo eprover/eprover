@@ -1,23 +1,20 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_numarrtrees.c
+  File  : clb_numarrtrees.c
 
-Author: Albert Eisfeld
+  Author: Albert Eisfeld
 
-Contents
+  Contents
 
   Functions for long-indexed splay trees with arrays of values.
 
-Copyright 2026 by the author.
+  Copyright 2026 by the author.
   This code is released under the GNU General Public Licence and
   the GNU Lesser General Public License.
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes (vastly incomplete, see CVS log)
-
-<1> Mon Aug  1 11:03:32 CEST 2011
-    New from clb_numtxrees.h
+  Created: Tue Jun 16 12:07:08 CEST 2026
 
 -----------------------------------------------------------------------*/
 
@@ -600,5 +597,3 @@ NumArrTree_p NumArrTreeTraverseNext(PStack_p state)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-

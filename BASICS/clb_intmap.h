@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_intmap.h
+  File  : clb_intmap.h
 
-Authors: Stephan Schulz (schulz@eprover.org), Albert Eisfeld
+  Authors: Stephan Schulz (schulz@eprover.org), Albert Eisfeld
 
-Contents
+  Contents
 
   Definitions and functions for a data type that maps natural numbers
   (including 0) to void* pointers, supporting assignments, retrieval,
@@ -16,10 +16,7 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Sat Dec 18 15:51:13 CET 2004
-    New
+  Created: Sat Dec 18 15:51:13 CET 2004
 
 -----------------------------------------------------------------------*/
 
@@ -227,8 +224,3 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-

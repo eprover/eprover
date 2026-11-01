@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_intmap.c
+  File  : clb_intmap.c
 
-Authors: Stephan Schulz (schulz@eprover.org), Albert Eisfeld
+  Authors: Stephan Schulz (schulz@eprover.org), Albert Eisfeld
 
-Contents
+  Contents
 
   Functions implementing the multi-representation N_0->void* mapping
   data type.
@@ -15,10 +15,7 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
-
-<1> Mon Dec 27 17:34:48 CET 2004
-    New
+  Created: Mon Dec 27 17:34:48 CET 2004
 
 -----------------------------------------------------------------------*/
 
@@ -229,9 +226,9 @@ void** IntMapGetRef(IntMap_p map, long key)
          if(handle)
          {
             res = &(handle->vals[NumArrTreeSlot(handle, key)].p_val);
-            /* if key/value pair does not exist yet, treat it like you are 
+            /* if key/value pair does not exist yet, treat it like you are
                creating a pair */
-            if(!(*res)) 
+            if(!(*res))
             {
                map->entry_no++;
                map->max_key=MAX(map->max_key, key);
@@ -304,7 +301,6 @@ void* IntMapDelKey(IntMap_p map, long key)
    switch(map->type)
    {
    case IMEmpty:
-         //  Rauswerfen, da Redundanz?
          res = NULL;
          break;
    case IMSingle:

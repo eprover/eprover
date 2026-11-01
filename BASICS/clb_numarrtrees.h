@@ -1,10 +1,10 @@
 /*-----------------------------------------------------------------------
 
-File  : clb_numarrtrees.h
+  File  : clb_numarrtrees.h
 
-Author: Albert Eisfeld
+  Author: Albert Eisfeld
 
-Contents
+  Contents
 
   Definitions for SPLAY trees with long integer keys and arrays of
   IntOrPs as values. Copied and modified from clb_numxtrees.h
@@ -15,11 +15,8 @@ Contents
   See the file COPYING in the main E directory for details..
   Run "eprover -h" for contact information.
 
-Changes
+  Created: Tue Jun 16 12:07:08 CEST 2026
 
-<1> Mon Aug  1 11:04:53 CEST 2011
-    New from clb_numtxrees.h
-TODO change date on all relevant files
 -----------------------------------------------------------------------*/
 
 #ifndef CLB_NUMARRTREES
@@ -110,8 +107,3 @@ NumArrTree_p NumArrTreeTraverseNext(PStack_p state);
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/
-
-
-
-
-
