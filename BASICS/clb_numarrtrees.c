@@ -222,33 +222,6 @@ bool NumArrTreeNodeEmpty(NumArrTree_p node)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumArrTreeNodeSingleton()
-//
-//   Return true if the elements of node->vals of node would be NULL
-//   After removing the element at index
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-bool NumArrTreeNodeSingleton(NumArrTree_p node, int index)
-{
-   for(int i=0; i < NUMARRTREEVALUES; i++)
-   {
-      if(i == index) continue;
-      if(node->vals[i].p_val != NULL)
-      {
-         return false; 
-      }
-   }
-   return true;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: NumArrTreeInsertNode()
 //
 //   If an entry with key *newnode->key exists in the tree return a
@@ -363,39 +336,6 @@ NumArrTree_p NumArrTreeInsertKeyValPair(NumArrTree_p *root, long key, void* val)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumArrTreeStoreNode()
-//
-//   Insert a cell associating key with val into the
-//   tree. Return false if an entry for this key exists, true
-//   otherwise.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes tree
-//
-/----------------------------------------------------------------------*/
-
-bool NumArrTreeStoreNode(NumArrTree_p *root, long key, IntOrP val)
-{
-   NumArrTree_p handle, newnode;
-
-   handle = NumArrTreeCellAllocEmpty();
-   handle->key = key & ~(NUMARRTREEVALUES - 1);
-   handle->vals[key & (NUMARRTREEVALUES - 1)] = val;
-
-   newnode = NumArrTreeInsertNode(root, handle);
-
-   if(newnode)
-   {
-      NumArrTreeCellFree(handle);
-      return false;
-   }
-   return true;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: NumArrTreeFindNode()
 //
 //   Find the node containing the val with key key in the tree and return
@@ -427,66 +367,53 @@ NumArrTree_p NumArrTreeFindNode(NumArrTree_p *root, long key)
 
 /*-----------------------------------------------------------------------
 //
-// Function: NumArrTreePrepDel()
+// Function: NumArrTreeDeleteKey()
 //
-//   Find the entry with key, rebalance the tree and return the pointer
-//   to the node that shall be removed. 
-//   _This function alone does not remove the node from the tree_
-//   If the node containing it is
-//   empty, remove the node from the tree and rebalance the tree.
-//   Return NULL if no matching element exists.
+//   Remove the value stored for key from the tree and return it (NULL
+//   if there is none). If this empties the node, remove the node from
+//   the tree and free it.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes the tree
+// Side Effects    : Changes the tree, memory operations
 //
 /----------------------------------------------------------------------*/
 
-NumArrTree_p NumArrTreePrepDel(NumArrTree_p *root, long key)
+void* NumArrTreeDeleteKey(NumArrTree_p *root, long key)
 {
    NumArrTree_p x, cell;
+   long  slot    = NumArrTreeSlot(key);
+   long  nodekey = NumArrTreeNodeKey(key);
+   void* res;
 
-   if (!(*root))
+   if(!(*root))
    {
       return NULL;
    }
-
-   long index = key & (NUMARRTREEVALUES - 1);
-   long nodekey = key - index;
-
    *root = splay_tree(*root, nodekey);
-
-   if (!(*root)->vals[index].p_val)
+   if((*root)->key != nodekey)
    {
       return NULL;
    }
+   res = (*root)->vals[slot].p_val;
+   (*root)->vals[slot].p_val = NULL;
 
-   if((nodekey-(*root)->key)==0)
+   if(res && NumArrTreeNodeEmpty(*root))
    {
-      if (NumArrTreeNodeSingleton(*root, index))
-      {         
-         if (!(*root)->lson)
-         {
-            x = (*root)->rson;
-         }
-         else
-         {
-            x = splay_tree((*root)->lson, nodekey);
-            x->rson = (*root)->rson;
-         }
-         cell = *root;
-         cell->lson = cell->rson = NULL;
-         *root = x;
-         return cell;
+      cell = *root;
+      if(!cell->lson)
+      {
+         x = cell->rson;
       }
-      /*Important notice: in this step, the value is not
-      extracted yet, but only when called in IntMapDelKey().
-      This is so that the Caller of IntMapDelKey knows what
-      value got deleted and NumArrTreePrepDel() does not
-      have to clone the node*/
-      return *root;
+      else
+      {
+         x = splay_tree(cell->lson, nodekey);
+         x->rson = cell->rson;
+      }
+      *root = x;
+      NumArrTreeCellFree(cell);
    }
-   return NULL;
+   return res;
 }
 
 
@@ -520,8 +447,9 @@ NumArrTree_p NumArrTreeMaxNode(NumArrTree_p root)
 //
 // Function: NumArrTreeMaxKey()
 //
-//   Return the node with the largest key in the node (or NULL if tree
-//   is empty). Non-destructive/non-reorganizing.
+//   Return the largest key with a value in node. For a node without
+//   values, return the largest key the node can hold, so that the
+//   result is always an upper bound.
 //
 // Global Variables: -
 //
@@ -531,15 +459,16 @@ NumArrTree_p NumArrTreeMaxNode(NumArrTree_p root)
 
 long NumArrTreeMaxKey(NumArrTree_p node)
 {
-   long index;
-   for(int i = 0; i < NUMARRTREEVALUES; i++) 
+   assert(node);
+
+   for(int i = NUMARRTREEVALUES-1; i >= 0; i--)
    {
-      if (node->vals[i].p_val) 
+      if(node->vals[i].p_val)
       {
-         index = i;
+         return node->key + i;
       }
    }
-   return node->key + index;   
+   return node->key + NUMARRTREEVALUES - 1;
 }
 
 
@@ -547,31 +476,32 @@ long NumArrTreeMaxKey(NumArrTree_p node)
 //
 // Function: NumArrTreeLimitedTraverseInit()
 //
-//   Return a stack containing the path to the smallest element
-//   smaller than or equal to limit in the tree.
+//   Return a stack containing the path to the first node that may
+//   hold keys >= limit, i.e. the node with the smallest key >=
+//   NumArrTreeNodeKey(limit). Keys in that node that are smaller than
+//   limit have to be skipped by the caller.
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
 PStack_p NumArrTreeLimitedTraverseInit(NumArrTree_p root, long limit)
 {
    PStack_p stack = PStackAlloc();
+   long     nodekey = NumArrTreeNodeKey(limit);
 
    while(root)
    {
-      /* limit is not super strict, key/val pairs exceeding the limit 
-       * are handled in the IntMap */
-      if(root->key < (limit & ~(NUMARRTREEVALUES - 1)))
+      if(root->key < nodekey)
       {
          root = root->rson;
       }
       else
       {
          PStackPushP(stack, root);
-         if(root->key == limit)
+         if(root->key == nodekey)
          {
             root = NULL;
          }
@@ -584,20 +514,20 @@ PStack_p NumArrTreeLimitedTraverseInit(NumArrTree_p root, long limit)
    return stack;
 }
 
-/*----------------------------------------------------------------------
+/*-----------------------------------------------------------------------
 //
 // Function: NumArrTreeTraverseNext()
 //
-//   Given a stack describing a traversal state, return the next key/val
-//   pair and update the stack.
+//   Given a stack describing a traversal state, return the next node
+//   (in key order) and update the stack. Return NULL at the end.
 //
 // Global Variables: -
 //
 // Side Effects    : Updates stack
 //
-/---------------------------------------------------------------------*/
+/----------------------------------------------------------------------*/
 
-NumArrTree_p NumArrTreeTraverseNext(PStack_p state, long* last_seen_key)
+NumArrTree_p NumArrTreeTraverseNext(PStack_p state)
 {
    NumArrTree_p handle, res;
 
@@ -605,18 +535,7 @@ NumArrTree_p NumArrTreeTraverseNext(PStack_p state, long* last_seen_key)
    {
       return NULL;
    }
-   res = PStackTopP(state);
-
-   for(int i = ((*last_seen_key & (NUMARRTREEVALUES - 1)) + 1) & (NUMARRTREEVALUES - 1); i < NUMARRTREEVALUES - 1; i++) 
-   {
-      if(res->vals[i].p_val)
-      {  
-         // val at index is not null
-         return res;
-      }
-   }
-
-   PStackDiscardTop(state);
+   res = PStackPopP(state);
    handle = res->rson;
    while(handle)
    {

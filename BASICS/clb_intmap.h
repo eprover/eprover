@@ -77,11 +77,15 @@ typedef struct intmap_iter_cell
    IntMap_p map;
    long     lower_key;
    long     upper_key;
-   long     last_seen_key;
    union
    {
-      bool      seen;      /* For IMSingle */
-      PStack_p  tree_iter; /* For IMArrTree */
+      bool      seen;           /* For IMSingle */
+      struct
+      {
+         PStack_p     tree_iter; /* Nodes still to visit */
+         NumArrTree_p node;      /* Node being scanned, or NULL */
+         int          slot;      /* Next slot to look at in node */
+      }arr;                      /* For IMArrTree */
    }admin_data;
 }IntMapIterCell, *IntMapIter_p;
 
@@ -172,29 +176,36 @@ static inline void* IntMapIterNext(IntMapIter_p iter, long *key)
          }
          break;
    case IMArrTree:
-         while((handle = NumArrTreeTraverseNext(iter->admin_data.tree_iter, &(iter->last_seen_key))))
+         while(true)
          {
-            if(handle)
+            handle = iter->admin_data.arr.node;
+            if(!handle)
             {
-               if(handle->key + ((iter->last_seen_key + 1) & (NUMARRTREEVALUES - 1)) > iter->upper_key)
+               handle = NumArrTreeTraverseNext(iter->admin_data.arr.tree_iter);
+               if(!handle)
                {
-                  /* Overrun limit */
                   break;
                }
-               for(int i = ((iter->last_seen_key & (NUMARRTREEVALUES - 1)) + 1) & (NUMARRTREEVALUES - 1);
-                  i < NUMARRTREEVALUES; i++)
+               iter->admin_data.arr.node = handle;
+               iter->admin_data.arr.slot = 0;
+            }
+            for(int i = iter->admin_data.arr.slot; i < NUMARRTREEVALUES; i++)
+            {
+               if(handle->key + i > iter->upper_key)
                {
-                  iter->last_seen_key = handle->key + i;
-                  /* Searching for the next non-NULL value in the node*/
-                  if(handle->vals[i].p_val)
-                  {
-                     /* Found real value */
-                     *key = handle->key + i;
-                     res = handle->vals[i].p_val;
-                     return res;
-                  }
+                  /* Overrun limit, nothing more to find */
+                  PStackReset(iter->admin_data.arr.tree_iter);
+                  iter->admin_data.arr.node = NULL;
+                  return NULL;
+               }
+               if(handle->key + i >= iter->lower_key && handle->vals[i].p_val)
+               {
+                  iter->admin_data.arr.slot = i+1;
+                  *key = handle->key + i;
+                  return handle->vals[i].p_val;
                }
             }
+            iter->admin_data.arr.node = NULL;
          }
          break;
    default:

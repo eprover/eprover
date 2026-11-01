@@ -193,7 +193,6 @@ void** IntMapGetRef(IntMap_p map, long key)
    void      **res = NULL;
    void      *val;
    NumArrTree_p handle;
-   IntOrP tmp;
    long index = key & (NUMARRTREEVALUES - 1);
 
    assert(map);
@@ -218,8 +217,7 @@ void** IntMapGetRef(IntMap_p map, long key)
             map->type = IMArrTree;
             val = map->values.value;
             map->values.tree = NULL;
-            tmp.p_val = val;
-            NumArrTreeStoreNode(&(map->values.tree), map->max_key, tmp);
+            NumArrTreeInsertKeyValPair(&(map->values.tree), map->max_key, val);
             handle = add_new_tree_node(map, key, NULL);
             res = &(handle->vals[index].p_val);
             map->entry_no = 2;
@@ -301,7 +299,6 @@ void* IntMapDelKey(IntMap_p map, long key)
 {
 
    void* res = NULL;
-   NumArrTree_p  handle;
 
    assert(map);
 
@@ -320,18 +317,11 @@ void* IntMapDelKey(IntMap_p map, long key)
          }
          break;
    case IMArrTree:
-      handle = NumArrTreePrepDel(&(map->values.tree), key);
-         if(handle)
+         res = NumArrTreeDeleteKey(&(map->values.tree), key);
+         if(res)
          {
             map->entry_no--;
-            res = handle->vals[key & (NUMARRTREEVALUES - 1)].p_val;
-            if(!(NumArrTreeNodeSingleton(handle, key & (NUMARRTREEVALUES - 1))))
-            {
-               // Setting the val NULL since it's not actually removed
-               // in NumArrTreePrepDel()
-               handle->vals[key & (NUMARRTREEVALUES - 1)].p_val = NULL;
-            }
-            if((handle->key + (key & (NUMARRTREEVALUES - 1))) == map->max_key)
+            if(key == map->max_key)
             {
                if(map->values.tree)
                {
@@ -372,7 +362,6 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
    handle->map = map;
    if(map)
    {
-      handle->last_seen_key = MAX(lower_key, map->min_key) - 1;
       handle->lower_key = MAX(lower_key, map->min_key);
       handle->upper_key = MIN(upper_key, map->max_key);
 
@@ -388,8 +377,10 @@ IntMapIter_p IntMapIterAlloc(IntMap_p map, long lower_key, long upper_key)
             }
             break;
       case IMArrTree:
-            handle->admin_data.tree_iter =
+            handle->admin_data.arr.tree_iter =
                NumArrTreeLimitedTraverseInit(map->values.tree, lower_key);
+            handle->admin_data.arr.node = NULL;
+            handle->admin_data.arr.slot = 0;
             break;
       default:
             assert(false && "Unknown IntMap type.");
@@ -423,7 +414,7 @@ void IntMapIterFree(IntMapIter_p junk)
       case IMSingle:
          break;
       case IMArrTree:
-            PStackFree(junk->admin_data.tree_iter);
+            NumArrTreeTraverseExit(junk->admin_data.arr.tree_iter);
          break;
       default:
             assert(false && "Unknown IntMap type.");

@@ -38,6 +38,14 @@ TODO change date on all relevant files
 #define NUMARRTREEVALUES 8
 #endif
 
+/* Keys are split into node key and slot with bit masks */
+#if (NUMARRTREEVALUES < 1) || (NUMARRTREEVALUES & (NUMARRTREEVALUES - 1))
+#error "NUMARRTREEVALUES must be a power of two"
+#endif
+
+#define NumArrTreeSlot(key)    ((key) & (NUMARRTREEVALUES - 1))
+#define NumArrTreeNodeKey(key) ((key) & ~(long)(NUMARRTREEVALUES - 1))
+
 /* General purpose data structure for indexing objects by a numerical
    key. Integer values are supported directly, for all other objects
    pointers can be used (and need to be casted carefully by the
@@ -64,20 +72,19 @@ typedef struct numarrtreecell
 #define NUMARRTREECELL_MEM MEMSIZE(NumArrTreeCell)
 
 
-bool      NumArrTreeNodeSingleton(NumArrTree_p node, int index);
+bool      NumArrTreeNodeEmpty(NumArrTree_p node);
 NumArrTree_p NumArrTreeCellAllocEmpty(void);
 void      NumArrTreeFree(NumArrTree_p junk);
 NumArrTree_p NumArrTreeInsertNode(NumArrTree_p *root, NumArrTree_p newnode);
 NumArrTree_p NumArrTreeInsertKeyValPair(NumArrTree_p *root, long key, void* val);
-bool       NumArrTreeStoreNode(NumArrTree_p *root, long key, IntOrP val);
 NumArrTree_p NumArrTreeFindNode(NumArrTree_p *root, long key);
-NumArrTree_p NumArrTreePrepDel(NumArrTree_p *root, long key);
+void*     NumArrTreeDeleteKey(NumArrTree_p *root, long key);
 NumArrTree_p NumArrTreeMaxNode(NumArrTree_p root);
 long      NumArrTreeMaxKey(NumArrTree_p node);
 
 PStack_p NumArrTreeLimitedTraverseInit(NumArrTree_p root, long limit);
 
-NumArrTree_p NumArrTreeTraverseNext(PStack_p state, long* last_seen_key);
+NumArrTree_p NumArrTreeTraverseNext(PStack_p state);
 #define NumArrTreeTraverseExit(stack) PStackFree(stack)
 
 
