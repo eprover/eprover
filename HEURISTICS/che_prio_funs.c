@@ -1102,18 +1102,7 @@ EvalPriority PrioFunPreferHOSteps(Clause_p clause)
          op = PStackElementInt(derivation, i);
          has_ho = DPGetIsHO(op);
          i++;
-         if(DCOpHasArg1(op))
-         {
-            i++;
-         }
-         if(DCOpHasArg2(op))
-         {
-            i++;
-         }
-         if(DCOpHasArg3(op))
-         {
-            i++;
-         }
+         i += DCOpArgCount(op);
       }
    }
    return prio;
@@ -1264,18 +1253,7 @@ EvalPriority PrioFunPreferEasyHO(Clause_p clause)
             prio = PrioBest;
          }
          i++;
-         if(DCOpHasArg1(op))
-         {
-            i++;
-         }
-         if(DCOpHasArg2(op))
-         {
-            i++;
-         }
-         if(DCOpHasArg3(op))
-         {
-            i++;
-         }
+         i += DCOpArgCount(op);
       }
    }
    if(prio != PrioBest)

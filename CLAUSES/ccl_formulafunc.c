@@ -604,7 +604,7 @@ bool map_formula(WFormula_p form, TB_p terms, FormulaMapper processor,
 {
    TFormula_p original = form->tformula;
    bool changed = false;
-   assert(!DCOpHasArg1(dc)&&!DCOpHasArg2(dc));
+   assert(!DCOpHasArg(dc,1));
    form->tformula = processor(original, terms);
 
    if (form->tformula != original)
