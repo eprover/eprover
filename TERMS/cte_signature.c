@@ -1965,7 +1965,7 @@ long SigFCodesCollectTypes(Sig_p sig, NumTree_p fcodes, OrdSet_p *types)
          }
       }
    }
-   OrdSetTraverseExit(to_process);
+   PStackFree(to_process);
    return res;
 }
 

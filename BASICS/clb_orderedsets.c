@@ -1054,6 +1054,24 @@ OrdSet_p OrdSetTraverseNext(OrdSetIter_p iter)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: OrdSetTraverseExit()
+//
+//   Free an iterator created by OrdSetTraverseInit().
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void OrdSetTraverseExit(OrdSetIter_p iter)
+{
+   OrdSetIterCellFree(iter);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                        End of File                                  */
 /*---------------------------------------------------------------------*/

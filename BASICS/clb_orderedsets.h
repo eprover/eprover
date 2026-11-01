@@ -111,7 +111,7 @@ bool     OrdSetCheck(OrdSet_p set);
 
 OrdSetIter_p OrdSetTraverseInit(OrdSet_p set);
 OrdSet_p     OrdSetTraverseNext(OrdSetIter_p iter);
-#define      OrdSetTraverseExit(iter) OrdSetIterCellFree(iter)
+void         OrdSetTraverseExit(OrdSetIter_p iter);
 
 #endif
 
