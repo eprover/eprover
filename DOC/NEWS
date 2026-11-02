@@ -61,6 +61,18 @@ Version 3.2.5 -> 3.5.X Countess Grey
   conjunction of the pairwise disequations (inference
   expand_distinct, which was misspelled as epxand_distinct). $distinct
   is still not supported in clauses (cnf).
+- Runs of eprover-ho are now reproducible, too: the ExtSup inference
+  and the variable alternatives of the discrimination trees
+  (demodulation, prefix weight, tf-idf weight) no longer depend on
+  object addresses. This changes the search order on some FO and HO
+  problems.
+- The conjecture term weights (ConjectureTermPrefixWeight,
+  ConjectureTermTfIdfWeight and the related term normalization and
+  generalization) now work with typed and HO terms: variables are
+  normalized per type, indexed terms are kept alive, and
+  ConjectureTermPrefixWeight normalizes the evaluated terms like the
+  indexed ones, so variables now match. This changes the evaluation
+  (and hence the search) of strategies using ConjectureTermPrefixWeight.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

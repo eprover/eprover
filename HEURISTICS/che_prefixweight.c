@@ -215,11 +215,16 @@ static double prfx_term_weight(Term_p term, PrefixWeightParam_p data)
 {
    long matches, misses;
    double res;
+   Term_p norm;
 
    matches = 0;
    misses = 0;
-   
-   PDTreeMatchPrefix(data->terms,term,&matches,&misses);
+
+   /* The indexed terms are normalized, so normalize the query the same
+      way (as for ConjectureTermTfIdfWeight). */
+   norm = TermCopyNormalizeVars(data->bank->vars,term,data->var_norm);
+   PDTreeMatchPrefix(data->terms,norm,&matches,&misses);
+   TermFree(norm);
 
    res = (matches*data->match_weight)+(misses*data->miss_weight);
    

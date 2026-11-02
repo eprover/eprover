@@ -37,8 +37,6 @@ bool PDTreeUseSizeConstraints = true;
 unsigned long PDTNodeCounter = 0;
 #endif
 
-#define TermPCompare PCmpFun
-
 TraversalState trav_order[] = {TRAVERSING_SYMBOLS, TRAVERSING_VARIABLES, DONE};
 
 /*---------------------------------------------------------------------*/
@@ -63,6 +61,61 @@ void print_t_stack(Sig_p sig, PStack_p stack)
       fprintf(stderr, ", ");
    }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: pdt_alt_key_cmp()
+//
+//   Compare two keys of the variable and de Bruijn alternatives of a
+//   node (free variables, applied free variables and de Bruijn
+//   variables) structurally: by kind, f_code, type and, recursively,
+//   arguments. Unlike the term addresses, this does not depend on the
+//   memory layout, so the order in which the alternatives are tried
+//   (and hence the search) is reproducible. It also does not require
+//   the terms to be shared, or shared in the same bank (as for lookups
+//   with normalized copies).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static int pdt_alt_key_cmp(const void* key1, const void* key2)
+{
+   const Term_p t1 = (const Term_p)key1;
+   const Term_p t2 = (const Term_p)key2;
+   int res;
+
+   if(t1 == t2)
+   {
+      return 0;
+   }
+   /* de Bruijn indices may coincide with function symbol codes */
+   res = (!!TermIsDBVar(t1)) - (!!TermIsDBVar(t2));
+   if(res)
+   {
+      return res;
+   }
+   res = (t1->f_code > t2->f_code) - (t1->f_code < t2->f_code);
+   if(res)
+   {
+      return res;
+   }
+   res = (t1->arity > t2->arity) - (t1->arity < t2->arity);
+   if(res)
+   {
+      return res;
+   }
+   res = (t1->type->type_uid > t2->type->type_uid) -
+      (t1->type->type_uid < t2->type->type_uid);
+   for(int i=0; !res && i<t1->arity; i++)
+   {
+      res = pdt_alt_key_cmp(t1->args[i], t2->args[i]);
+   }
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -108,13 +161,13 @@ static void* pdt_select_alt_ref(PDTree_p tree, PDTNode_p node, Term_p term)
 
    if(TermIsTopLevelFreeVar(term))
    {
-      res = (PObjMapGetRef(&node->v_alternatives, term, TermPCompare, &added_objmap_node));
+      res = (PObjMapGetRef(&node->v_alternatives, term, pdt_alt_key_cmp, &added_objmap_node));
       assert(node->v_alternatives);
    }
    else if(TermIsDBVar(term) || TermIsAppliedDBVar(term) || TermIsLambda(term))
    {
       term = TermIsDBVar(term) ? term : term->args[0];
-      res = (PObjMapGetRef(&node->db_alternatives, term, TermPCompare, &added_objmap_node));
+      res = (PObjMapGetRef(&node->db_alternatives, term, pdt_alt_key_cmp, &added_objmap_node));
       assert(node->db_alternatives);
    }
    else
@@ -149,12 +202,12 @@ static void* pdt_select_next(PDTree_p tree, PDTNode_p node, Term_p term)
 
    if(TermIsTopLevelFreeVar(term))
    {
-      res = PObjMapFind(&node->v_alternatives, term, TermPCompare);
+      res = PObjMapFind(&node->v_alternatives, term, pdt_alt_key_cmp);
    }
    else if(TermIsDBVar(term) || TermIsAppliedDBVar(term) || TermIsLambda(term))
    {
       term = TermIsDBVar(term) ? term : term->args[0];
-      res = PObjMapFind(&node->db_alternatives, term, TermPCompare);
+      res = PObjMapFind(&node->db_alternatives, term, pdt_alt_key_cmp);
    }
    else
    {
@@ -590,7 +643,7 @@ static void pdtree_forward(PDTree_p tree, Subst_p subst)
             if(TermIsDBVar(query) || TermIsLambda(query))
             {
                next = PObjMapFind(&handle->db_alternatives,
-                                  TermIsDBVar(query) ? query : query->args[0], TermPCompare);
+                                  TermIsDBVar(query) ? query : query->args[0], pdt_alt_key_cmp);
             }
             else
             {
@@ -1318,7 +1371,7 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
                   PObjMapExtract(to_del,
                                  (TermIsLambda(del_term) || TermIsAppliedDBVar(del_term))
                                     ? del_term->args[0] : del_term,
-                                 TermPCompare);
+                                 pdt_alt_key_cmp);
                UNUSED(deleted); assert(deleted);
                tree->arr_storage_est -= SizeOfPObjNode();
             }
