@@ -48,6 +48,7 @@
 -----------------------------------------------------------------------*/
 
 #include "che_prefixweight.h"
+#include <cte_lambda.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -72,8 +73,9 @@ static void prfx_insert_term(
 
    norm = TermCopyNormalizeVars(vars,term,var_norm);
    /* The index keeps pointers to (applied) variables of the term, so
-      insert a shared copy that lives as long as the index. */
-   shared = TBInsert(tree->bank,norm,DEREF_NEVER);
+      insert a shared copy that lives as long as the index. The index
+      requires beta-normal terms. */
+   shared = BetaNormalizeDB(tree->bank,TBInsert(tree->bank,norm,DEREF_NEVER));
    TermFree(norm);
    PDTreeInsertTerm(tree,shared,NULL,false);
 }

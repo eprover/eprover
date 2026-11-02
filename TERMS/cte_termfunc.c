@@ -194,25 +194,30 @@ Term_p discard_last(Term_p term)
 //
 // Function: create_var_renaming_de_bruin()
 //
-// Traverse a term and create alpha-normalizing variable renaming.
+// Traverse a term and create alpha-normalizing variable renaming: the
+// n-th distinct variable of a type (in left-to-right order) is mapped
+// to the n-th variable of that type in vars. The renaming is keyed by
+// the variable cells, so variables of different banks with the same
+// f_code are kept apart.
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations
+// Side Effects    : Memory operations, may create variables in vars
 //
 /----------------------------------------------------------------------*/
 
-NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
+static PObjMap_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
 {
    int i;
-   NumTree_p node;
-   NumTree_p root;
+   PObjMap_p root = NULL;
    PStack_p open;
-   long fresh_var_code;
+   PDArray_p counts; /* type_uid -> number of variables renamed so far */
+   void** ref;
+   bool added;
+   long n;
 
    open = PStackAlloc();
-   fresh_var_code = -2;
-   root = NULL;
+   counts = PDArrayAlloc(4, 4);
 
    PStackPushP(open, term);
    while(!PStackEmpty(open))
@@ -220,14 +225,12 @@ NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
       term = PStackPopP(open);
       if(TermIsFreeVar(term))
       {
-         if (!NumTreeFind(&root, term->f_code)) {
-            node = NumTreeCellAllocEmpty();
-            node->key = term->f_code;
-            node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, term->type);
-            //node->val1.p_val = VarBankVarAssertAlloc(vars, fresh_var_code, STIndividuals);
-            fresh_var_code -= 2;
-
-            NumTreeInsert(&root, node);
+         ref = PObjMapGetRef(&root, term, PCmpFun, &added);
+         if(added)
+         {
+            n = PDArrayElementInt(counts, term->type->type_uid);
+            *ref = VarBankGetNumberedVar(vars, term->type, n);
+            PDArrayAssignInt(counts, term->type->type_uid, n+1);
          }
       }
       else
@@ -238,6 +241,7 @@ NumTree_p create_var_renaming_de_bruin(VarBank_p vars, Term_p term)
          }
       }
    }
+   PDArrayFree(counts);
    PStackFree(open);
 
    return root;
@@ -3181,17 +3185,15 @@ void TermFOOLPrint(FILE* out, Sig_p sig, TFormula_p form)
 //
 /*----------------------------------------------------------------------*/
 
-Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
+Term_p TermCopyRenameVars(PObjMap_p* renaming, Term_p term)
 {
     int i;
     Term_p copy;
-    NumTree_p entry;
 
     if (TermIsFreeVar(term))
     {
-        entry = NumTreeFind(renaming, term->f_code);
-        assert(entry);
-        copy = (Term_p)(entry->val1.p_val);
+        copy = PObjMapFind(renaming, term, PCmpFun);
+        assert(copy);
     }
     else if (TermIsDBVar(term))
     {
@@ -3227,11 +3229,11 @@ Term_p TermCopyRenameVars(NumTree_p* renaming, Term_p term)
 Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term)
 {
     Term_p copy;
-    NumTree_p renaming;
+    PObjMap_p renaming;
 
     renaming = create_var_renaming_de_bruin(vars, term);
     copy = TermCopyRenameVars(&renaming, term);
-    NumTreeFree(renaming);
+    PObjMapFree(renaming);
 
     return copy;
 }
@@ -3240,7 +3242,8 @@ Term_p TermCopyNormalizeVarsAlpha(VarBank_p vars, Term_p term)
 //
 // Function: TermCopyUnifyVars()
 //
-//   Create a term copy with all the variables unified (to X0).
+//   Create a term copy with all the variables of a type unified (to
+//   the first variable of that type in vars).
 //
 // Global Variables: -
 //
@@ -3254,7 +3257,7 @@ Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
 
     if (TermIsFreeVar(term))
     {
-        return VarBankVarAssertAlloc(vars, -2, vars->sort_table->i_type);
+        return VarBankGetNumberedVar(vars, term->type, 0);
     }
     else if (TermIsDBVar(term))
     {

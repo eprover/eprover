@@ -122,6 +122,7 @@ Term_p VarBankExtNameFind(VarBank_p bank, char* name);
 static inline Term_p VarBankVarAssertAlloc(VarBank_p bank, FunCode f_code, Type_p sort);
 Term_p VarBankVarAlloc(VarBank_p bank, FunCode f_code, Type_p sort);
 Term_p VarBankGetFreshVar(VarBank_p bank, Type_p sort);
+Term_p VarBankGetNumberedVar(VarBank_p bank, Type_p sort, long n);
 Term_p VarBankExtNameAssertAlloc(VarBank_p bank, char* name);
 Term_p VarBankExtNameAssertAllocSort(VarBank_p bank, char* name, Type_p sort);
 void   VarBankPushEnv(VarBank_p bank);

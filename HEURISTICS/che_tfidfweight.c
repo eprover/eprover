@@ -50,6 +50,7 @@
 -----------------------------------------------------------------------*/
 
 #include "che_tfidfweight.h"
+#include <cte_lambda.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -78,8 +79,10 @@ static void tfidf_documents_add_term(
 
    copy = TermCopyNormalizeVars(vars,term,var_norm);
    /* The index keeps pointers to (applied) variables of the term, so
-      insert a shared copy that lives as long as the index. */
-   shared = TBInsert(documents->bank,copy,DEREF_NEVER);
+      insert a shared copy that lives as long as the index. The index
+      requires beta-normal terms. */
+   shared = BetaNormalizeDB(documents->bank,
+                            TBInsert(documents->bank,copy,DEREF_NEVER));
    TermFree(copy);
 
    pos          = ClausePosCellAlloc();
