@@ -1747,6 +1747,15 @@ Term_p TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop)
       {
          handle = ParseIte(in, bank);
       }
+      else if(TestInpId(in, "$distinct"))
+      {
+         AcceptInpId(in, "$distinct");
+         CheckInpTok(in, OpenBracket);
+         handle = tb_term_parse_arglist(in, bank, check_symb_prop, NULL);
+         handle->f_code = bank->sig->distinct_code;
+         TypeInferSort(bank->sig, handle, in);
+         handle = tb_termtop_insert(bank, handle);
+      }
       else if((id_type=TermParseOperator(in, id))==FSIdentVar)
       {
          /* A variable may be annotated with a sort */

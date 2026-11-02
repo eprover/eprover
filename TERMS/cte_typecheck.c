@@ -258,6 +258,27 @@ void TypeInferSort(Sig_p sig, Term_p term, Scanner_p in)
          type = TypeBankInsertTypeShared(sig->type_bank,
                                          AllocArrowTypeCopyArgs(3, eq_type_args));
       }
+      else if(term->f_code == sig->distinct_code)
+      {
+         /* $distinct(t1,...,tn) is a formula, all ti must have the
+            same type */
+         type = sig->type_bank->bool_type;
+         if(term->arity)
+         {
+            args = TypeArgArrayAlloc(term->arity+1);
+            for(i=0; i < term->arity; i++)
+            {
+               if(term->args[i]->type != term->args[0]->type)
+               {
+                  TI_ERROR("All $distinct arguments have to be of the same type");
+               }
+               args[i] = term->args[i]->type;
+            }
+            args[term->arity] = sig->type_bank->bool_type;
+            type = TypeBankInsertTypeShared(sig->type_bank,
+                                            AllocArrowType(term->arity+1, args));
+         }
+      }
       else if(term->f_code == sig->qex_code || term->f_code == sig->qall_code)
       {
          if(term->arity == 0)

@@ -506,16 +506,7 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       line        = AktToken(in)->line;
       column      = AktToken(in)->column;
 
-      if(TestInpId(in, "$distinct"))
-      {
-         tform = TSTPDistinctParse(in, terms);
-         // fprintf(stderr, COMCHAR" $distinct parsed!: ");
-         // TFormulaTPTPPrint(stderr, terms, tform, true, false);
-         // fprintf(stderr, " : ");
-         // TermPrintDbg(stderr, tform, terms->sig, DEREF_NEVER);
-         // fprintf(stderr, ";\n");
-      }
-      else if(is_tcf)
+      if(is_tcf)
       {
          // printf(COMCHAR" Tcf Start!\n");
          tform = TcfTSTPParse(in, terms);

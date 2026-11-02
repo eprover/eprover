@@ -86,7 +86,6 @@ struct termcell;
 typedef Type_p (*PolyTypeCheckFun)(struct sigcell *sig, struct termcell *t);
 
 Type_p TypeCheckEq(struct sigcell *sig, struct termcell *t);
-Type_p TypeCheckDistinct(struct sigcell *sig, struct termcell *t);
 Type_p TypeCheckArithBinop(struct sigcell *sig, struct termcell *t);
 Type_p TypeCheckArithConv(struct sigcell *sig, struct termcell *t);
 

@@ -465,12 +465,13 @@ void ProofStateFree(ProofState_p junk)
 //
 // Function: ProofStateProcessDistinct()
 //
-//   Process $distinct directives in state->f_axioms. Return number of
-//   $distincts processed.
+//   Expand all occurrences of $distinct in state->f_axioms into
+//   conjunctions of disequations. Return number of formulas
+//   changed.
 //
 // Global Variables: -
 //
-// Side Effects    : Processes archives $distinct formulas
+// Side Effects    : Archives the original formulas
 //
 /----------------------------------------------------------------------*/
 
@@ -485,7 +486,7 @@ long ProofStateProcessDistinct(ProofState_p state)
        handle != state->f_axioms->anchor;
        handle = handle->succ)
    {
-      if(handle->tformula->f_code == state->signature->distinct_code)
+      if(TermHasFCode(handle->tformula, state->signature->distinct_code))
       {
          PStackPushP(stack, handle);
       }
@@ -495,7 +496,7 @@ long ProofStateProcessDistinct(ProofState_p state)
       distinct = PStackPopP(stack);
       FormulaSetExtractEntry(distinct);
       FormulaSetInsert(state->f_ax_archive, distinct);
-      diseq_form = TFormulaExpandDistinct(state->terms, distinct->tformula);
+      diseq_form = TFormulaExpandAllDistinct(state->terms, distinct->tformula);
       handle = WTFormulaAlloc(state->terms, diseq_form);
       WFormulaPushDerivation(handle, DCExpandDistinct, distinct);
       FormulaSetInsert(state->f_axioms, handle);
