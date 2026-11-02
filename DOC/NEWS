@@ -54,6 +54,13 @@ Version 3.2.5 -> 3.5.X Countess Grey
   instead, so their behaviour is unchanged. Inferences that used
   higher-order unification are now included in the "Proof object
   generating/simplifying inferences" statistics.
+- $distinct(t1,...,tn) is now accepted anywhere in a formula (FOF,
+  TFF and THF) with arbitrary terms of the same type as arguments,
+  not only as a complete formula over constants. It is always written
+  with parentheses, also in THF. Each occurrence is replaced by the
+  conjunction of the pairwise disequations (inference
+  expand_distinct, which was misspelled as epxand_distinct). $distinct
+  is still not supported in clauses (cnf).
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

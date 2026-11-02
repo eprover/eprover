@@ -63,7 +63,7 @@ op_info opinfo[] =
    {"skolemize"              , NULL      , "esa"  },
    {"distribute"             , NULL      , "thm"  },
    {"add_answer_literal"     , "answers" , "thm"  },
-   {"epxand_distinct"        , "distinct", "thm"  },
+   {"expand_distinct"        , "distinct", "thm"  },
    {"pm"                     , NULL      , "thm"  },
    {"spm"                    , NULL      , "thm"  },
    {"of"                     , NULL      , "thm"  },

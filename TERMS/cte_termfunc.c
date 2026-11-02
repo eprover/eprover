@@ -391,6 +391,21 @@ void do_ho_print(FILE* out, TFormula_p term, Sig_p sig, DerefType deref, int dep
       fprintf(out, ")");
       return;
    }
+   if(term->f_code == sig->distinct_code)
+   {
+      /* Always printed in FO syntax */
+      fprintf(out, "$distinct(");
+      for(int i=0; i < term->arity; i++)
+      {
+         if(i)
+         {
+            fprintf(out, ", ");
+         }
+         do_ho_print(out, term->args[i], sig, deref, depth);
+      }
+      fprintf(out, ")");
+      return;
+   }
 
    if(TermIsDBVar(term))
    {
@@ -1083,12 +1098,6 @@ void TermPrettyPrintSimple(FILE* out, Term_p term, Sig_p sig, int level)
 
 FuncSymbType TermParseOperator(Scanner_p in, DStr_p id)
 {
-   if(TestInpId(in, "$distinct"))
-   {
-      AktTokenError(in,
-                    "$distinct is only allowed as the sole predicate symbol of an atomic formula",
-                    false);
-   }
    FuncSymbType res = FuncSymbParse(in, id);
 
 #ifndef STRICT_TPTP

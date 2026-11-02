@@ -35,7 +35,6 @@
 
 
 Type_p TypeCheckEq(Sig_p sig, Term_p t);
-Type_p TypeCheckDistinct(Sig_p sig, Term_p t);
 Type_p TypeCheckArithBinop(Sig_p sig, Term_p t);
 Type_p TypeCheckArithConv(Sig_p sig, Term_p t);
 

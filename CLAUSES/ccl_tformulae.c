@@ -77,6 +77,50 @@ static Term_p make_head(Sig_p sig, const char* f_name)
 
 /*-----------------------------------------------------------------------
 //
+// Function: parse_ho_distinct()
+//
+//   Parse $distinct(t1,...,tn). Even in HO syntax, $distinct is
+//   always written with a parenthesized argument list.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Term_p parse_ho_distinct(Scanner_p in, TB_p bank)
+{
+   PStack_p args = PStackAlloc();
+   Term_p   res;
+
+   AcceptInpId(in, "$distinct");
+   AcceptInpTok(in, OpenBracket);
+   if(!TestInpTok(in, CloseBracket))
+   {
+      PStackPushP(args, TFormulaTSTPParse(in, bank));
+      while(TestInpTok(in, Comma))
+      {
+         NextToken(in);
+         PStackPushP(args, TFormulaTSTPParse(in, bank));
+      }
+   }
+   AcceptInpTok(in, CloseBracket);
+
+   res = TermDefaultCellArityAlloc(PStackGetSP(args));
+   res->f_code = bank->sig->distinct_code;
+   for(PStackPointer i=0; i<PStackGetSP(args); i++)
+   {
+      res->args[i] = PStackElementP(args, i);
+   }
+   PStackFree(args);
+   TypeInferSort(bank->sig, res, in);
+
+   return TBTermTopInsert(bank, res);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: parse_ho_atom()
 //
 //    Parses one HO symbol.
@@ -104,6 +148,10 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
    {
       head = ParseLet(in, bank);
       assert(head->type);
+   }
+   else if(TestInpId(in, "$distinct"))
+   {
+      head = parse_ho_distinct(in, bank);
    }
    else if((id_type=TermParseOperator(in, id))==FSIdentVar)
    {
@@ -1695,10 +1743,6 @@ void TFormulaTPTPPrint(FILE* out, TB_p bank, TFormula_p form, bool fullterms, bo
    {
       fprintf(out, "%s", SigFindName(bank->sig, form->f_code));
    }
-   else if(form->f_code == bank->sig->distinct_code)
-   {
-      TBPrintTerm(out, bank, form, fullterms);
-   }
    else
    {
       char* oprep = "XXX";
@@ -2066,122 +2110,6 @@ TFormula_p TcfTSTPParse(Scanner_p in, TB_p terms)
    }
    return res;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: parse_constant_term()
-//
-//   Parse a constant term (only constants allowed).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Term_p parse_constant_term(Scanner_p in, TB_p terms)
-{
-   Term_p       handle;
-   DStr_p       id = DStrAlloc();
-   DStr_p       source_name = DStrGetRef(AktToken(in)->source);
-   StreamType   type_stream = AktToken(in)->stream_type;
-   long
-      line   = AktToken(in)->line,
-      column = AktToken(in)->column;
-
-   FuncSymbType id_type = FuncSymbParse(in, id);
-   FunCode      f_code = TermSigInsert(terms->sig,
-                                       DStrView(id),
-                                       0,
-                                       false, id_type);
-   if(!f_code)
-   {
-      Error("%s: constant expected but %s registered with arity %d",
-            SYNTAX_ERROR,
-            PosRep(type_stream, source_name, line, column),
-            DStrView(id),
-            (terms->sig)->
-            f_info[SigFindFCode(terms->sig, DStrView(id))].arity);
-   }
-   DStrReleaseRef(source_name);
-
-   handle = TermDefaultCellAlloc();
-   handle->arity = 0;
-   handle->f_code = f_code;
-   handle = TBTermTopInsert(terms, handle);
-   DStrFree(id);
-   return handle;
-}
-
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: TSTPDistinctParse()
-//
-//   Parse a $distinct()-pseudo-term.
-//
-// Global Variables: -
-//
-// Side Effects    : I/O, memory operation
-//
-/----------------------------------------------------------------------*/
-
-TFormula_p TSTPDistinctParse(Scanner_p in, TB_p terms)
-{
-   Term_p        handle, arg;
-   DStr_p        id = DStrAlloc();
-   PStack_p      args = PStackAlloc();
-   int           arity, i;
-   Type_p        type;
-
-   AcceptInpId(in, "$distinct");
-   AcceptInpTok(in, OpenBracket);
-
-   arg = parse_constant_term(in, terms);
-   type = arg->type;
-   PStackPushP(args, arg);
-
-   DStrReset(id);
-   while(TestInpTok(in, Comma))
-   {
-      NextToken(in);
-
-      DStr_p       source_name = DStrGetRef(AktToken(in)->source);
-      StreamType   type_stream = AktToken(in)->stream_type;
-      long
-         line   = AktToken(in)->line,
-         column = AktToken(in)->column;
-
-      arg = parse_constant_term(in, terms);
-      if(arg->type!=type)
-      {
-         Error("%s All $distinct arguments have to be constants of the same type",
-               TYPE_ERROR,
-               PosRep(type_stream, source_name, line, column));
-      }
-      PStackPushP(args, arg);
-      DStrReleaseRef(source_name);
-      DStrReset(id);
-   }
-   AcceptInpTok(in, CloseBracket);
-   arity = PStackGetSP(args);
-   handle = TermDefaultCellArityAlloc(arity);
-   handle->f_code = terms->sig->distinct_code;
-
-   for(i=0;i<arity;i++)
-   {
-      handle->args[i] = PStackElementP(args,i);
-   }
-   handle = TBTermTopInsert(terms, handle);
-
-   PStackFree(args);
-   DStrFree(id);
-   return handle;
-}
-
 
 
 /*-----------------------------------------------------------------------
@@ -2983,6 +2911,67 @@ TFormula_p TFormulaExpandDistinct(TB_p bank, TFormula_p distinct)
    PStackFree(disequs);
 
    return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: expand_distinct_mapper()
+//
+//   TermMapper for TFormulaExpandAllDistinct(). Replace $distinct
+//   atoms (encoded as $distinct(...)=$true or $distinct(...)!=$true)
+//   and $distinct terms by the corresponding conjunction of
+//   disequations.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Term_p expand_distinct_mapper(TB_p bank, Term_p t)
+{
+   Sig_p      sig = bank->sig;
+   TFormula_p res;
+
+   if((t->f_code == sig->eqn_code || t->f_code == sig->neqn_code) &&
+      t->arity == 2 &&
+      t->args[1] == bank->true_term &&
+      !TermIsAnyVar(t->args[0]) &&
+      t->args[0]->f_code == sig->distinct_code)
+   {
+      res = EncodePredicateAsEqn(bank,
+                                 TFormulaExpandDistinct(bank, t->args[0]));
+      if(t->f_code == sig->neqn_code)
+      {
+         res = TFormulaFCodeAlloc(bank, sig->not_code, res, NULL);
+      }
+      return res;
+   }
+   if(!TermIsAnyVar(t) && t->f_code == sig->distinct_code)
+   {
+      return TFormulaExpandDistinct(bank, t);
+   }
+   return t;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: TFormulaExpandAllDistinct()
+//
+//   Return form with all occurrences of $distinct replaced by the
+//   corresponding conjunctions of disequations.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+TFormula_p TFormulaExpandAllDistinct(TB_p bank, TFormula_p form)
+{
+   return TermMap(bank, form, expand_distinct_mapper);
 }
 
 

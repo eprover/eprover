@@ -1835,6 +1835,15 @@ Clause_p ClauseParse(Scanner_p in, TB_p bank)
          EqnListAppend(&concl, precond);
       }
    }
+   for(Eqn_p lit = concl; lit; lit = lit->next)
+   {
+      /* $distinct is only expanded in formulas */
+      if(TermHasFCode(lit->lterm, bank->sig->distinct_code) ||
+         TermHasFCode(lit->rterm, bank->sig->distinct_code))
+      {
+         AktTokenError(in, "$distinct is not supported in clauses", false);
+      }
+   }
    AcceptInpTok(in, Fullstop);
    handle = ClauseAlloc(concl);
    ClauseSetTPTPType(handle, type);
