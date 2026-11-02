@@ -1167,8 +1167,9 @@ void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
    if (!(EqnIsPositive(from_pos->literal) && EqnIsPositive(into_pos->literal)
          && PStackEmpty(into_pos->pos)
          && (ClausePosGetOtherSide(from_pos) == ClausePosGetOtherSide(into_pos) ||
-             // can be done in both directions
-             from_pos->clause < into_pos->clause)) &&
+             // can be done in both directions, pick one by the
+             // (layout-independent) permanent clause identifiers
+             from_pos->clause->perm_ident < into_pos->clause->perm_ident)) &&
        find_disagreements(terms->sig, from_t, into_t, disagreements))
    {
       Subst_p subst = SubstAlloc();
