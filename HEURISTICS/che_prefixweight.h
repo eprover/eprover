@@ -39,7 +39,7 @@ typedef struct prefixweightparamcell
    RelatedTermSet rel_terms;
 
    PDTree_p  terms;
-   VarBank_p vars;
+   TB_p      bank;  /* Private bank for the (shared) indexed terms */
    double    match_weight;
    double    miss_weight;
 

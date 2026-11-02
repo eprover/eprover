@@ -74,19 +74,21 @@ static void tfidf_documents_add_term(
    VarBank_p vars)
 {
    ClausePos_p pos;
-   Term_p copy;
+   Term_p copy, shared;
 
    copy = TermCopyNormalizeVars(vars,term,var_norm);
+   /* The index keeps pointers to (applied) variables of the term, so
+      insert a shared copy that lives as long as the index. */
+   shared = TBInsert(documents->bank,copy,DEREF_NEVER);
+   TermFree(copy);
 
    pos          = ClausePosCellAlloc();
    pos->clause  = clause;
    pos->literal = lit;
    pos->side    = side;
    pos->pos     = NULL;
-   PDTreeInsertTerm(documents,copy,pos,false);
+   PDTreeInsertTerm(documents,shared,pos,false);
    ClausePosCellFree(pos);
-
-   TermFree(copy);
 }
 
 static void tfidf_documents_add_subterms(
@@ -158,14 +160,18 @@ static void tfidf_init(TfIdfWeightParam_p data)
          TBInsertClauseTermsNormalized(
             data->eval_bank,clause,data->var_norm,data->rel_terms);
       }
-      else 
-      {
+   }
+   /* Count the conjecture term frequencies before the document terms
+      are added to the same bank. */
+   data->eval_freqs = TBCountTermFreqs(data->eval_bank);
+
+   for (clause=anchor->succ; clause!=anchor; clause=clause->succ)
+   {
+      if(ClauseQueryTPTPType(clause)!=CPTypeNegConjecture) {
          tfidf_documents_add_clause(data->documents,clause,
             data->var_norm,data->eval_bank->vars);
       }
    }
-   
-   data->eval_freqs = TBCountTermFreqs(data->eval_bank);
 }
 
 static double tfidf_term_weight(Term_p term, TfIdfWeightParam_p data)
