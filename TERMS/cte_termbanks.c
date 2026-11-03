@@ -164,7 +164,6 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       assert(!TermIsShared(t));
       new->properties = (new->properties | t->properties)/*& bank->prop_mask*/;
       TermTopFree(t);
-      TermSetBank(t, bank);
       t = new;
    }
    else
@@ -1294,11 +1293,9 @@ Term_p TBInsertInstantiatedHO(TB_p bank, Term_p term, bool follow_bind)
       return term;
    }
 
-   if(TermIsFreeVar(term) && term->binding)
+   if(TermIsFreeVar(term) && term->binding && follow_bind)
    {
-      t = follow_bind ? TBInsert(bank, term->binding, DEREF_NEVER) : term;
-      TermSetBank(t, bank);
-      return t;
+      return TBInsert(bank, term->binding, DEREF_NEVER);
    }
    else if (TermIsDBVar(term))
    {

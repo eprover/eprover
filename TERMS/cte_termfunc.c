@@ -1370,9 +1370,8 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DBVarBank_p dbvars, DerefType der
          handle->args[i] = TermCopy(source->args[i], vars, dbvars,
                                     CONVERT_DEREF(i, limit, deref));
       }
+      TermSetBank(handle, TermGetBank(source));
    }
-
-   TermSetBank(handle, TermGetBank(source));
    return handle;
 }
 
