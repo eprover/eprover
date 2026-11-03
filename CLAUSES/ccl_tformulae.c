@@ -1002,8 +1002,8 @@ static Term_p lambda_eq_to_forall(TB_p terms, Term_p t)
             PStackPushP(fresh_vars, fvar);
             PStackPushP(encoded_vars, EncodePredicateAsEqn(terms, fvar));
          }
-         Term_p lhs = BetaNormalizeDB(terms, ApplyTerms(terms, t->args[0], encoded_vars));
-         Term_p rhs = BetaNormalizeDB(terms, ApplyTerms(terms, t->args[1], encoded_vars));
+         Term_p lhs = BetaNormalizeDB(ApplyTerms(terms, t->args[0], encoded_vars));
+         Term_p rhs = BetaNormalizeDB(ApplyTerms(terms, t->args[1], encoded_vars));
          if(lhs->type == sig->type_bank->bool_type)
          {
 
@@ -1079,8 +1079,7 @@ WFormula_p find_generalization(PDTree_p liftings, Term_p query, TermRef name)
          TBInsertInstantiated(liftings->bank, matcher_derefed);
 
       Term_p candidate =
-         LambdaEtaReduceDB(liftings->bank,
-            BetaNormalizeDB(liftings->bank, matcher_derefed));
+         LambdaEtaReduceDB(BetaNormalizeDB(matcher_derefed));
       if(!TermHasLambdaSubterm(candidate))
       {
          *name = candidate;
@@ -1249,7 +1248,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
    for(long i=PStackGetSP(bound_vars)-1; i>=0; i--)
    {
       closed =
-         CloseWithDBVar(terms, ((Term_p)PStackElementP(bound_vars, i))->type,
+         CloseWithDBVar(((Term_p)PStackElementP(bound_vars, i))->type,
                         closed);
    }
 
@@ -1304,7 +1303,7 @@ Term_p lift_lambda(TB_p terms, PStack_p bound_vars, Term_p body,
       //printf("### closed: ");
       //TermPrintDbg(stdout, closed, terms->sig, DEREF_NEVER);
       //printf("\n");
-      Term_p repl_rhs = WHNF_step(terms, ApplyTerms(terms, closed, bound_to_fresh));
+      Term_p repl_rhs = WHNF_step(ApplyTerms(terms, closed, bound_to_fresh));
 
       //printf("### repl_rhs: ");
       //TermPrintDbg(stdout, repl_rhs, terms->sig, DEREF_NEVER);
@@ -1517,7 +1516,7 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
    }
    else if(literal->rterm == bank->true_term)
    {
-      res = DecodeFormulasForCNF(bank, literal->lterm);
+      res = DecodeFormulasForCNF(literal->lterm);
       if(EqnIsNegative(literal))
       {
          res = TFormulaFCodeAlloc(bank, bank->sig->not_code, res, NULL);
@@ -1525,8 +1524,8 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
    }
    else if(EqnIsClausifiable(literal))
    {
-      Term_p lterm = DecodeFormulasForCNF(bank, literal->lterm);
-      Term_p rterm = DecodeFormulasForCNF(bank, literal->rterm);
+      Term_p lterm = DecodeFormulasForCNF(literal->lterm);
+      Term_p rterm = DecodeFormulasForCNF(literal->rterm);
       res =
          TFormulaFCodeAlloc(bank,
             EqnIsPositive(literal) ? bank->sig->equiv_code : bank->sig->xor_code,
@@ -1534,8 +1533,8 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
    }
    else
    {
-      Term_p lterm = DecodeFormulasForCNF(bank, literal->lterm);
-      Term_p rterm = DecodeFormulasForCNF(bank, literal->rterm);
+      Term_p lterm = DecodeFormulasForCNF(literal->lterm);
+      Term_p rterm = DecodeFormulasForCNF(literal->rterm);
       res =
          EqnTermsTBTermEncode(bank, lterm, rterm, EqnIsPositive(literal), PENormal);
    }
@@ -2996,7 +2995,7 @@ TFormula_p LiftLambdas(TB_p terms, TFormula_p t, PStack_p definitions, PDTree_p 
    //printf("### LiftLambdas: ");
    //TermPrintDbg(stdout, t, terms->sig, DEREF_NEVER);
 
-   t = BetaNormalizeDB(terms, t);
+   t = BetaNormalizeDB(t);
 
    //fprintf(stdout, " => ");
    //TermPrintDbg(stdout, t, terms->sig, DEREF_NEVER);

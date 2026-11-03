@@ -112,7 +112,7 @@ static Term_p term_top_unfold_def_ho(TB_p bank, Term_p term, Term_p lside, Term_
       {
          PStackPushP(args, term->args[i]);
       }
-      Term_p res = WHNF_step(bank, ApplyTerms(bank, rside, args));
+      Term_p res = WHNF_step(ApplyTerms(bank, rside, args));
       PStackFree(args);
       assert(res->type == term->type);
       return res;

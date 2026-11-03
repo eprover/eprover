@@ -2057,7 +2057,7 @@ void EqnListLambdaNormalize(Eqn_p list)
 {
    if(list != NULL)
    {
-      EqnListMapTerms(list, (TermMapper_p)LambdaNormalizeDB, list->bank);
+      EqnListMapTerms(list, LambdaNormalizeDBMapper, list->bank);
    }
 }
 

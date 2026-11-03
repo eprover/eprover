@@ -1529,7 +1529,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
          t1 =
             deref_1 == DEREF_ONCE ?
                (TermIsFreeVar(t1) ? t1->binding : TBInsertInstantiatedDeref(bank, t1, deref_1)) : t1;
-         t1 = BetaNormalizeDB(bank, t1);
+         t1 = BetaNormalizeDB(t1);
          limit_1 = INT_MAX;
          deref_1 = DEREF_NEVER;
       }
@@ -1550,7 +1550,7 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
          t2 =
             deref_2 == DEREF_ONCE ?
                (TermIsFreeVar(t2) ? t2->binding : TBInsertInstantiatedDeref(bank, t2, deref_2)) : t2;
-         t2 = BetaNormalizeDB(bank, t2);
+         t2 = BetaNormalizeDB(t2);
          limit_2 = INT_MAX;
          deref_2 = DEREF_NEVER;
       }

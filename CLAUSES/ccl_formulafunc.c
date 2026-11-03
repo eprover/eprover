@@ -409,7 +409,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
       {
          PStackPushP(args, new->args[i]);
       }
-      new = snf ? BetaNormalizeDB(terms, ApplyTerms(terms, rhs, args))
+      new = snf ? BetaNormalizeDB(ApplyTerms(terms, rhs, args))
                 : ApplyTerms(terms, rhs, args);
       OrdSetStore(used_defs, wform);
       new = do_rw_with_defs(terms, new,
@@ -480,8 +480,8 @@ OrdSet_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only
          Term_p tmp = VarBankGetFreshVar(bank->vars, ty);
          PStackAssignP(bvars, i, tmp);
       }
-      lhs_body = BetaNormalizeDB(bank, ApplyTerms(bank, lhs, bvars));
-      Term_p rhs_applied = BetaNormalizeDB(bank, ApplyTerms(bank, rhs, bvars));
+      lhs_body = BetaNormalizeDB(ApplyTerms(bank, lhs, bvars));
+      Term_p rhs_applied = BetaNormalizeDB(ApplyTerms(bank, rhs, bvars));
 
       // now the definition is of the form f @ ..terms.. = \xyz. body
       // and we need to check if terms are distinct variables
@@ -857,7 +857,7 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
       /* printf("arg[1]: "); */
       /* TBPrintTerm(stdout, terms,  form->args[1], true); */
       /* printf("\n"); */
-      form = LambdaEtaReduceDB(terms, form);
+      form = LambdaEtaReduceDB(form);
       TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
       PStackPushInt(pos, 0);
@@ -1462,7 +1462,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   ClauseSet_p step_archive)
 {
    DBGTermCheckUnownedSubterm(stdout, form->tformula, "WFormulaCNF2_0");
-   form->tformula = LambdaNormalizeDB(terms, form->tformula);
+   form->tformula = LambdaNormalizeDB(form->tformula);
    if (form->is_clause)
    {
       Clause_p clause = WFormClauseToClause(form);
@@ -1470,7 +1470,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
       if(problemType == PROBLEM_HO)
       {
          EqnListMapTerms(clause->literals,
-            (TermMapper_p)PostCNFEncodeFormulas, terms);
+            PostCNFEncodeFormulasMapper, terms);
       }
       ClauseSetInsert(set, clause);
 
@@ -1885,7 +1885,7 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
 
          if(problemType == PROBLEM_HO)
          {
-            EqnListMapTerms(clause->literals, (TermMapper_p)PostCNFEncodeFormulas, terms);
+            EqnListMapTerms(clause->literals, PostCNFEncodeFormulasMapper, terms);
          }
 
          ClauseSetInsert(set, clause);
@@ -2228,7 +2228,7 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
       for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
          DBGTermCheckUnownedSubterm(stdout, form->tformula, "LambdaNormUnowned1");
-         TFormula_p handle = LambdaToForall(terms, BetaNormalizeDB(terms, form->tformula));
+         TFormula_p handle = LambdaToForall(terms, BetaNormalizeDB(form->tformula));
 
          if (handle != form->tformula)
          {
@@ -2427,7 +2427,7 @@ long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p te
    {
       for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
-         TFormula_p handle = NamedToDB(terms, form->tformula);
+         TFormula_p handle = NamedToDB(form->tformula);
          if (handle != form->tformula)
          {
             form->tformula = handle;
@@ -2735,7 +2735,7 @@ Term_p cond_lift_lambda(TB_p terms, Term_p term,
    {
       //printf("### cond_lift_lambda lterm: ");
       //TermPrintDbg(stdout, term, terms->sig, DEREF_NEVER);
-      tmp = DecodeFormulasForCNF(terms, term);
+      tmp = DecodeFormulasForCNF(term);
       //printf(" => ");
       //TermPrintDbg(stdout, tmp, terms->sig, DEREF_NEVER);
       //printf("\n");

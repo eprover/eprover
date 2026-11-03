@@ -2568,7 +2568,7 @@ Term_p NormalizePatternAppVar(TB_p bank, Term_p s)
    assert(TermIsAppliedFreeVar(s));
    assert(bank);
 
-   s = LambdaEtaReduceDB(bank, s);
+   s = LambdaEtaReduceDB(s);
    bool all_dbs = true;
    for(long i=1; i<s->arity && all_dbs; i++)
    {

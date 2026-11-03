@@ -922,11 +922,11 @@ __inline__ Term_p MakeRewrittenTerm(Term_p orig, Term_p new,
          new_term->args[j + new->arity] = orig->args[i];
       }
 
-      return LambdaNormalizeDB(bank, new_term);
+      return LambdaNormalizeDB(new_term);
    }
    else
    {
-      return LambdaNormalizeDB(bank, new); // If no args are remaining -- the situation is the same as in FO case
+      return LambdaNormalizeDB(new); // If no args are remaining -- the situation is the same as in FO case
    }
 }
 #endif

@@ -740,8 +740,8 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst)
    {
       PStackPointer backtrack = PStackGetSP(subst);
 
-      Term_p reduced_p = LambdaEtaReduceDB(TermFindBank(pattern), pattern),
-             reduced_t = LambdaEtaReduceDB(TermFindBank(target), target);
+      Term_p reduced_p = LambdaEtaReduceDB(pattern),
+             reduced_t = LambdaEtaReduceDB(target);
       int res_i = SubstComputeMatchHO(reduced_p, reduced_t, subst);
 
       if(res_i != 0 && TermIsNonFOPattern(pattern) && TermIsNonFOPattern(target))
@@ -788,8 +788,8 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
    {
       // no arguments of s remaining after the match
       PStackPointer backtrack = PStackGetSP(subst);
-      Term_p reduced_t = LambdaEtaReduceDB(TermFindBank(t), t),
-             reduced_s = LambdaEtaReduceDB(TermFindBank(s), s);
+      Term_p reduced_t = LambdaEtaReduceDB(t),
+             reduced_s = LambdaEtaReduceDB(s);
 
       res = SubstComputeMguHO(reduced_t, reduced_s, subst);
 

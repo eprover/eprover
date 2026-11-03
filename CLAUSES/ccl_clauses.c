@@ -2697,9 +2697,9 @@ bool ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl)
 
    TB_p bank = pos_lit->bank;
    Term_p neg_term =
-      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, neg_lit->lterm));
+      BetaNormalizeDB(LambdaEtaReduceDB(neg_lit->lterm));
    Term_p pos_term =
-      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, pos_lit->lterm));
+      BetaNormalizeDB(LambdaEtaReduceDB(pos_lit->lterm));
 
    FAIL_ON(!TermIsAppliedFreeVar(neg_term));
    FAIL_ON(!TermIsAppliedFreeVar(pos_term));

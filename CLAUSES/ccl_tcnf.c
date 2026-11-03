@@ -1147,12 +1147,12 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
          Type_p bool_ty = terms->sig->type_bank->bool_type;
          if (form->args[0] == neutral_element)
          {
-            res = CloseWithDBVar(terms, bool_ty,
+            res = CloseWithDBVar(bool_ty,
                                  TBRequestDBVar(terms, bool_ty, 0));
          }
          else if (form->args[0] == asbsorbing_element)
          {
-            res = CloseWithDBVar(terms, bool_ty, asbsorbing_element);
+            res = CloseWithDBVar(bool_ty, asbsorbing_element);
          }
       }
       else if(form->arity == 2)

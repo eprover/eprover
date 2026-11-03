@@ -169,16 +169,14 @@ static inline bool is_ho_subterm(Term_p super, Term_p test, DerefType super_dere
 #ifdef ENABLE_LFHO
    TB_p bank = TermFindBank(super);
 
-   super = LambdaEtaReduceDB(bank,
-      BetaNormalizeDB(bank, TermDeref(super, &super_deref)));
+   super = LambdaEtaReduceDB(BetaNormalizeDB(TermDeref(super, &super_deref)));
    
    if(TermIsAppliedFreeVar(super))
    {
       assert(super_deref == DEREF_NEVER || super_deref == DEREF_ALWAYS);
       if(super_deref == DEREF_ALWAYS)
       {
-         super = LambdaEtaReduceDB(bank,
-            BetaNormalizeDB(bank, TBInsert(bank, super, super_deref)));
+         super = LambdaEtaReduceDB(BetaNormalizeDB(TBInsert(bank, super, super_deref)));
       }
       // in ho we do not go below app var
       return super == test;
@@ -572,12 +570,10 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
    }
    recursion_depth++;
 
-   s = LambdaEtaReduceDB(TermFindBank(s),
-         deref_s == DEREF_NEVER ? s : (deref_s == DEREF_ALWAYS ? WHNF_deref(s) : 
-                                       WHNF_step(TermFindBank(s), TermDeref(s, &deref_s))));
-   t = LambdaEtaReduceDB(TermFindBank(t),
-         deref_t == DEREF_NEVER ? t : (deref_t == DEREF_ALWAYS ? WHNF_deref(t) : 
-                                       WHNF_step(TermFindBank(t), TermDeref(t, &deref_t))));
+   s = LambdaEtaReduceDB(deref_s == DEREF_NEVER ? s : (deref_s == DEREF_ALWAYS ? WHNF_deref(s) : 
+                                       WHNF_step(TermDeref(s, &deref_s))));
+   t = LambdaEtaReduceDB(deref_t == DEREF_NEVER ? t : (deref_t == DEREF_ALWAYS ? WHNF_deref(t) : 
+                                       WHNF_step(TermDeref(t, &deref_t))));
 
    if(TermIsTopLevelFreeVar(s))
    {

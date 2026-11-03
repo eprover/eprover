@@ -156,8 +156,8 @@ static inline OracleUnifResult rigid_path_check_args(Term_p t1, Term_p* args, bo
 
 OracleUnifResult SubstComputeFixpointMgu(Term_p t1, Term_p t2, Subst_p subst)
 {
-   t1 = LambdaEtaReduceDB(TermFindBank(t1), WHNF_deref(t1));
-   t2 = LambdaEtaReduceDB(TermFindBank(t2), WHNF_deref(t2));
+   t1 = LambdaEtaReduceDB(WHNF_deref(t1));
+   t2 = LambdaEtaReduceDB(WHNF_deref(t2));
 
    // DBG_PRINT(stderr, "fx: ", TermPrintDbg(stderr, t1, TermFindBank(t1)->sig, DEREF_NEVER), " <?> ");
    // DBG_PRINT(stderr, "", TermPrintDbg(stderr, t2, TermFindBank(t2)->sig, DEREF_NEVER), ".\n");

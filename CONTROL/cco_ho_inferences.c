@@ -134,7 +134,7 @@ Term_p do_abstract(Term_p t, Term_p arg, TB_p bank, int depth, Subst_p refresh)
                                        depth+1, refresh);
       if(new_matrix != t->args[1])
       {
-         res = CloseWithDBVar(bank, t->args[0]->type, new_matrix);
+         res = CloseWithDBVar(t->args[0]->type, new_matrix);
       }
       else
       {
@@ -203,7 +203,7 @@ Term_p abstract_arg(Term_p lhs, Term_p rhs, Term_p arg, TB_p bank, bool sign)
 
    Term_p matrix = EqnTermsTBTermEncode(bank, lhs_abs, rhs_abs, sign, PENormal);
    SubstDelete(refresher);
-   return CloseWithDBVar(bank, arg->type, matrix);
+   return CloseWithDBVar(arg->type, matrix);
 }
 
 /*-----------------------------------------------------------------------
@@ -261,7 +261,7 @@ void store_abstraction_form(WFormula_p wform, ClauseSet_p archive, PObjMap_p* st
    if(TFormulaIsQuantifiedNL(sig, wform->tformula) &&
       wform->tformula->arity == 2)
    {
-      Term_p encoded = PostCNFEncodeFormulas(bank, wform->tformula);
+      Term_p encoded = PostCNFEncodeFormulas(wform->tformula);
       Eqn_p lit = EqnAlloc(encoded, bank->true_term, bank, true);
       Clause_p cl = ClauseAlloc(lit);
       ClausePushDerivation(cl, DCFofQuote, wform);
@@ -274,8 +274,7 @@ void store_abstraction_form(WFormula_p wform, ClauseSet_p archive, PObjMap_p* st
          add_abs_to_store(store, lambda, cl);
          Term_p fvar = VarBankGetFreshVar(bank->vars, lambda->args[0]->type);
          quantified =
-            WHNF_step(bank,
-              TBTermTopInsert(bank, TermApplyArg(sig->type_bank, lambda, fvar)));
+            WHNF_step(TBTermTopInsert(bank, TermApplyArg(sig->type_bank, lambda, fvar)));
       }
    }
 }
@@ -468,7 +467,7 @@ Term_p close_for_appvar(TB_p bank, Term_p appvar, Term_p matrix)
    {
       ty_pref[i-1] = appvar->args[i]->type;
    }
-   return CloseWithTypePrefix(bank, ty_pref, appvar->arity-1, matrix);
+   return CloseWithTypePrefix(ty_pref, appvar->arity-1, matrix);
 }
 
 /*-----------------------------------------------------------------------
@@ -722,7 +721,7 @@ bool compute_removal_subst(PObjMap_p* var_removed_args, Subst_p subst,
          Term_p fresh_var = TBInsert(bank, VarBankGetFreshVar(bank->vars, ty), DEREF_NEVER);
          Term_p matrix = ApplyTerms(bank, fresh_var, new_db_vars);
          Term_p closed =
-            CloseWithTypePrefix(bank, var->type->args, var->type->arity-1, matrix);
+            CloseWithTypePrefix(var->type->args, var->type->arity-1, matrix);
          SubstAddBinding(subst, var, closed);
          removed = true;
          PStackFree(new_db_vars);
@@ -926,10 +925,10 @@ int prim_enum_var(ClauseSet_p store, Clause_p cl, PrimEnumMode mode, Term_p app_
             ex_matrix->type = sig->type_bank->bool_type;
             ex_matrix = TBTermTopInsert(bank, ex_matrix);
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              CloseWithDBVar(bank, var_ty->args[0], all_matrix),
+                              CloseWithDBVar(var_ty->args[0], all_matrix),
                               step_archive);
             mk_prim_enum_inst(store, cl, app_var->args[0],
-                              CloseWithDBVar(bank, var_ty->args[0], ex_matrix),
+                              CloseWithDBVar(var_ty->args[0], ex_matrix),
                               step_archive);
             generated_cls += 2;
          }
@@ -1478,7 +1477,7 @@ int inst_choice(ClauseSet_p store, IntMap_p choice_syms, Clause_p cl,
                      step_archive);
 
    Term_p neg_trigger =
-      TermTopCopy(LambdaEtaExpandDBTopLevel(bank, trigger));
+      TermTopCopy(LambdaEtaExpandDBTopLevel(trigger));
    assert(TermIsLambda(neg_trigger));
    assert(TypeIsBool(neg_trigger->args[1]->type));
    neg_trigger->args[1] =
@@ -2142,7 +2141,7 @@ bool ImmediateClausification(Clause_p cl, ClauseSet_p store, ClauseSet_p archive
          while (!ClauseSetEmpty(res_set))
          {
             Clause_p res = ClauseSetExtractFirst(res_set);
-            EqnListMapTerms(res->literals, (TermMapper_p)LambdaNormalizeDB,
+            EqnListMapTerms(res->literals, LambdaNormalizeDBMapper,
                             res->literals ? res->literals->bank : NULL);
             // DBG_PRINT(stderr, " > ", ClausePrintDBG(stderr, res), ".\n");
             PStackReset(res->derivation);
@@ -2227,7 +2226,7 @@ long EliminateLeibnizEquality(ClauseSet_p store, Clause_p cl, int limit,
                   Term_p res = matrix;
                   for(int i=lhs->arity-1; i>=1; i--)
                   {
-                     res = CloseWithDBVar(lit->bank, lhs->args[i]->type, res);
+                     res = CloseWithDBVar(lhs->args[i]->type, res);
                   }
 
                   assert(var->type == res->type);
