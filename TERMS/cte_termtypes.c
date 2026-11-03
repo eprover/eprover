@@ -79,6 +79,8 @@ static __inline__ void register_new_cache(Term_p app_var, Term_p bound_to)
 
 Term_p insert_deref(Term_p deref_cache, TB_p bank)
 {
+   assert(bank);
+
    for(int i=0; i<deref_cache->arity; i++)
    {
       if(!TermIsFreeVar(deref_cache->args[i]) && !TermIsShared(deref_cache->args[i]))
@@ -180,7 +182,13 @@ __inline__ Term_p applied_var_deref(Term_p orig)
             }
          }
 
-         register_new_cache(orig, (res = insert_deref(res, TermGetBank(orig))));
+         res = insert_deref(res, TermGetBank(orig));
+         if(TermIsShared(orig))
+         {
+            /* Only shared terms keep the cache. The GC marks it along
+               with them, so it cannot dangle. */
+            register_new_cache(orig, res);
+         }
       }
       else
       {
