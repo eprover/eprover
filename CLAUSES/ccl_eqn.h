@@ -81,7 +81,6 @@ typedef struct eqncell
    int            pos;
    Term_p         lterm;
    Term_p         rterm;
-   TB_p           bank;      /* Terms are from this bank */
    struct eqncell *next;     /* For lists of equations */
 }EqnCell, *Eqn_p, **EqnRef;
 
@@ -123,6 +122,16 @@ typedef enum
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+/* The terms of an equation are shared, so the bank is that of its
+   terms. lterm may be a variable, which points to the term bank of
+   its variable bank as well; rterm covers the rare case where that
+   has none. */
+static inline TB_p EqnGetBank(Eqn_p eq)
+{
+   return TermGetBank(eq->lterm) ? TermGetBank(eq->lterm) : TermGetBank(eq->rterm);
+}
+
+
 
 extern bool EqnUseInfix; /* s = t or EQ(s = t)  ? */
 extern bool EqnFullEquationalRep; /* P(x) = $true ? */
@@ -138,8 +147,8 @@ void    EqnFree(Eqn_p junk);
 
 #define EqnCreateTrueLit(bank) (EqnAlloc((bank)->true_term, (bank)->true_term, bank, true))
 
-#define EqnGCMarkTerms(eqn) TBGCMarkTerm((eqn)->bank,(eqn)->lterm);     \
-   TBGCMarkTerm((eqn)->bank,(eqn)->rterm)
+#define EqnGCMarkTerms(eqn) TBGCMarkTerm(EqnGetBank(eqn),(eqn)->lterm);     \
+   TBGCMarkTerm(EqnGetBank(eqn),(eqn)->rterm)
 
 #define EqnSetProp(eqn, prop)  SetProp((eqn), (prop))
 #define EqnDelProp(eqn, prop)  DelProp((eqn), (prop))
@@ -154,8 +163,8 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsOriented(eq) EqnQueryProp((eq), EPIsOriented)
 #define EqnIsPositive(eq) EqnQueryProp((eq), EPIsPositive)
 #define EqnIsNegative(eq) (!(EqnQueryProp((eq), EPIsPositive)))
-#define EqnIsEquLit(eq)   (assert(EqnQueryProp((eq), EPIsEquLiteral) || (eq)->rterm == (eq)->bank->true_term),\
-                           assert(!EqnQueryProp((eq), EPIsEquLiteral) || (eq)->rterm != (eq)->bank->true_term),\
+#define EqnIsEquLit(eq)   (assert(EqnQueryProp((eq), EPIsEquLiteral) || (eq)->rterm == EqnGetBank(eq)->true_term),\
+                           assert(!EqnQueryProp((eq), EPIsEquLiteral) || (eq)->rterm != EqnGetBank(eq)->true_term),\
                           EqnQueryProp((eq), EPIsEquLiteral))
 #define EqnIsMaximal(eq)  EqnQueryProp((eq), EPIsMaximal)
 #define EqnIsStrictlyMaximal(eq)                                        \
@@ -174,7 +183,7 @@ void    EqnFree(Eqn_p junk);
 
 #define EqnIsSplitLit(eq)                       \
    (EqnIsEquLit(eq)?false:                                              \
-    SigQueryFuncProp((eq)->bank->sig, EqnGetPredCode(eq), FPClSplitDef))
+    SigQueryFuncProp(EqnGetBank(eq)->sig, EqnGetPredCode(eq), FPClSplitDef))
 
 #define EqnHasEquiv(eq)  EqnQueryProp((eq), EPHasEquiv)
 #define EqnIsDominated(eq)  EqnQueryProp((eq), EPIsDominated)
@@ -184,7 +193,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsPropTrue(eq)  (((eq)->lterm == (eq)->rterm) && EqnIsPositive(eq))
 #define EqnIsPropFalse(eq) (((eq)->lterm == (eq)->rterm) && EqnIsNegative(eq))
 
-#define EqnIsBoolVar(eq) (TermIsFreeVar((eq)->lterm) && ((eq)->rterm == (eq)->bank->true_term))
+#define EqnIsBoolVar(eq) (TermIsFreeVar((eq)->lterm) && ((eq)->rterm == EqnGetBank(eq)->true_term))
 
 #define EqnIsGround(eq)                                         \
    (TBTermIsGround((eq)->lterm) && TBTermIsGround((eq)->rterm))
@@ -201,7 +210,7 @@ void    EqnFree(Eqn_p junk);
 #define EqnIsRealXTypePred(eq)                          \
    ((!EqnIsEquLit(eq))&&TermIsDefTerm((eq)->lterm,1))
 #define EqnIsSimpleAnswer(eq)                                   \
-   ((!TermIsDBVar((eq)->lterm)) && SigIsSimpleAnswerPred((eq)->bank->sig, (eq)->lterm->f_code))
+   ((!TermIsDBVar((eq)->lterm)) && SigIsSimpleAnswerPred(EqnGetBank(eq)->sig, (eq)->lterm->f_code))
 
 #define EqnTermSetProp(eq,prop) TermSetProp((eq)->lterm, DEREF_NEVER, (prop));\
    TermSetProp((eq)->rterm, DEREF_NEVER, (prop))
@@ -215,9 +224,9 @@ void    EqnFree(Eqn_p junk);
 
 #define EqnIsClausifiable(eq) \
    TypeIsBool((eq)->lterm->type) && \
-   ((eq)->rterm != (eq)->bank->true_term || \
+   ((eq)->rterm != EqnGetBank(eq)->true_term || \
       (!TermIsAnyVar((eq)->lterm) && \
-      SigIsLogicalSymbol((eq)->bank->sig, (eq)->lterm->f_code)))
+      SigIsLogicalSymbol(EqnGetBank(eq)->sig, (eq)->lterm->f_code)))
 
 bool    EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref);
 Eqn_p   EqnParse(Scanner_p in, TB_p bank);
@@ -226,7 +235,7 @@ Eqn_p   EqnHOFParse(Scanner_p in, TB_p terms, bool *continue_parsing);
 Term_p  EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
                              bool positive, PatEqnDirection dir);
 #define EqnTBTermEncode(eqn, dir) \
-   EqnTermsTBTermEncode((eqn)->bank, (eqn)->lterm,      \
+   EqnTermsTBTermEncode(EqnGetBank(eqn), (eqn)->lterm,      \
                         (eqn)->rterm, EqnIsPositive(eqn), (dir))
 Eqn_p   EqnTBTermDecode(TB_p terms, Term_p eqn);
 Term_p  EqnTBTermParse(Scanner_p in, TB_p bank);
@@ -329,7 +338,7 @@ double  EqnDAGWeight2(Eqn_p eq, double maxw_multiplier,
 
 #define EqnSplitModStandardWeight(eqn)                  \
    EqnQueryProp(eqn,EPIsSplitLit|EPIsPositive)?                         \
-   SigGetSpecialWeight(eqn->bank->sig, eqn->lterm->f_code):             \
+   SigGetSpecialWeight(EqnGetBank(eqn)->sig, eqn->lterm->f_code):             \
    EqnStandardWeight(eqn)
 
 
@@ -400,8 +409,8 @@ int     LiteralCompareFun(Eqn_p lit1, Eqn_p lit2);
    TermAddSymbolDistExist((eqn)->rterm, (dist_array), (exist))
 
 #define EqnAddTypeDistribution(eqn, type_array) \
-   TermAddTypeDistribution((eqn)->lterm, (eqn)->bank->sig, type_array);\
-   TermAddTypeDistribution((eqn)->rterm, (eqn)->bank->sig, type_array)
+   TermAddTypeDistribution((eqn)->lterm, EqnGetBank(eqn)->sig, type_array);\
+   TermAddTypeDistribution((eqn)->rterm, EqnGetBank(eqn)->sig, type_array)
 
 #define EqnAddSymbolDistributionLimited(eqn, dist_array, limit)         \
    TermAddSymbolDistributionLimited((eqn)->lterm, (dist_array), (limit)); \

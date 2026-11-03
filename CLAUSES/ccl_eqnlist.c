@@ -1480,8 +1480,8 @@ void EqnListDeleteTermProperties(Eqn_p list, TermProperties props)
 {
    while(list)
    {
-      TBRefDelProp(list->bank, &(list->lterm), props);
-      TBRefDelProp(list->bank, &(list->rterm), props);
+      TBRefDelProp(EqnGetBank(list), &(list->lterm), props);
+      TBRefDelProp(EqnGetBank(list), &(list->rterm), props);
       list = list->next;
    }
 }
@@ -2057,7 +2057,7 @@ void EqnListLambdaNormalize(Eqn_p list)
 {
    if(list != NULL)
    {
-      EqnListMapTerms(list, LambdaNormalizeDBMapper, list->bank);
+      EqnListMapTerms(list, LambdaNormalizeDBMapper, EqnGetBank(list));
    }
 }
 

@@ -436,7 +436,7 @@ int ClauseRemoveACResolved(Clause_p clause, ClauseSet_p step_archive)
    {
       return 0;
    }
-   sig = clause->literals->bank->sig;
+   sig = EqnGetBank(clause->literals)->sig;
    before = ClauseArchiveStepBegin(step_archive, clause);
    removed += EqnListRemoveACResolved(&(clause->literals));
    clause->neg_lit_no -= removed ;
@@ -930,7 +930,7 @@ bool ClauseEliminateNakedBooleanVariables(Clause_p clause,
    bool     eliminated_var = false;
    Eqn_p    res            = NULL;
    Subst_p  subst          = SubstAlloc();
-   const TB_p   bank       = clause->literals->bank;
+   const TB_p   bank       = EqnGetBank(clause->literals);
    const Term_p true_term  = bank->true_term;
    const Term_p false_term = bank->false_term;
 
@@ -1046,7 +1046,7 @@ Clause_p ClauseRecognizeInjectivity(TB_p terms, Clause_p clause)
           && neg_lit->lterm->f_code == neg_lit->rterm->f_code
           && neg_lit->lterm->f_code > terms->sig->internal_symbols
           && !TypeIsArrow(neg_lit->lterm->type)
-          && !SigQueryFuncProp(neg_lit->bank->sig, neg_lit->lterm->f_code, FPIsInjDefSkolem)
+          && !SigQueryFuncProp(EqnGetBank(neg_lit)->sig, neg_lit->lterm->f_code, FPIsInjDefSkolem)
           && TermStandardWeight(neg_lit->lterm) == TermStandardWeight(neg_lit->rterm)
           && TermStandardWeight(neg_lit->lterm)
                == (DEFAULT_FWEIGHT + neg_lit->lterm->arity*DEFAULT_VWEIGHT)
@@ -1216,7 +1216,7 @@ bool ClauseSetInjectivityIsDefined(ClauseSet_p all_defs, Clause_p inj_def)
 
    bool res = false;
 
-   TB_p bank = inj_def->literals->bank;
+   TB_p bank = EqnGetBank(inj_def->literals);
    Term_p lhs = TBInsertDisjoint(bank, inj_def->literals->lterm);
    Term_p rhs = TBInsertDisjoint(bank, inj_def->literals->rterm);
 

@@ -175,7 +175,7 @@ static bool term_compute_top_nf(TermRef ref, Eqn_p eqns)
       if(TermStructEqualNoDeref(lside, *ref))
       {
          TermFree(*ref);
-         *ref = TermCopy(rside, handle->bank->vars, handle->bank->db_vars, false);
+         *ref = TermCopy(rside, EqnGetBank(handle)->vars, EqnGetBank(handle)->db_vars, false);
          return true;
       }
       handle = handle->next;
@@ -235,21 +235,21 @@ static bool ground_normalize_eqn(Eqn_p eqn, Eqn_p eqns)
    bool res = false, tmp;
    Term_p term, shared;
 
-   term = TermCopy(eqn->lterm, eqn->bank->vars, eqn->bank->db_vars, DEREF_NEVER);
+   term = TermCopy(eqn->lterm, EqnGetBank(eqn)->vars, EqnGetBank(eqn)->db_vars, DEREF_NEVER);
    tmp  = term_compute_ground_NF(&term, eqns);
    if(tmp)
    {
-      shared = TBInsert(eqn->bank, term, DEREF_NEVER);
+      shared = TBInsert(EqnGetBank(eqn), term, DEREF_NEVER);
       eqn->lterm = shared;
       res = EqnQueryProp(eqn, EPGONatural);
    }
    TermFree(term);
 
-   term = TermCopy(eqn->rterm, eqn->bank->vars, eqn->bank->db_vars, DEREF_NEVER);
+   term = TermCopy(eqn->rterm, EqnGetBank(eqn)->vars, EqnGetBank(eqn)->db_vars, DEREF_NEVER);
    tmp  = term_compute_ground_NF(&term, eqns);
    if(tmp)
    {
-      shared = TBInsert(eqn->bank, term, DEREF_NEVER);
+      shared = TBInsert(EqnGetBank(eqn), term, DEREF_NEVER);
       eqn->rterm = shared;
       res = res || EqnQueryProp(eqn, EPGONatural);
    }

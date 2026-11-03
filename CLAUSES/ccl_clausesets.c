@@ -2486,7 +2486,7 @@ int ClauseConjectureOrder(ClauseSet_p set)
    {
       for(Eqn_p lit = handle->literals; lit; lit = lit->next)
       {
-         Sig_p sig = lit->bank->sig;
+         Sig_p sig = EqnGetBank(lit)->sig;
          ord = MAX(ord, MAX(TermComputeOrder(sig, lit->lterm),
                             TermComputeOrder(sig, lit->rterm)));
       }

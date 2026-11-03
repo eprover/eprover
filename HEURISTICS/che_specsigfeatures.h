@@ -104,8 +104,8 @@ void SpecSigFeaturePrint(FILE*out, SpecSigFeature_p specftrs);
 void TermCollectSigFeatures(Sig_p sig, Term_p term, long* features);
 
 #define EqnCollectSigFeatures(eqn, features)                            \
-    TermCollectSigFeatures((eqn)->bank->sig, (eqn->lterm), (features));\
-    TermCollectSigFeatures((eqn)->bank->sig, (eqn->rterm), (features))
+    TermCollectSigFeatures(EqnGetBank(eqn)->sig, (eqn->lterm), (features));\
+    TermCollectSigFeatures(EqnGetBank(eqn)->sig, (eqn->rterm), (features))
 
 
 /* Note: Only use 2+6*SIG_FEATURE_ARITY_LIMIT values from features */

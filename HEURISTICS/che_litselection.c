@@ -5722,8 +5722,8 @@ static void select_cq_ar_eql_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
 }
@@ -5767,8 +5767,8 @@ static void select_cq_ar_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
 }
@@ -5811,8 +5811,8 @@ static void select_cq_iar_eql_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
 }
@@ -5856,8 +5856,8 @@ static void select_cq_iar_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
 }
@@ -5900,13 +5900,13 @@ static void select_cq_ar_weight(LitEval_p lit, Clause_p clause,
    {
       lit->w1 = -2;
       lit->w2 = l->lterm->f_code > 0
-         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         ? SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code)
          : 0;
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
 }
@@ -5948,13 +5948,13 @@ static void select_cq_iar_weight(LitEval_p lit, Clause_p clause,
    {
      lit->w1 = 2;
       lit->w2 = l->lterm->f_code > 0
-         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         ? SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code)
          : 0;
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
 }
@@ -5999,8 +5999,8 @@ static void select_cq_arnp_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(lit->w1 == 0)
       {
          lit->w1 = 100000;
@@ -6051,8 +6051,8 @@ static void select_cq_iarnp_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(lit->w1 == 0)
       {
          lit->w1 = 1000000;
@@ -6101,8 +6101,8 @@ static void select_grcq_ar_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
    if(EqnIsGround(l))
@@ -6151,8 +6151,8 @@ static void select_cqgr_ar_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
    if(EqnIsGround(l))
@@ -6200,8 +6200,8 @@ static void select_cq_arnt_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsTypePred(l))
       {
          lit->w1 = 100000;
@@ -6250,8 +6250,8 @@ static void select_cq_iarnt_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsTypePred(l))
       {
          lit->w1 = 100000;
@@ -6301,8 +6301,8 @@ static void select_cq_arntnp_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsTypePred(l)||EqnIsPropositional(l))
       {
          lit->w1 = 100000;
@@ -6352,8 +6352,8 @@ static void select_cq_iarntnp_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsTypePred(l)||EqnIsPropositional(l))
       {
          lit->w1 = 100000;
@@ -6402,8 +6402,8 @@ static void select_cq_arnxt_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsXTypePred(l))
       {
          lit->w1 = 100000;
@@ -6453,8 +6453,8 @@ static void select_cq_iarnxt_eqf_weight(LitEval_p lit, Clause_p clause,
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsXTypePred(l))
       {
          lit->w1 = 100000;
@@ -6500,13 +6500,13 @@ static void select_cq_arntnp_weight(LitEval_p lit, Clause_p clause,
    {
       lit->w1 = -2;
       lit->w2 = l->lterm->f_code > 0
-         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         ? SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code)
          : 0;
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsTypePred(l)||EqnIsPropositional(l))
       {
          lit->w1 = 100000;
@@ -6551,13 +6551,13 @@ static void select_cq_iarntnp_weight(LitEval_p lit, Clause_p clause,
    {
       lit->w1 = 2;
       lit->w2 = l->lterm->f_code > 0
-         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         ? SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code)
          : 0;
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsTypePred(l)||EqnIsPropositional(l))
       {
          lit->w1 = 100000;
@@ -6601,13 +6601,13 @@ static void select_cq_arnt_weight(LitEval_p lit, Clause_p clause,
    {
       lit->w1 = -2;
       lit->w2 = l->lterm->f_code > 0
-         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         ? SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code)
          : 0;
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsTypePred(l))
       {
          lit->w1 = 100000;
@@ -6651,13 +6651,13 @@ static void select_cq_iarnt_weight(LitEval_p lit, Clause_p clause,
    {
       lit->w1 = 2;
       lit->w2 = l->lterm->f_code > 0
-         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         ? SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code)
          : 0;
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsTypePred(l))
       {
          lit->w1 = 100000;
@@ -6701,13 +6701,13 @@ static void select_cq_arnp_weight(LitEval_p lit, Clause_p clause,
    {
       lit->w1 = -2;
       lit->w2 = l->lterm->f_code > 0
-         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         ? SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code)
          : 0;
    }
    else
    {
-      lit->w1 = -SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = -SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsPropositional(l))
       {
          lit->w1 = 100000;
@@ -6752,13 +6752,13 @@ static void select_cq_iarnp_weight(LitEval_p lit, Clause_p clause,
    {
       lit->w1 = 2;
       lit->w2 = l->lterm->f_code > 0
-         ? SigGetAlphaRank(l->bank->sig, l->lterm->f_code)
+         ? SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code)
          : 0;
    }
    else
    {
-      lit->w1 = SigFindArity(l->bank->sig, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w1 = SigFindArity(EqnGetBank(l)->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       if(EqnIsPropositional(l))
       {
          lit->w1 = 100000;
@@ -6811,7 +6811,7 @@ void select_unless_pdom(OCB_p ocb, Clause_p clause, LiteralSelectionFun selfun)
    assert(clause->literals);
    assert(EqnListQueryPropNumber(clause->literals, EPIsSelected)==0);
 
-   sig_size = clause->literals->bank->sig->size;
+   sig_size = EqnGetBank(clause->literals)->sig->size;
    dom_array = SizeMalloc(sizeof(bool)*sig_size);
    for(i=0; i<sig_size; i++)
    {
@@ -6928,7 +6928,7 @@ static void select_cq_precw_weight(LitEval_p lit, Clause_p clause,
    else
    {
       lit->w1 = OCBFunPrecWeight(ocb, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
 }
@@ -6974,7 +6974,7 @@ static void select_cq_iprecw_weight(LitEval_p lit, Clause_p clause,
    else
    {
       lit->w1 = -OCBFunPrecWeight(ocb, l->lterm->f_code);
-      lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+      lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
    }
    lit->w3 =lit_sel_diff_weight(l);
 }
@@ -7028,7 +7028,7 @@ static void select_cq_precwntnp_weight(LitEval_p lit, Clause_p clause,
       else
       {
          lit->w1 = OCBFunPrecWeight(ocb, l->lterm->f_code);
-         lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+         lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       }
    }
    lit->w3 =lit_sel_diff_weight(l);
@@ -7083,7 +7083,7 @@ static void select_cq_iprecwntnp_weight(LitEval_p lit, Clause_p clause,
       else
       {
          lit->w1 = -OCBFunPrecWeight(ocb, l->lterm->f_code);
-         lit->w2 = SigGetAlphaRank(l->bank->sig, l->lterm->f_code);
+         lit->w2 = SigGetAlphaRank(EqnGetBank(l)->sig, l->lterm->f_code);
       }
    }
    lit->w3 =lit_sel_diff_weight(l);

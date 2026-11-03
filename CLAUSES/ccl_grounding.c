@@ -284,14 +284,14 @@ bool EqnEqlitRecode(Eqn_p lit)
    {
       Term_p t = TermDefaultCellArityAlloc(2);
 
-      t->type = lit->bank->sig->type_bank->bool_type;
-      t->f_code = SigGetEqnCode(lit->bank->sig, true);
+      t->type = EqnGetBank(lit)->sig->type_bank->bool_type;
+      t->f_code = SigGetEqnCode(EqnGetBank(lit)->sig, true);
       t->arity = 2;
       t->args[0] = lit->lterm;
       t->args[1] = lit->rterm;
-      t = TBTermTopInsert(lit->bank, t);
+      t = TBTermTopInsert(EqnGetBank(lit), t);
       lit->lterm = t;
-      lit->rterm = lit->bank->true_term;
+      lit->rterm = EqnGetBank(lit)->true_term;
       EqnDelProp(lit, EPIsEquLiteral);
       return true;
    }

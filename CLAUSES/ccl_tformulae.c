@@ -1504,13 +1504,13 @@ TFormula_p TFormulaFCodeAlloc(TB_p bank, FunCode op, TFormula_p arg1, TFormula_p
 TFormula_p TFormulaLitAlloc(Eqn_p literal)
 {
    TFormula_p res;
-   TB_p bank = literal->bank;
+   TB_p bank = EqnGetBank(literal);
 
    assert(literal);
 
    if(problemType == PROBLEM_FO)
    {
-      res = EqnTermsTBTermEncode(literal->bank, literal->lterm,
+      res = EqnTermsTBTermEncode(EqnGetBank(literal), literal->lterm,
                                  literal->rterm, EqnIsPositive(literal),
                                  PENormal);
    }

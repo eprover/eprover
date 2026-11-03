@@ -742,7 +742,7 @@ void OverlapIndexSubtermTreePrint(FILE* out, SubtermTree_p root)
          Clause_p clause = clause_tpos->clause;
          if(clause->literals)
          {
-             TermPrint(out, data->term, clause->literals->bank->sig, DEREF_ALWAYS);
+             TermPrint(out, data->term, EqnGetBank(clause->literals)->sig, DEREF_ALWAYS);
          }
          fprintf(out, "\n");
          OverlapIndexClauseTreePrint(out, data->pl.pos.clauses);

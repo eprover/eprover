@@ -208,7 +208,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       BWRWMatchSuccesses++;
       assert(problemType == PROBLEM_FO || !remains);
       if((EqnIsOriented(eqn)
-          || instance_is_rule(ocb, eqn->bank, eqn->lterm, eqn->rterm, subst)))
+          || instance_is_rule(ocb, EqnGetBank(eqn), eqn->lterm, eqn->rterm, subst)))
       {
          if(!EqnIsOriented(eqn) || /* Only a performance hack */
             !SubstIsRenaming(subst))
@@ -255,7 +255,7 @@ static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
       if(SubstMatchComplete(eqn->rterm, term, subst))
       {
          BWRWMatchSuccesses++;
-         if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst))
+         if(instance_is_rule(ocb, EqnGetBank(eqn), eqn->rterm, eqn->lterm, subst))
           /* If instance is rule -> subst is no renaming! */
          {
             assert(!SubstIsRenaming(subst));
@@ -405,9 +405,9 @@ static EqnSide eqn_has_rw_side(OCB_p ocb, Eqn_p eqn, Clause_p
    bool restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
 
    /* printf("restricted_rw: %d\n", restricted_rw); */
-   resl = term_is_rewritable(eqn->bank, ocb, eqn->lterm, new_demod, nf_date,
+   resl = term_is_rewritable(EqnGetBank(eqn), ocb, eqn->lterm, new_demod, nf_date,
                              restricted_rw);
-   resr = term_is_rewritable(eqn->bank, ocb, eqn->rterm, new_demod, nf_date,
+   resr = term_is_rewritable(EqnGetBank(eqn), ocb, eqn->rterm, new_demod, nf_date,
                              false);
 
    if(resl)
@@ -598,7 +598,7 @@ ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
       {
       case LeftSide:
             if((EqnIsOriented(eqn)
-                || instance_is_rule(ocb, eqn->bank, eqn->lterm, eqn->rterm, subst))
+                || instance_is_rule(ocb, EqnGetBank(eqn), eqn->lterm, eqn->rterm, subst))
                &&
                (!restricted_rw ||
                 !SubstIsRenaming(subst)))
@@ -608,7 +608,7 @@ ClausePos_p indexed_find_demodulator(OCB_p ocb, Term_p term,
             break;
       case RightSide:
             assert(!EqnIsOriented(eqn));
-            if(instance_is_rule(ocb, eqn->bank, eqn->rterm, eqn->lterm, subst)
+            if(instance_is_rule(ocb, EqnGetBank(eqn), eqn->rterm, eqn->lterm, subst)
                /* &&
                   !restricted_rw */)
                /* Case SubstIsRenaming(subst) already eliminated in
@@ -1024,7 +1024,7 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
    {
       pos->side = RightSide;
       record_rw_steps(desc, pos, nf);
-      if(EqnQueryProp(eqn, EPIsEquLiteral) && eqn->rterm == eqn->bank->true_term)
+      if(EqnQueryProp(eqn, EPIsEquLiteral) && eqn->rterm == EqnGetBank(eqn)->true_term)
       {
          EqnDelProp(eqn, EPIsEquLiteral);
       }
@@ -1165,7 +1165,7 @@ static long term_find_rw_clauses(Clause_p demod,
    {
       BWRWMatchSuccesses++;
       if(oriented
-         || instance_is_rule(ocb, eqn->bank, lterm, rterm, subst))
+         || instance_is_rule(ocb, EqnGetBank(eqn), lterm, rterm, subst))
       {
          if(!oriented || /* Only a performance hack */
             !SubstIsRenaming(subst))
@@ -1183,13 +1183,13 @@ static long term_find_rw_clauses(Clause_p demod,
          }
          if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
          {
-            Term_p repl = TBInsertInstantiated(eqn->bank, rterm);
+            Term_p repl = TBInsertInstantiated(EqnGetBank(eqn), rterm);
             if(problemType == PROBLEM_HO)
             {
-               repl = MakeRewrittenTerm(term, repl, remains, eqn->bank);
+               repl = MakeRewrittenTerm(term, repl, remains, EqnGetBank(eqn));
                if(remains)
                {
-                  repl = TBTermTopInsert(eqn->bank, repl);
+                  repl = TBTermTopInsert(EqnGetBank(eqn), repl);
                }
             }
             if(repl == term)
@@ -1570,8 +1570,8 @@ bool ClauseLocalRW(OCB_p ocb, Clause_p clause, ClauseSet_p step_archive)
       }
       else if(!EqnIsEquLit(lit) && EqnIsPositive(lit))
       {
-         assert(lit->rterm == lit->bank->true_term);
-         PObjMapStore(&rw_sys, lit->lterm, lit->bank->false_term, PCmpFun);
+         assert(lit->rterm == EqnGetBank(lit)->true_term);
+         PObjMapStore(&rw_sys, lit->lterm, EqnGetBank(lit)->false_term, PCmpFun);
       }
    }
    /* if(rw_sys) */
@@ -1588,7 +1588,7 @@ bool ClauseLocalRW(OCB_p ocb, Clause_p clause, ClauseSet_p step_archive)
           && !(!EqnIsEquLit(lit) && EqnIsPositive(lit)))
       {
          Term_p lterm = lit->lterm, rterm = lit->rterm;
-         local_rw_args arg = {.rw_sys = &rw_sys, .bank = lit->bank };
+         local_rw_args arg = {.rw_sys = &rw_sys, .bank = EqnGetBank(lit) };
          EqnMap(lit, local_rw_term, &arg);
          if(lterm != lit->lterm || rterm != lit->rterm)
          {

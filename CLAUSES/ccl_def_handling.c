@@ -169,7 +169,7 @@ Clause_p GetClauseDefinition(Eqn_p litlist, FunCode def_pred, WFormula_p parent)
    assert(litlist);
    assert(def_pred > 0);
 
-   def_lit = GenDefLit(litlist->bank, def_pred, true, NULL);
+   def_lit = GenDefLit(EqnGetBank(litlist), def_pred, true, NULL);
    def_lit->next = litlist;
    res           = ClauseAlloc(def_lit);
 
@@ -204,7 +204,7 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
    assert(litlist);
    assert(def_pred > 0);
 
-   def_lit = GenDefLit(litlist->bank, def_pred, true, NULL);
+   def_lit = GenDefLit(EqnGetBank(litlist), def_pred, true, NULL);
    EqnFlipProp(def_lit, EPIsPositive);
 
    def_clause = ClauseAlloc(EqnListFlatCopy(litlist));
@@ -212,9 +212,9 @@ WFormula_p GetFormulaDefinition(Eqn_p litlist, FunCode def_pred)
    lit = TFormulaLitAlloc(def_lit);
    EqnFree(def_lit);
 
-   def = TFormulaClauseClosedEncode(litlist->bank, def_clause);
-   def = TFormulaFCodeAlloc(litlist->bank, litlist->bank->sig->equiv_code, lit, def);
-   res = WTFormulaAlloc(litlist->bank, def);
+   def = TFormulaClauseClosedEncode(EqnGetBank(litlist), def_clause);
+   def = TFormulaFCodeAlloc(EqnGetBank(litlist), EqnGetBank(litlist)->sig->equiv_code, lit, def);
+   res = WTFormulaAlloc(EqnGetBank(litlist), def);
    FormulaSetType(res,CPTypeDefinition);
    ClauseFree(def_clause);
 

@@ -1179,7 +1179,7 @@ EvalPriority PrioFunPreferFormulas(Clause_p clause)
    for(Eqn_p eqn=clause->literals; prio == PrioNormal && eqn;
        eqn = eqn->next)
    {
-      TB_p bank = eqn->bank;
+      TB_p bank = EqnGetBank(eqn);
       PStackPushP(subterms, eqn->lterm);
       if(EqnIsEquLit(eqn))
       {

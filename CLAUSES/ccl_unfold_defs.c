@@ -239,10 +239,10 @@ bool ClauseUnfoldEqDef(Clause_p clause, ClausePos_p demod, Term_p lside,
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      steps += side_unfold_def(clause, handle->bank, &(handle->lterm),
+      steps += side_unfold_def(clause, EqnGetBank(handle), &(handle->lterm),
                                demod, lside, rside, step_archive,
                                step_sides);
-      steps += side_unfold_def(clause, handle->bank, &(handle->rterm),
+      steps += side_unfold_def(clause, EqnGetBank(handle), &(handle->rterm),
                                demod, lside, rside, step_archive,
                                step_sides);
    }
