@@ -1156,7 +1156,7 @@ Term_p whnf_step_uncached(TB_p bank, Term_p t)
 
    PStackFree(to_bind_stack);
    assert(TermIsShared(res));
-   if(TermIsShared(t) && TermGetBank(t) == bank)
+   if(TermGetBank(t) == bank)
    {
       /* Only cache results in the term's own bank, see WHNF_step() */
       TermSetCache(t, res);
@@ -1216,7 +1216,7 @@ Term_p WHNF_deref(Term_p t)
 
    if(TermIsPhonyApp(t) && TermIsLambda(t->args[0]))
    {
-      res = WHNF_deref(WHNF_step(TermGetBank(t), t));
+      res = WHNF_deref(WHNF_step(TermFindBank(t), t));
    }
    else if (TermIsLambda(t))
    {
@@ -1232,7 +1232,7 @@ Term_p WHNF_deref(Term_p t)
          res = new_matrix;
          while(!PStackEmpty(dbvars))
          {
-            res = CloseWithDBVar(TermGetBank(t), ((Term_p)PStackPopP(dbvars))->type, res);
+            res = CloseWithDBVar(TermFindBank(t), ((Term_p)PStackPopP(dbvars))->type, res);
          }
       }
       PStackFree(dbvars);
@@ -1438,7 +1438,7 @@ Term_p LambdaEtaReduceDB(TB_p bank, Term_p term)
    {
       // sometimes bank comes from a variable and
       // that can be a problem.
-      res = do_eta_reduce_db(!bank ? TermGetBank(term) : bank, term);
+      res = do_eta_reduce_db(!bank ? TermFindBank(term) : bank, term);
    }
    else
    {

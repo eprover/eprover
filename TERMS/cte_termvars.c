@@ -485,7 +485,6 @@ Term_p var_bank_var_alloc(VarBank_p bank, FunCode f_code, Type_p type)
    assert(!PDArrayElementP(bank->variables, -f_code));
 
    var = TermDefaultCellAlloc();
-   TermCellSetProp(var, TPIsShared);
    if(TypeIsArrow(type))
    {
       TermCellSetProp(var, TPHasEtaExpandableSubterm);

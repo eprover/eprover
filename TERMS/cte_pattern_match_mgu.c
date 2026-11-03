@@ -782,7 +782,7 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
 
    PQueueStoreP(jobs, t1);
    PQueueStoreP(jobs, t2);
-   TB_p bank = TermGetBank(t1) ? TermGetBank(t1) : TermGetBank(t2);
+   TB_p bank = TermFindBank(t1) ? TermFindBank(t1) : TermFindBank(t2);
    assert(bank);
 
    VarBankSetVCountsToUsed(bank->vars);
@@ -920,7 +920,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
       return NOT_UNIFIABLE;
    }
 
-   TB_p bank = TermGetBank(matcher) ? TermGetBank(matcher) : TermGetBank(to_match);
+   TB_p bank = TermFindBank(matcher) ? TermFindBank(matcher) : TermFindBank(to_match);
    assert(bank || TermIsAnyVar(matcher) || TermIsAnyVar(to_match));
    assert(!(TermGetBank(matcher) && TermGetBank(to_match)) 
             || TermGetBank(matcher) == TermGetBank(to_match));

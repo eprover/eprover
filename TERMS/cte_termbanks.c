@@ -171,7 +171,6 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       t->entry_no     = ++(bank->in_count);
       TermSetBank(t, bank);
       TermCellAssignProp(t,TPGarbageFlag, bank->garbage_state);
-      TermCellSetProp(t, TPIsShared); /* Groundness may change below */
       if(TermIsDBVar(t))
       {
          TermCellSetProp(t, TPHasDBSubterm);
@@ -932,7 +931,7 @@ Term_p TBInsertInstantiatedDeref(TB_p bank, Term_p term, DerefType deref)
       for(i=0; i<t->arity; i++)
       {
          t->args[i] =
-            TBInsertInstantiatedDeref(bank ? bank : TermGetBank(term),
+            TBInsertInstantiatedDeref(bank ? bank : TermFindBank(term),
                                       term->args[i], CONVERT_DEREF(i, limit, deref));
       }
       t = tb_termtop_insert(bank, t);
@@ -1008,7 +1007,7 @@ Term_p TBInsertNoProps(TB_p bank, Term_p term, DerefType deref)
 
    assert(term);
 
-   /* WHNF_deref() reduces term in its own bank (TermGetBank()), the
+   /* WHNF_deref() reduces term in its own bank (TermFindBank()), the
       result is copied into bank below. */
    const int limit = DEREF_LIMIT(term, deref);
    t = problemType == PROBLEM_HO && deref == DEREF_ALWAYS ?

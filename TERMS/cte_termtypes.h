@@ -75,7 +75,7 @@ typedef enum
                                    subterm position or with a real
                                    instance (for the new rewriting
                                    scheme) */
-   TPIsShared         =  16384, /* Term is in a term bank */
+   /* 16384 is unused (was TPIsShared, see TermIsShared()) */
    TPGarbageFlag      =  32768, /* For the term bank garbage collection */
    TPIsFreeVar        =  65536, /* For Skolemization */
    TPPotentialParamod = 131072, /* This position needs to be tried for
@@ -152,12 +152,14 @@ typedef struct termcell
    struct termcell* rson;          /* a splay tree - see
                                       cte_termcellstore.[ch] */
 
+   struct tbcell* owner_bank;      /* Bank that owns this term cell and that
+                                      is responsible for lifetime management
+                                      of the term. NULL iff the term
+                                      cell is unshared (except for
+                                      variables, see TermIsShared()). */
 #ifdef ENABLE_LFHO
    struct termcell* binding_cache; /* For caching the term applied variable
                                       expands to. */
-   struct tbcell* owner_bank;      /* Bank that owns this term cell and that
-                                      is responsible for lifetime management
-                                      of the term */
 #endif
 
    struct termcell* args[];         /* Flexible array member containing the arguments */
@@ -311,7 +313,9 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsRewritten(term) TermCellQueryProp((term), TPIsRewritten)
 #define TermIsRRewritten(term) TermCellQueryProp((term), TPIsRRewritten)
 #define TermIsTopRewritten(term) (TermIsRewritten(term)&&TermRWDemodField(term))
-#define TermIsShared(term)       TermCellQueryProp((term), TPIsShared)
+/* A term is shared if it is in a term bank. Variables are always
+   shared (in their variable bank), even if that has no term bank. */
+#define TermIsShared(term)       ((term)->owner_bank || TermIsAnyVar(term))
 
 #ifdef ENABLE_LFHO
 Term_p  MakeRewrittenTerm(Term_p orig, Term_p new, int orig_remains, struct tbcell* bank);
@@ -360,14 +364,19 @@ static inline Term_p  TermDeref(Term_p term, DerefType_p deref);
 
 static inline Term_p  TermTopCopy(Term_p source);
 
+#define TermGetBank(t)     ((t)->owner_bank)
+#define TermSetBank(t,b)   ((t)->owner_bank = (b))
+struct tbcell* TermFindBankRec(Term_p t);
+/* The bank of a term: its owner bank if it is shared, otherwise the
+   bank of its first shared subterm. NULL if there is none. */
+#define TermFindBank(t)    (TermGetBank(t) ? TermGetBank(t) : TermFindBankRec(t))
+
 void    TermStackSetProps(PStack_p stack, TermProperties prop);
 void    TermStackDelProps(PStack_p stack, TermProperties prop);
 
 #ifdef ENABLE_LFHO
 #define TermGetCache(t)    ((t)->binding_cache)
 #define TermSetCache(t,c)  ((t)->binding_cache = (c))
-#define TermGetBank(t)     ((t)->owner_bank)
-#define TermSetBank(t,b)   ((t)->owner_bank = (b))
 Term_p TermFindUnownedSubterm(Term_p term);
 #define DBGTermCheckUnownedSubterm(out, t, location)     \
    DBGTermCheckUnownedSubtermReal((out), (t), (location))
@@ -378,10 +387,8 @@ void DBGTermCheckUnownedSubtermReal(FILE* out, Term_p t, char* location);
 #else
 #define TermGetCache(t)    (UNUSED(t), NULL)
 #define TermSetCache(t,c)  (UNUSED(t), UNUSED(c), UNUSED(NULL))
-#define TermGetBank(t)     (UNUSED(t), NULL)
 #define TermFindUnownedSubterm(t) (UNUSED(t), NULL)
 #define DBGTermCheckUnownedSubterm(f, t, l) (UNUSED(f), UNUSED(t), UNUSED(l))
-#define TermSetBank(t,b)   (UNUSED(t), UNUSED(b))
 #define TermIsBetaReducible(t) false
 #define TermIsEtaReducible(t)  false
 #endif

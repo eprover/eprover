@@ -1370,7 +1370,6 @@ Term_p TermCopy(Term_p source, VarBank_p vars, DBVarBank_p dbvars, DerefType der
          handle->args[i] = TermCopy(source->args[i], vars, dbvars,
                                     CONVERT_DEREF(i, limit, deref));
       }
-      TermSetBank(handle, TermGetBank(source));
    }
    return handle;
 }
@@ -1515,7 +1514,9 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
    int limit_1 = DEREF_LIMIT(t1, deref_1);
    int limit_2 = DEREF_LIMIT(t2, deref_2);
 
-   TB_p bank = TermGetBank(t1) ? TermGetBank(t1) : TermGetBank(t2);
+   /* Only needed for lambda handling */
+   TB_p bank = problemType == PROBLEM_HO ?
+      (TermFindBank(t1) ? TermFindBank(t1) : TermFindBank(t2)) : NULL;
 
    if(problemType == PROBLEM_HO)
    {
@@ -1888,7 +1889,7 @@ long TermWeightCompute(Term_p term, long vweight, long fweight)
    long res = 0;
 
    if(TermIsFreeVar(term) ||
-     (TermIsAppliedFreeVar(term) && NormalizePatternAppVar(TermGetBank(term), term)))
+     (TermIsAppliedFreeVar(term) && NormalizePatternAppVar(TermFindBank(term), term)))
    {
       // if variable is of the form X xn where xn are bound variables -->
       // then it is counted as a simple variable
@@ -3202,7 +3203,6 @@ Term_p TermCopyRenameVars(PObjMap_p* renaming, Term_p term)
     {
         copy = TermTopCopy(term);
         copy->type = term->type;
-        TermSetBank(copy, TermGetBank(term));
         for (i=0; i<term->arity; i++)
         {
             copy->args[i] = TermCopyRenameVars(renaming, term->args[i]);
@@ -3264,7 +3264,6 @@ Term_p TermCopyUnifyVars(VarBank_p vars, Term_p term)
     }
 
     Term_p new = TermTopCopy(term);
-    TermSetBank(new, TermGetBank(term));
     for (i=0; i<term->arity; i++)
     {
         new->args[i] = TermCopyUnifyVars(vars, term->args[i]);

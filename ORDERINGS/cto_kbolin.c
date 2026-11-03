@@ -1025,12 +1025,12 @@ static CompareResult kbolincmp_lambda(OCB_p ocb, Term_p s, Term_p t,
 {
    assert(problemType == PROBLEM_HO);
    assert(ocb->ho_vb == NULL);
-   s = LambdaEtaReduceDB(TermGetBank(s),
-         BetaNormalizeDB(TermGetBank(s),
-            TBInsertInstantiatedDeref(TermGetBank(s), s, deref_s)));
-   t =  LambdaEtaReduceDB(TermGetBank(t),
-         BetaNormalizeDB(TermGetBank(t),
-            TBInsertInstantiatedDeref(TermGetBank(t), t, deref_t)));
+   s = LambdaEtaReduceDB(TermFindBank(s),
+         BetaNormalizeDB(TermFindBank(s),
+            TBInsertInstantiatedDeref(TermFindBank(s), s, deref_s)));
+   t =  LambdaEtaReduceDB(TermFindBank(t),
+         BetaNormalizeDB(TermFindBank(t),
+            TBInsertInstantiatedDeref(TermFindBank(t), t, deref_t)));
 
    CompareResult res =
       s->f_code == SIG_TRUE_CODE ?

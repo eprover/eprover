@@ -70,7 +70,7 @@ long gd_term_weight(Term_p term, long vweight, long fweight,
    else
    {
       if(TermIsFreeVar(term) ||
-         (TermIsAppliedFreeVar(term) && NormalizePatternAppVar(TermGetBank(term), term)))
+         (TermIsAppliedFreeVar(term) && NormalizePatternAppVar(TermFindBank(term), term)))
       {
          // if variable is of the form X xn where xn are bound variables -->
          // then it is counted as a simple variable
