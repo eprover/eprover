@@ -1156,7 +1156,11 @@ Term_p whnf_step_uncached(TB_p bank, Term_p t)
 
    PStackFree(to_bind_stack);
    assert(TermIsShared(res));
-   TermSetCache(t, res);
+   if(TermIsShared(t) && TermGetBank(t) == bank)
+   {
+      /* Only cache results in the term's own bank, see WHNF_step() */
+      TermSetCache(t, res);
+   }
    return res;
 }
 
@@ -1180,8 +1184,11 @@ Term_p WHNF_step(TB_p bank, Term_p t)
       return t;
    }
 
-   Term_p res = false;
-   res = TermGetCache(t);
+   assert(bank);
+
+   /* The cache holds a result in t's bank, which is only usable if
+      that is the requested bank. */
+   Term_p res = (TermGetBank(t) == bank) ? TermGetCache(t) : NULL;
    if(!res)
    {
       res = whnf_step_uncached(bank, t);
