@@ -1157,8 +1157,9 @@ void do_ext_eqres(Clause_p cl, Eqn_p lit, ClauseSet_p store)
 /----------------------------------------------------------------------*/
 
 void do_ext_sup(ClausePos_p from_pos, ClausePos_p into_pos, ClauseSet_p store,
-                TB_p terms, VarBank_p freshvars, Clause_p orig_cl)
+                VarBank_p freshvars, Clause_p orig_cl)
 {
+   TB_p terms = ClauseGetBank(from_pos->clause);
    PStack_p disagreements = PStackAlloc();
    Term_p from_t = ClausePosGetSubterm(from_pos);
    Term_p into_t = ClausePosGetSubterm(into_pos);
@@ -1270,7 +1271,7 @@ void do_ext_sup_from(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
          {
             UnpackClausePosInto(node->key, cl_cpos->clause, into_pos);
             do_ext_sup(from_pos, into_pos, state->tmp_store,
-                       state->terms, state->freshvars, orig_cl);
+                       state->freshvars, orig_cl);
          }
          NumXTreeTraverseExit(niter);
       }
@@ -1326,7 +1327,7 @@ void do_ext_sup_into(Clause_p renamed_cl, Clause_p orig_cl, ProofState_p state)
 
             UnpackClausePosInto(node->key, cl_cpos->clause, from_pos);
             do_ext_sup(from_pos, into_pos, state->tmp_store,
-                       state->terms, state->freshvars, orig_cl);
+                       state->freshvars, orig_cl);
          }
          NumXTreeTraverseExit(niter);
       }

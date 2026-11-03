@@ -60,11 +60,12 @@
 //
 /----------------------------------------------------------------------*/
 
-long ComputeDisEqDecompositions(TB_p terms, Clause_p clause,
+long ComputeDisEqDecompositions(Clause_p clause,
                                 ClauseSet_p store,
                                 long diseq_decomposition,
                                 long diseq_decomp_maxarity)
 {
+   TB_p terms = ClauseGetBank(clause);
    long count = 0;
    CompactPos litpos;
    Eqn_p lit;

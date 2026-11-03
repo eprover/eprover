@@ -172,6 +172,13 @@ typedef struct clause_cell
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+/* A clause is in the bank of its literals (NULL if it is empty) */
+static inline TB_p ClauseGetBank(Clause_p clause)
+{
+   return clause->literals ? EqnGetBank(clause->literals) : NULL;
+}
+
+
 extern bool ClausesHaveLocalVariables;
 extern bool ClausesHaveDisjointVariables;
 extern long ClauseIdentCounter;

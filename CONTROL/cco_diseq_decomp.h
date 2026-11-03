@@ -40,7 +40,7 @@
 /*---------------------------------------------------------------------*/
 
 
-long ComputeDisEqDecompositions(TB_p terms, Clause_p clause,
+long ComputeDisEqDecompositions(Clause_p clause,
                                 ClauseSet_p store,
                                 long diseq_decomposition,
                                 long diseq_decomp_maxarity);
