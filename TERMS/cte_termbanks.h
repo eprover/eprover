@@ -169,7 +169,7 @@ long    TBTermSetPropCount(Term_p term, TermProperties prop);
 
 #define TBTermCellIsMarked(bank, term)                                  \
    (GiveProps((term),TPGarbageFlag)!=(bank)->garbage_state)
-void    TBGCMarkTerm(TB_p bank, Term_p term);
+void    TBGCMarkTerm(Term_p term);
 long    TBGCSweep(TB_p bank);
 Term_p  TBCreateConstTerm(TB_p bank, FunCode const);
 Term_p  TBCreateMinTerm(TB_p bank, FunCode min_const);
@@ -180,8 +180,8 @@ Term_p  TBGetFreqConstTerm(TB_p terms, Type_p sort,
                            long* conj_dist_array,
                            long* dist_array, FunConstCmpFunType is_better);
 Term_p  TermMap(TB_p bank, Term_p t, TermMapper f);
-Term_p NormalizePatternAppVar(TB_p bank, Term_p s);
-#define MAYBE_NORMALIZE_APP_VAR(t) (TermIsTopLevelFreeVar(t) ? NormalizePatternAppVar(TermFindBank(t), t) : NULL)
+Term_p NormalizePatternAppVar(Term_p s);
+#define MAYBE_NORMALIZE_APP_VAR(t) (TermIsTopLevelFreeVar(t) ? NormalizePatternAppVar(t) : NULL)
 Term_p TermApplyArg(TypeBank_p tb, Term_p s, Term_p arg);
 
 

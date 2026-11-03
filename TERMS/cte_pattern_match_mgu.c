@@ -158,7 +158,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
    }
    else if (TermIsAppliedFreeVar(t))
    {
-      t = NormalizePatternAppVar(bank, t);
+      t = NormalizePatternAppVar(t);
       if(!t)
       {
          *unif_res = NOT_IN_FRAGMENT;
@@ -265,7 +265,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
 OracleUnifResult flex_rigid(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 {
    assert(TermIsTopLevelFreeVar(s));
-   s = NormalizePatternAppVar(bank, s);
+   s = NormalizePatternAppVar(s);
    OracleUnifResult res = UNIFIABLE;
    if(!s)
    {
@@ -322,8 +322,8 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 {
    OracleUnifResult res = UNIFIABLE;
 
-   s = NormalizePatternAppVar(bank, s);
-   t = NormalizePatternAppVar(bank, t);
+   s = NormalizePatternAppVar(s);
+   t = NormalizePatternAppVar(t);
 
    if(!s || !t)
    {
@@ -405,8 +405,8 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
    else
    {
       assert(TermIsAppliedFreeVar(t));
-      s = NormalizePatternAppVar(bank, s);
-      t = NormalizePatternAppVar(bank, t);
+      s = NormalizePatternAppVar(s);
+      t = NormalizePatternAppVar(t);
       if(!s || !t)
       {
          res = NOT_IN_FRAGMENT;
@@ -526,7 +526,7 @@ Term_p do_remap(TB_p bank, IntMap_p dbmap, Term_p t, OracleUnifResult* res, long
 
    if(TermIsAppliedFreeVar(t))
    {
-      t = NormalizePatternAppVar(bank, t);
+      t = NormalizePatternAppVar(t);
       if(!t)
       {
          *res = NOT_IN_FRAGMENT;
@@ -658,7 +658,7 @@ OracleUnifResult match_var(TB_p bank, Subst_p subst,
                            Term_p matcher, Term_p to_match)
 {
    assert(TermIsTopLevelFreeVar(matcher));
-   matcher = NormalizePatternAppVar(bank, matcher);
+   matcher = NormalizePatternAppVar(matcher);
    if(!matcher)
    {
       return NOT_IN_FRAGMENT;
@@ -959,7 +959,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
 
       if(TermIsTopLevelFreeVar(matcher))
       {
-         matcher = NormalizePatternAppVar(bank, matcher);
+         matcher = NormalizePatternAppVar(matcher);
          if(!matcher)
          {
             res = NOT_IN_FRAGMENT;

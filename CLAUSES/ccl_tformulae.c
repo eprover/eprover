@@ -454,7 +454,7 @@ static TFormula_p parse_atom(Scanner_p in, TB_p terms)
    }
    else
    {
-      res = EqnTermsTBTermEncode(terms, lhs, rhs, positive, PENormal);
+      res = EqnTermsTBTermEncode(lhs, rhs, positive, PENormal);
    }
    return res;
 }
@@ -1407,7 +1407,7 @@ Term_p EncodePredicateAsEqn(TB_p bank, TFormula_p f)
       rside = bank->true_term;
 
       // making sure we encode $false as $true!=$true
-      f = EqnTermsTBTermEncode(bank, lside, rside, positive, PENormal);
+      f = EqnTermsTBTermEncode(lside, rside, positive, PENormal);
       //printf("xxx %ld - %ld: ", f->f_code, bank->sig->eqn_code);
       //TermPrint(stdout, f, bank->sig, DEREF_NEVER);
       //printf("\n");
@@ -1510,7 +1510,7 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
 
    if(problemType == PROBLEM_FO)
    {
-      res = EqnTermsTBTermEncode(EqnGetBank(literal), literal->lterm,
+      res = EqnTermsTBTermEncode(literal->lterm,
                                  literal->rterm, EqnIsPositive(literal),
                                  PENormal);
    }
@@ -1536,7 +1536,7 @@ TFormula_p TFormulaLitAlloc(Eqn_p literal)
       Term_p lterm = DecodeFormulasForCNF(literal->lterm);
       Term_p rterm = DecodeFormulasForCNF(literal->rterm);
       res =
-         EqnTermsTBTermEncode(bank, lterm, rterm, EqnIsPositive(literal), PENormal);
+         EqnTermsTBTermEncode(lterm, rterm, EqnIsPositive(literal), PENormal);
    }
 
    return res;
@@ -2750,7 +2750,7 @@ Clause_p TFormulaCollectClause(TFormula_p form, TB_p terms,
       {
          if(TFormulaIsLiteral(terms->sig, form))
          {
-            lit = EqnTBTermDecode(terms, form);
+            lit = EqnTBTermDecode(form);
             PStackPushP(lit_stack, lit);
          }
          else if(TermIsTrueTerm(form))

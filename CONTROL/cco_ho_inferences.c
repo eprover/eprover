@@ -201,7 +201,7 @@ Term_p abstract_arg(Term_p lhs, Term_p rhs, Term_p arg, TB_p bank, bool sign)
    Term_p lhs_abs = do_abstract(lhs, arg, bank, 0, refresher);
    Term_p rhs_abs = do_abstract(rhs, arg, bank, 0, refresher);
 
-   Term_p matrix = EqnTermsTBTermEncode(bank, lhs_abs, rhs_abs, sign, PENormal);
+   Term_p matrix = EqnTermsTBTermEncode(lhs_abs, rhs_abs, sign, PENormal);
    SubstDelete(refresher);
    return CloseWithDBVar(arg->type, matrix);
 }

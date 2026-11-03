@@ -1249,7 +1249,7 @@ void DerivStackGCMarkTerms(TB_p bank, PStack_p derivation)
             term = PStackElementP(derivation, i);
             if(!TermIsFreeVar(term))
             {
-               TBGCMarkTerm(bank, term);
+               TBGCMarkTerm(term);
             }
          }
       }

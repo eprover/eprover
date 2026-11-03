@@ -238,7 +238,7 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
       {
          TermCellSetProp(t, TPHasAppVar);
          // counting applied pattern free var as a single var.
-         if(NormalizePatternAppVar(bank, t))
+         if(NormalizePatternAppVar(t))
          {
             t->f_count = 0;
             t->v_count = 1;
@@ -447,7 +447,7 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
       lhs = TBTermTopInsert(bank, lhs);
 
       DStrFree(name);
-      return EqnTermsTBTermEncode(bank, lhs, rhs, true, PENormal);
+      return EqnTermsTBTermEncode(lhs, rhs, true, PENormal);
    }
    else
    {
@@ -2091,13 +2091,18 @@ long TBTermSetPropCount(Term_p term, TermProperties prop)
 //
 /----------------------------------------------------------------------*/
 
-void TBGCMarkTerm(TB_p bank, Term_p term)
+void TBGCMarkTerm(Term_p term)
 {
-   PStack_p stack = PStackAlloc();
+   TB_p bank = TermGetBank(term);
+   PStack_p stack;
    int i;
 
-   assert(bank);
    assert(term);
+   if(!bank)
+   {
+      return; /* Variable of a bank-less variable bank, not in any store */
+   }
+   stack = PStackAlloc();
 
    PStackPushP(stack, term);
    while(!PStackEmpty(stack))
@@ -2146,8 +2151,8 @@ long TBGCSweep(TB_p bank)
 
    assert(bank);
    assert(!TermIsRewritten(bank->true_term));
-   TBGCMarkTerm(bank, bank->true_term);
-   TBGCMarkTerm(bank, bank->false_term);
+   TBGCMarkTerm(bank->true_term);
+   TBGCMarkTerm(bank->false_term);
 
    for(i=0; i< bank->min_terms->size; i++)
    {
@@ -2155,7 +2160,7 @@ long TBGCSweep(TB_p bank)
 
       if(t)
       {
-         TBGCMarkTerm(bank, t);
+         TBGCMarkTerm(t);
       }
    }
    VERBOUT("Garbage collection started.\n");
@@ -2558,7 +2563,7 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-Term_p NormalizePatternAppVar(TB_p bank, Term_p s)
+Term_p NormalizePatternAppVar(Term_p s)
 {
    if(TermIsFreeVar(s))
    {
@@ -2566,7 +2571,6 @@ Term_p NormalizePatternAppVar(TB_p bank, Term_p s)
    }
 
    assert(TermIsAppliedFreeVar(s));
-   assert(bank);
 
    s = LambdaEtaReduceDB(s);
    bool all_dbs = true;

@@ -856,7 +856,7 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
 
       if(TypeIsBool(lterm->type))
       {
-         lterm = EqnTermsTBTermEncode(bank, lterm, bank->true_term, true, PENormal);
+         lterm = EqnTermsTBTermEncode(lterm, bank->true_term, true, PENormal);
       }
    }
    else
@@ -891,9 +891,10 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
 //
 /----------------------------------------------------------------------*/
 
-Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
+Term_p EqnTermsTBTermEncode(Term_p lterm, Term_p rterm,
                             bool positive, PatEqnDirection dir)
 {
+   TB_p    bank = TermGetBank(lterm) ? TermGetBank(lterm) : TermGetBank(rterm);
    Term_p  handle;
 
    assert(bank);
@@ -934,8 +935,9 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
 //
 /----------------------------------------------------------------------*/
 
-Eqn_p EqnTBTermDecode(TB_p terms, Term_p eqn)
+Eqn_p EqnTBTermDecode(Term_p eqn)
 {
+   TB_p terms = TermGetBank(eqn);
    Eqn_p res;
    bool positive = false;
 
@@ -972,7 +974,7 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 
    positive = eqn_parse_real(in, bank, &lterm, &rterm, false);
 
-   return EqnTermsTBTermEncode(bank, lterm, rterm, positive,
+   return EqnTermsTBTermEncode(lterm, rterm, positive,
                                PENormal);
 }
 

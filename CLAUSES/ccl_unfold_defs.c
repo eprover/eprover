@@ -136,7 +136,7 @@ static Term_p term_top_unfold_def_ho(TB_p bank, Term_p term, Term_p lside, Term_
 //
 /----------------------------------------------------------------------*/
 
-static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p steps,
+static Term_p term_unfold_def(Term_p term, PStack_p steps,
                               PStack_p path, Clause_p demod,
                               Term_p demod_l, Term_p demod_r)
 {
@@ -149,7 +149,7 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p steps,
    for(i=0; i<res->arity; i++)
    {
       PStackPushInt(path, i);
-      res->args[i] = term_unfold_def(bank, term->args[i], steps, path,
+      res->args[i] = term_unfold_def(term->args[i], steps, path,
                                      demod, demod_l, demod_r);
       PStackDiscardTop(path);
       if(res->args[i] != term->args[i])
@@ -159,7 +159,7 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p steps,
    }
    if(changed)
    {
-      tmp = TBTermTopInsert(bank, res);
+      tmp = TBTermTopInsert(TermFindBank(term), res);
    }
    else
    {
@@ -167,7 +167,7 @@ static Term_p term_unfold_def(TB_p bank, Term_p term, PStack_p steps,
       tmp = term;
    }
    res = (problemType == PROBLEM_FO ? term_top_unfold_def_fo : term_top_unfold_def_ho)
-            (bank, tmp, demod_l, demod_r);
+            (TermGetBank(tmp), tmp, demod_l, demod_r);
    if(res!=tmp)
    {
       PStackPushP(steps, demod);
@@ -196,7 +196,7 @@ static long side_unfold_def(Clause_p clause, TB_p bank, Term_p *side,
                             ClauseSet_p step_archive, PStack_p step_sides)
 {
    PStack_p steps = PStackAlloc(), path = PStackAlloc();
-   Term_p nf = term_unfold_def(bank, *side, steps, path, demod->clause,
+   Term_p nf = term_unfold_def(*side, steps, path, demod->clause,
                                lside, rside);
    long res = PStackGetSP(steps)/3;
 

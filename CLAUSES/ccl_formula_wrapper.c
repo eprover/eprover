@@ -72,7 +72,7 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
    Term_p lside_term = TBTermParse(in, bank);
    if(TypeIsBool(lside_term->type))
    {
-      TFormula_p lside = EqnTermsTBTermEncode(bank, lside_term,
+      TFormula_p lside = EqnTermsTBTermEncode(lside_term,
                                               bank->true_term, true, PENormal);
       if(!TestInpTok(in, EqualSign))
       {
@@ -99,7 +99,7 @@ TFormula_p handle_ho_def(Scanner_p in, TB_p bank)
       }
       AcceptInpTok(in, EqualSign|NegEqualSign);
       Term_p rside = TBTermParse(in, bank);
-      TFormula_p res = EqnTermsTBTermEncode(bank, lside_term, rside,
+      TFormula_p res = EqnTermsTBTermEncode(lside_term, rside,
                                             positive, PENormal);
       if(in_parens)
       {
@@ -241,7 +241,7 @@ WFormula_p WFormulaFlatCopy(WFormula_p form)
 
 void WFormulaGCMarkCells(WFormula_p form)
 {
-   TFormulaGCMarkCells(form->terms, form->tformula);
+   TFormulaGCMarkCells(form->tformula);
    if(form->derivation)
    {
       DerivStackGCMarkTerms(form->terms, form->derivation);

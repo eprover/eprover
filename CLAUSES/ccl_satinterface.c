@@ -84,11 +84,11 @@ int sat_translate_literal(Eqn_p eqn, SatClauseSet_p set)
       // We normalize literals to avoid spurious failures
       if(PGreater(lterm, rterm))
       {
-         lit_term = EqnTermsTBTermEncode(EqnGetBank(eqn), lterm, rterm, true, PENormal);
+         lit_term = EqnTermsTBTermEncode(lterm, rterm, true, PENormal);
       }
       else
       {
-         lit_term = EqnTermsTBTermEncode(EqnGetBank(eqn), lterm, rterm, true, PEReverse);
+         lit_term = EqnTermsTBTermEncode(lterm, rterm, true, PEReverse);
       }
    }
    else

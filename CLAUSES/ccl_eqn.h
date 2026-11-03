@@ -147,8 +147,8 @@ void    EqnFree(Eqn_p junk);
 
 #define EqnCreateTrueLit(bank) (EqnAlloc((bank)->true_term, (bank)->true_term, bank, true))
 
-#define EqnGCMarkTerms(eqn) TBGCMarkTerm(EqnGetBank(eqn),(eqn)->lterm);     \
-   TBGCMarkTerm(EqnGetBank(eqn),(eqn)->rterm)
+#define EqnGCMarkTerms(eqn) TBGCMarkTerm((eqn)->lterm);     \
+   TBGCMarkTerm((eqn)->rterm)
 
 #define EqnSetProp(eqn, prop)  SetProp((eqn), (prop))
 #define EqnDelProp(eqn, prop)  DelProp((eqn), (prop))
@@ -232,12 +232,12 @@ bool    EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref);
 Eqn_p   EqnParse(Scanner_p in, TB_p bank);
 Eqn_p   EqnFOFParse(Scanner_p in, TB_p bank);
 Eqn_p   EqnHOFParse(Scanner_p in, TB_p terms, bool *continue_parsing);
-Term_p  EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
+Term_p  EqnTermsTBTermEncode(Term_p lterm, Term_p rterm,
                              bool positive, PatEqnDirection dir);
 #define EqnTBTermEncode(eqn, dir) \
-   EqnTermsTBTermEncode(EqnGetBank(eqn), (eqn)->lterm,      \
+   EqnTermsTBTermEncode((eqn)->lterm,      \
                         (eqn)->rterm, EqnIsPositive(eqn), (dir))
-Eqn_p   EqnTBTermDecode(TB_p terms, Term_p eqn);
+Eqn_p   EqnTBTermDecode(Term_p eqn);
 Term_p  EqnTBTermParse(Scanner_p in, TB_p bank);
 void    EqnPrint(FILE* out, Eqn_p eq, bool negated, bool fullterms);
 void    EqnPrintDBG(FILE* out, Eqn_p eq);

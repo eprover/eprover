@@ -1889,7 +1889,7 @@ long TermWeightCompute(Term_p term, long vweight, long fweight)
    long res = 0;
 
    if(TermIsFreeVar(term) ||
-     (TermIsAppliedFreeVar(term) && NormalizePatternAppVar(TermFindBank(term), term)))
+     (TermIsAppliedFreeVar(term) && NormalizePatternAppVar(term)))
    {
       // if variable is of the form X xn where xn are bound variables -->
       // then it is counted as a simple variable
