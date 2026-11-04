@@ -282,7 +282,7 @@ function get_cluster_name(   pipe, tmp)
 
 
 function print_used_hosts(print_diffs     ,i, count_files,
-			  count_array, files, array)
+                          count_array, files, array)
 {
    count_files = 0;
    count_array = 0;
@@ -294,23 +294,23 @@ function print_used_hosts(print_diffs     ,i, count_files,
 
       if(array)
       {
-	 /* print "In use: " all_hosts[i]; */
-	 count_array++;
+         /* print "In use: " all_hosts[i]; */
+         count_array++;
       }
       if(files)
       {
-	 count_files++;
+         count_files++;
       }
       if(print_diffs)
       {
-	 if((array && (!files)))
-	 {
-	    print all_hosts[i] " in host_in_use[], but no lock file";
-	 }
-	 if(((!array) && files))
-	 {
-	    print all_hosts[i] " has lock file, but no host_in_use[] entry";
-	 }
+         if((array && (!files)))
+         {
+            print all_hosts[i] " in host_in_use[], but no lock file";
+         }
+         if(((!array) && files))
+         {
+            print all_hosts[i] " has lock file, but no host_in_use[] entry";
+         }
       }
    }   
    print "Found " count_array " array entries";
@@ -347,10 +347,10 @@ function collect_host_info(    res, count, i, type)
   {
      if(exclude_hosts[all_hosts[i]]!=1)
      {
-	print "Checking host " all_hosts[i] ".";
-	res = check_availablity(all_hosts[i]);
-	if(res != 1000000)
-	{
+        print "Checking host " all_hosts[i] ".";
+        res = check_availablity(all_hosts[i]);
+        if(res != 1000000)
+        {
            type = get_host_type(all_hosts[i]);
            if(type)
            {
@@ -358,7 +358,7 @@ function collect_host_info(    res, count, i, type)
               host_proc_power[all_hosts[i]] = e_mark[type];
               print "..." all_hosts[i] " is ready at " host_proc_power[all_hosts[i]] " EMark";
            }
-	}
+        }
      }
   }
   print "Found " count " hosts.";
@@ -398,7 +398,7 @@ function check_availablity(host,       pipe, tmp, cmd, memdata)
   if(!ping_host(host))
   {
      # No good response -> dont use machine 
-	 return 1000000;
+         return 1000000;
   } 
 
   mem_data[0] = 0;
@@ -418,8 +418,8 @@ function check_availablity(host,       pipe, tmp, cmd, memdata)
   {
      if(mem_data[1] < 160)
      {
-	print "# Checking " host ": Greedy interactive user, only " mem_data[1] " free";
-	return 1000000;
+        print "# Checking " host ": Greedy interactive user, only " mem_data[1] " free";
+        return 1000000;
      }     
   }
   #{
@@ -437,53 +437,53 @@ function check_and_initialize(    tmp, job)
    {
       if(!executable)
       {
-	 print "distribute_eprover.awk: No executable found" > "/dev/stderr";
-	 exit 1;
+         print "distribute_eprover.awk: No executable found" > "/dev/stderr";
+         exit 1;
       }
       if(!logfile)
       {
-	 print "distribute_eprover.awk: No logfile found" > "/dev/stderr";
-	 exit 1;
+         print "distribute_eprover.awk: No logfile found" > "/dev/stderr";
+         exit 1;
       }
       if(!problemdir)
       {
-	 print "distribute_eprover.awk: No problemdir found" > "/dev/stderr";
-	 exit 1;
+         print "distribute_eprover.awk: No problemdir found" > "/dev/stderr";
+         exit 1;
       }
       if(!file_exists(logfile))
       {
-	 print "Creating log file " logfile;
-	 print "# " args " " auto_args > logfile;
-	 execpath = get_shell_res("which " executable);
-	 execdate = get_shell_res("ls -l " execpath);
-	 exechost = get_hostname();
-	 execversion = get_shell_res(executable " -V");
-	 print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
+         print "Creating log file " logfile;
+         print "# " args " " auto_args > logfile;
+         execpath = get_shell_res("which " executable);
+         execdate = get_shell_res("ls -l " execpath);
+         exechost = get_hostname();
+         execversion = get_shell_res(executable " -V");
+         print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
       }
       else
       {
-	 print "Logfile " logfile " exists, using old results";
-	 execpath = get_shell_res("which " executable);
-	 execdate = get_shell_res("ls -l " execpath);
-	 exechost = get_hostname();
-	 execversion = get_shell_res(executable " -V");
-	 print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
-	 processed_count = 0;
-	 while ((getline tmp < logfile) > 0)
-	 {
-	    if(match(job, /^[0-9A-Za-z].*\.lop/) ||
+         print "Logfile " logfile " exists, using old results";
+         execpath = get_shell_res("which " executable);
+         execdate = get_shell_res("ls -l " execpath);
+         exechost = get_hostname();
+         execversion = get_shell_res(executable " -V");
+         print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
+         processed_count = 0;
+         while ((getline tmp < logfile) > 0)
+         {
+            if(match(job, /^[0-9A-Za-z].*\.lop/) ||
                match(job, /^[0-9A-Za-z].*\.p/)||   
                match(job, /^[0-9A-Za-z].*\.e/)  || 
                match(job, /^[0-9A-Za-z].*\.tpt/)  ||
                match(job, /^[0-9A-Za-z].*\.tptp/))
-	    {
-	       job = substr(tmp, RSTART, RLENGTH);
-	       processed_jobs[job] = 1;
-	       processed_count++;
-	    }
-	 }
-	 close(logfile);
-	 print "Found " processed_count " old results";
+            {
+               job = substr(tmp, RSTART, RLENGTH);
+               processed_jobs[job] = 1;
+               processed_count++;
+            }
+         }
+         close(logfile);
+         print "Found " processed_count " old results";
       }
       first_job = 0;	    
    }  
@@ -492,9 +492,9 @@ function check_and_initialize(    tmp, job)
 
 
 function process_result(host     , file, tmp, name, time, org_time, status,\
-	     reason, generated, processed,shared_terms,raw_terms,\
-	     rewrite_steps, r_matches, e_matches, literals,nu_subs,\
-	     nurec_sub, u_subs)
+             reason, generated, processed,shared_terms,raw_terms,\
+             rewrite_steps, r_matches, e_matches, literals,nu_subs,\
+             nurec_sub, u_subs)
 {
    file = host "_complete";
    getline name < file;
@@ -517,88 +517,88 @@ function process_result(host     , file, tmp, name, time, org_time, status,\
       file = host "_lock";
       while((getline tmp < file)>0)
       {
-	 if(index(tmp, "# No proof found!"))
-	 {
-	    status = "N";
-	    reason = "success";
-	 }
-	 else if(index(tmp, "# Proof found!"))
-	 {
-	    status = "T";
-	    reason = "success";
-	 }
-	 else if(index(tmp, "# Failure: Out of unprocessed clauses!"))
-	 {
-	    status = "F";
-	    reason = "incomplete";
-	 }
-	 else if(index(tmp, "# Failure: Resource limit exceeded (memory)"))
-	 {
-	    reason = "maxmem ";
-	 }
-	 else if(index(tmp, "# Failure: Resource limit exceeded (time)"))
-	 {
-	    reason = "maxtime ";
-	 }	 
-	 else if(index(tmp, "# Failure: User resource limit exceeded"))
-	 {
-	    reason = "maxres";
-	 }	 
-	 else if(index(tmp, "# Processed clauses                    :"))
-	 {
-	    processed = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Generated clauses                    :"))
-	 {
-	    generated = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Shared term nodes                    :"))
-	 {
-	    shared_terms = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# ...corresponding unshared nodes      :"))
-	 {
-	    raw_terms = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Shared rewrite steps                 :"))
-	 {
-	    rewrite_steps = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Match attempts with oriented units   :"))
-	 {
-	    r_matches = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Match attempts with unoriented units :"))
-	 {
-	    e_matches = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Total literals in generated clauses  :"))
-	 {
-	    literals = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Clause-clause subsumption calls (NU) :"))
-	 {
-	    nu_subs = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Rec. Clause-clause subsumption calls :"))
-	 {
-	    nurec_subs = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Unit Clause-clause subsumption calls :"))
-	 {
-	    u_subs = substr(tmp, 42);
-	 }	 
-	 else if(index(tmp, "# Total time"))
-	 {
-	    org_time = substr(tmp, 30);
-	    time = org_time*host_proc_power[host]/100;
-	    # printf("Time %8.3f on host %s corrected to %8.3f\n", org_time, host, time);
-	 }
+         if(index(tmp, "# No proof found!"))
+         {
+            status = "N";
+            reason = "success";
+         }
+         else if(index(tmp, "# Proof found!"))
+         {
+            status = "T";
+            reason = "success";
+         }
+         else if(index(tmp, "# Failure: Out of unprocessed clauses!"))
+         {
+            status = "F";
+            reason = "incomplete";
+         }
+         else if(index(tmp, "# Failure: Resource limit exceeded (memory)"))
+         {
+            reason = "maxmem ";
+         }
+         else if(index(tmp, "# Failure: Resource limit exceeded (time)"))
+         {
+            reason = "maxtime ";
+         }	 
+         else if(index(tmp, "# Failure: User resource limit exceeded"))
+         {
+            reason = "maxres";
+         }	 
+         else if(index(tmp, "# Processed clauses                    :"))
+         {
+            processed = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Generated clauses                    :"))
+         {
+            generated = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Shared term nodes                    :"))
+         {
+            shared_terms = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# ...corresponding unshared nodes      :"))
+         {
+            raw_terms = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Shared rewrite steps                 :"))
+         {
+            rewrite_steps = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Match attempts with oriented units   :"))
+         {
+            r_matches = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Match attempts with unoriented units :"))
+         {
+            e_matches = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Total literals in generated clauses  :"))
+         {
+            literals = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Clause-clause subsumption calls (NU) :"))
+         {
+            nu_subs = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Rec. Clause-clause subsumption calls :"))
+         {
+            nurec_subs = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Unit Clause-clause subsumption calls :"))
+         {
+            u_subs = substr(tmp, 42);
+         }	 
+         else if(index(tmp, "# Total time"))
+         {
+            org_time = substr(tmp, 30);
+            time = org_time*host_proc_power[host]/100;
+            # printf("Time %8.3f on host %s corrected to %8.3f\n", org_time, host, time);
+         }
       }
       close(file);
       printf("%-29s " status " %8.3f  %-10s %10d %10d %10d %10d %10d\n", \
-	     name, 0+time, reason, generated, processed, \
-	     nu_subs, nurec_subs,u_subs) >> logfile;
+             name, 0+time, reason, generated, processed, \
+             nu_subs, nurec_subs,u_subs) >> logfile;
       open_jobs--;	    
       printf("Open: " open_jobs " %-29s " status " %8.3f  " reason "\n", name, 0+time);
    }
@@ -607,12 +607,12 @@ function process_result(host     , file, tmp, name, time, org_time, status,\
       print "No valid job in " host"_complete: Something strange";
       if(!file_exists(file))
       {
-	 print host"_complete does not seem to exists?!?!";
+         print host"_complete does not seem to exists?!?!";
       }
       else
       {
-	 system("echo " file " >> buggy_complete");
-	 system("cat "  file " >> buggy_complete");
+         system("echo " file " >> buggy_complete");
+         system("cat "  file " >> buggy_complete");
       }
    }
    
@@ -641,30 +641,30 @@ function get_host(   i, host, load, tmp_count)
    {
       for(i = lower_host; i<= upper_host; i++)
       {
-	 update_global_host_count();
-	 if(host_proc_power[all_hosts[global_host_count]])
-	 {
-	    if((host_in_use[all_hosts[global_host_count]]==0) &&
-	       (!file_exists(all_hosts[global_host_count] "_lock")))
-	    {
-	       load = check_availablity(all_hosts[global_host_count]);
-	       
-	       if(load != 1000000)
-	       {		  
-		  host = all_hosts[global_host_count];
-		  break;
-	       }
-	    } 
-	 }
+         update_global_host_count();
+         if(host_proc_power[all_hosts[global_host_count]])
+         {
+            if((host_in_use[all_hosts[global_host_count]]==0) &&
+               (!file_exists(all_hosts[global_host_count] "_lock")))
+            {
+               load = check_availablity(all_hosts[global_host_count]);
+               
+               if(load != 1000000)
+               {		  
+                  host = all_hosts[global_host_count];
+                  break;
+               }
+            } 
+         }
       }
       if(!host)
       {
-	 print "No host, processing results";
-	 if(!process_pending_results())
-	 {
-	    print "No host available, sleeping";
-	    system("sleep 30");
-	 }
+         print "No host, processing results";
+         if(!process_pending_results())
+         {
+            print "No host available, sleeping";
+            system("sleep 30");
+         }
       }
    }  
    return host;
@@ -715,10 +715,10 @@ function find_pid_in_protocoll(file,      pid, tmp)
   while ((getline tmp < file) > 0)
     {
       if(match(tmp, /# Pid: [0-9]+/))
-	{
-	  pid  = substr(tmp, 8);
-	  break;
-	}
+        {
+          pid  = substr(tmp, 8);
+          break;
+        }
     }	  
   close(file);
   return pid;
@@ -732,14 +732,14 @@ function kill_job(lockfile,     host, pid, res, shell)
       host = substr(lockfile, RSTART, RLENGTH);   
       if(ping_host(host))
       {
-	 pid  = find_pid_in_protocoll(lockfile);
-	 system("ssh -x " host " kill " pid "\n");
-	 res = 1;
+         pid  = find_pid_in_protocoll(lockfile);
+         system("ssh -x " host " kill " pid "\n");
+         res = 1;
       }
       else
       {
-	 print "Host " host " not reachable";
-	 res = 0;
+         print "Host " host " not reachable";
+         res = 0;
       }      
       system("rm " cwd "/" host "_lock");
       system("rm " cwd "/" host "_complete");
@@ -777,10 +777,10 @@ function check_alive(     current_time, i)
    {
       if(host_in_use[i] && ((current_time - host_in_use[i]) > time_limit*10))
       {
-	 print "Trying to kill dormant job on " i ".";
-	 kill_job(i "_lock");
-	 open_jobs--;
-	 host_in_use[i] = 0;
+         print "Trying to kill dormant job on " i ".";
+         kill_job(i "_lock");
+         open_jobs--;
+         host_in_use[i] = 0;
       }
    }   
 }
@@ -795,9 +795,9 @@ function number_of_lock_files(        pipe, count)
   while ((pipe | getline tmp) > 0)
     {
       if(match(tmp, /sunhalle[0-9]+_lock/))
-	{
-	  count++;
-	}
+        {
+          count++;
+        }
     }	  
   close(pipe);
   
@@ -816,9 +816,9 @@ function process_pending_results(     pipe, count, tmp)
    {
       if(match(tmp, /sunhalle[0-9]+/))
       {
-	 host = substr(tmp, RSTART, RLENGTH);
-	 process_result(host);
-	 count++; 
+         host = substr(tmp, RSTART, RLENGTH);
+         process_result(host);
+         count++; 
       }
    }	  
    close(pipe);
@@ -833,7 +833,7 @@ function host_cpu_limit_opt(limit, host_rating,    res, host_limit)
    if(soft_cpu_limit)
    {
       res = sprintf("--soft-cpu-limit=%d --cpu-limit=%d",
-		    host_limit,3*host_limit);
+                    host_limit,3*host_limit);
    }
    else
    {
@@ -952,7 +952,7 @@ BEGIN{
       remote_shell =  "ssh -x -T " host_local " 2>&1 1> /dev/null";
       print  "touch " outfile1 |remote_shell;
       print "(/bin/nice -15 " command "; sync; sleep 3; echo " job ">" \
-	 outfile2 ")< /dev/null > & /dev/null &\n" | remote_shell;
+         outfile2 ")< /dev/null > & /dev/null &\n" | remote_shell;
       close(remote_shell);
       open_jobs++;	       
       print "Open jobs: " open_jobs;
@@ -976,11 +976,11 @@ END{
       count++;
       if(count%10 == 0)
       {
-	 check_alive();
+         check_alive();
       }
       else
       {
-	 process_pending_results();
+         process_pending_results();
       }
     }
   print "Sorting Result file";

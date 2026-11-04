@@ -109,8 +109,8 @@ Dynamically addjustable pick-given-ratio (test with Scheme first -->
 test done, successful)
 Syntax: n@m[+-*/]k  - initial value n
                     - every m processed clauses modify n by
-		      adding/subtracting/multiplying with or
-		      dividing by k
+                      adding/subtracting/multiplying with or
+                      dividing by k
                     - Perhaps add limits?[a..b]?
 
 Rethink Simweight...return something based on the comparison of equal

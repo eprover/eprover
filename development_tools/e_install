@@ -8,7 +8,7 @@ testinstall()
     if test -f $1 ; then
        name=`basename $1`
        if test $1 -ef $2/$name ; then
-   	   echo  $1 "and" $2/$name "are already equal" ;
+           echo  $1 "and" $2/$name "are already equal" ;
        else
            cp $1 $2
        fi

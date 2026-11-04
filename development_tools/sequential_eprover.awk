@@ -142,53 +142,53 @@ function check_and_initialize(    tmp, job)
    {
       if(!executable)
       {
-	 print ARGV[0] ": No executable found" > "/dev/stderr";
-	 exit 1;
+         print ARGV[0] ": No executable found" > "/dev/stderr";
+         exit 1;
       }
       if(!logfile)
       {
-	 print ARGV[0] ": No logfile found" > "/dev/stderr";
-	 exit 1;
+         print ARGV[0] ": No logfile found" > "/dev/stderr";
+         exit 1;
       }
       if(!problemdir)
       {
-	 print ARGV[0] ": No problemdir found" > "/dev/stderr";
-	 exit 1;
+         print ARGV[0] ": No problemdir found" > "/dev/stderr";
+         exit 1;
       }
       if(!file_exists(logfile))
       {
-	 print "Creating log file " logfile;
-	 print "# " args " " auto_args > logfile;
-	 execpath = get_shell_res("which " executable);
-	 execdate = get_shell_res("ls -l " execpath);
-	 exechost = get_hostname();
-	 execversion = get_shell_res(executable " -V");
-	 print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
+         print "Creating log file " logfile;
+         print "# " args " " auto_args > logfile;
+         execpath = get_shell_res("which " executable);
+         execdate = get_shell_res("ls -l " execpath);
+         exechost = get_hostname();
+         execversion = get_shell_res(executable " -V");
+         print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
       }
       else
       {
-	 print "Logfile " logfile " exists, using old results";
-	 execpath = get_shell_res("which " executable);
-	 execdate = get_shell_res("ls -l " execpath);
-	 exechost = get_hostname();
-	 execversion = get_shell_res(executable " -V");
-	 print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
-	 processed_count = 0;
-	  while ((getline tmp < logfile) > 0)
-	  {
-	     if(match(tmp, /^[0-9A-Za-z].*\.lop/)||
-		match(tmp, /^[0-9A-Za-z].*\.p/)||
-		match(tmp, /^[0-9A-Za-z].*\.e/)||
-		match(tmp, /^[0-9A-Za-z].*\.tpt/)||
-		match(tmp, /^[0-9A-Za-z].*\.tptp/))
-	     {
-		job = substr(tmp, RSTART, RLENGTH);
-		processed_jobs[job] = 1;
-		processed_count++;
-	     }
-	  }
-	  close(logfile);
-	  print "Found " processed_count " old results";
+         print "Logfile " logfile " exists, using old results";
+         execpath = get_shell_res("which " executable);
+         execdate = get_shell_res("ls -l " execpath);
+         exechost = get_hostname();
+         execversion = get_shell_res(executable " -V");
+         print "# Started with " substr(execdate, 42) " (" execversion ") on " exechost >> logfile;
+         processed_count = 0;
+          while ((getline tmp < logfile) > 0)
+          {
+             if(match(tmp, /^[0-9A-Za-z].*\.lop/)||
+                match(tmp, /^[0-9A-Za-z].*\.p/)||
+                match(tmp, /^[0-9A-Za-z].*\.e/)||
+                match(tmp, /^[0-9A-Za-z].*\.tpt/)||
+                match(tmp, /^[0-9A-Za-z].*\.tptp/))
+             {
+                job = substr(tmp, RSTART, RLENGTH);
+                processed_jobs[job] = 1;
+                processed_count++;
+             }
+          }
+          close(logfile);
+          print "Found " processed_count " old results";
       }	      
       first_job = 0;	    
    }  
@@ -444,8 +444,8 @@ BEGIN{
    if(global_hostname in reserved_hosts)
    {
       global_checkreservation = "/home/" \
-	 reserved_hosts[global_hostname] \
-	 "/HOST_RESERVED_" global_hostname;
+         reserved_hosts[global_hostname] \
+         "/HOST_RESERVED_" global_hostname;
    }
 
    print "PID is " procid " on host " global_hostname ".";

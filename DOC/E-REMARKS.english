@@ -6,7 +6,7 @@ Other important Options:
 
 -h 
 --help  
-	Explain the options
+        Explain the options
 
 --tptp-in
         Read TPTP format

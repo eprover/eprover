@@ -44,9 +44,9 @@ function gen_term(limit, depth,    pred, arity, res, i)
       pred = "(";
       for(i=0; i<arity; i++)
       {
-	 # print depth ":" i "-" res;
-	 res = res pred gen_term(limit, depth+1);
-	 pred = ",";
+         # print depth ":" i "-" res;
+         res = res pred gen_term(limit, depth+1);
+         pred = ",";
       }
       res = res ")";
    }

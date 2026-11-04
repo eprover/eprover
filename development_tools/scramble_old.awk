@@ -28,7 +28,7 @@ function pick_nth(count,   i, k)
       count--;
       if(count==0)
       {
-	 break;
+         break;
       }
    }
    return i;

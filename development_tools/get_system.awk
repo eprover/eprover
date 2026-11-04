@@ -109,35 +109,35 @@ function get_platform_info_SunOS5(    pipe, tmp, res, tmpres,  i, arr, elements)
    {
       if(i = index(tmp, "processor operates at"))
       {
-	 elements = split(tmp, arr);
-	 if(elements!=7)
-	 {
-	    print "Cannot parse processor information" > "/dev/stderr";
-	    exit 1;
-	 }
-	 tmpres = arr[2] "-" arr[6];
-	 if(res && (res!=tmpres))
-	 {
-	    if(first_proc_only)
-	    {
-	       print "Two different processors found! Ignoring second"\
-		  " one (it's your responsibility now!)" >\
-		  "/dev/stderr";
-	       tmpres = "NC-" res;
-	    }
-	    else
-	    {
-	       print "Two different processors found! Machine"\
-		  " is unsuitable for E-MARK evaluation" > "/dev/stderr";
-	       exit 1;
-	    }
-	    exit 1;
-	 }
-	 else if(res)
-	 {
-	    print "Two or more identical processors found!" > "/dev/stderr";
-	 }
-	 res = tmpres;
+         elements = split(tmp, arr);
+         if(elements!=7)
+         {
+            print "Cannot parse processor information" > "/dev/stderr";
+            exit 1;
+         }
+         tmpres = arr[2] "-" arr[6];
+         if(res && (res!=tmpres))
+         {
+            if(first_proc_only)
+            {
+               print "Two different processors found! Ignoring second"\
+                  " one (it's your responsibility now!)" >\
+                  "/dev/stderr";
+               tmpres = "NC-" res;
+            }
+            else
+            {
+               print "Two different processors found! Machine"\
+                  " is unsuitable for E-MARK evaluation" > "/dev/stderr";
+               exit 1;
+            }
+            exit 1;
+         }
+         else if(res)
+         {
+            print "Two or more identical processors found!" > "/dev/stderr";
+         }
+         res = tmpres;
       }
    }
    close(pipe);
@@ -158,51 +158,51 @@ function get_platform_info_Linux(    pipe, tmp, res, tmpres,  i, arr, elements)
    {
       if(i = index(tmp, "model name")==1)
       {
-	 elements = split(tmp, arr, ": ");
-	 if(elements!=2)
-	 {
-	    print "Cannot parse processor information" > "/dev/stderr";
-	    exit 1;
-	 }
-	 tmpname = arr[2];
+         elements = split(tmp, arr, ": ");
+         if(elements!=2)
+         {
+            print "Cannot parse processor information" > "/dev/stderr";
+            exit 1;
+         }
+         tmpname = arr[2];
       }
       if(i = index(tmp, "cpu MHz")==1)
       {
-	 elements = split(tmp, arr, ": ");
-	 if(elements!=2)
-	 {
-	    print "Cannot parse processor information" > "/dev/stderr";
-	    exit 1;
-	 }
-	 tmpmhz = round(arr[2]); # PCs have NO reliable frequency!
+         elements = split(tmp, arr, ": ");
+         if(elements!=2)
+         {
+            print "Cannot parse processor information" > "/dev/stderr";
+            exit 1;
+         }
+         tmpmhz = round(arr[2]); # PCs have NO reliable frequency!
       }      
       if(i = index(tmp, "bogomips")==1)
       {
-	 tmpres = tmpname "-" tmpmhz;
-	 if(res && (res!=tmpres))
-	 {
-	    if(first_proc_only)
-	    {
-	       print "Two different processors found! Ignoring second"\
-		  " one (it's your responsibility now!)" >\
-		  "/dev/stderr";
-	       tmpres = "NC-" res;
-	    }
-	    else
-	    {
-	       print "Two different processors found! Machine"\
-		  " is unsuitable for E-MARK evaluation" > "/dev/stderr";
-	       exit 1;
-	    }
-	 }
-	 else if(res)
-	 {
-	    print "Two or more identical processors found!" > "/dev/stderr";
-	 }
-	 res = tmpres;
-	 tmpres = "";
-	 tmpname = "";
-	 tmpmhz = "";
+         tmpres = tmpname "-" tmpmhz;
+         if(res && (res!=tmpres))
+         {
+            if(first_proc_only)
+            {
+               print "Two different processors found! Ignoring second"\
+                  " one (it's your responsibility now!)" >\
+                  "/dev/stderr";
+               tmpres = "NC-" res;
+            }
+            else
+            {
+               print "Two different processors found! Machine"\
+                  " is unsuitable for E-MARK evaluation" > "/dev/stderr";
+               exit 1;
+            }
+         }
+         else if(res)
+         {
+            print "Two or more identical processors found!" > "/dev/stderr";
+         }
+         res = tmpres;
+         tmpres = "";
+         tmpname = "";
+         tmpmhz = "";
       }      
    }
    close(pipe);
@@ -214,7 +214,7 @@ function get_platform_info_Linux(    pipe, tmp, res, tmpres,  i, arr, elements)
 }
 
 function get_platform_info_Darwin(     pipe, tmp, i, arr, elements,
-				       tmpname, freq)
+                                       tmpname, freq)
 {
    pipe = "hostinfo";
 
@@ -222,15 +222,15 @@ function get_platform_info_Darwin(     pipe, tmp, i, arr, elements,
    {
       if(i = index(tmp, "Processor type")==1)
       {
-	 elements = split(tmp, arr, ": ");
-	 if(elements!=2)
-	 {
-	    print "Cannot parse processor information" > "/dev/stderr";
-	    exit 1;
-	 }
-	 tmp = arr[2];
-	 split(tmp, arr, " ");
-	 tmpname = arr[1];
+         elements = split(tmp, arr, ": ");
+         if(elements!=2)
+         {
+            print "Cannot parse processor information" > "/dev/stderr";
+            exit 1;
+         }
+         tmp = arr[2];
+         split(tmp, arr, " ");
+         tmpname = arr[1];
       }
    }
    close(pipe);
@@ -264,12 +264,12 @@ function get_procinfo(   os, res)
       res = get_procinfo_SunOS5();
       if(!res)
       {
-	 res = get_platform_info_Linux();
+         res = get_platform_info_Linux();
       }
       if(!res)
       {
-	 print "Cannot get system information" > "/dev/stderr";
-	 exit 1;
+         print "Cannot get system information" > "/dev/stderr";
+         exit 1;
       }      
    }
    return res;

@@ -6,11 +6,11 @@
 testinstall()
 {
     if test -f "$HOME/bin/$1"; then
-	echo "File ~/bin/$1 exists and left unchanged";
+        echo "File ~/bin/$1 exists and left unchanged";
     else
-	echo Installing $1
-	echo `pwd`/$1 $HOME/bin/$1
-	ln -s `pwd`/$1 $HOME/bin/$1
+        echo Installing $1
+        echo `pwd`/$1 $HOME/bin/$1
+        ln -s `pwd`/$1 $HOME/bin/$1
     fi
 }
 

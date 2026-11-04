@@ -28,32 +28,32 @@ function classify_term()
    {
       if($2)
       {
-	 for(i=0; i<$1; i++)
-	 {
-	    print $2 " : 1:(1, 1).";
-	    pos++;
-	 }
+         for(i=0; i<$1; i++)
+         {
+            print $2 " : 1:(1, 1).";
+            pos++;
+         }
       }
       else
       {
-	 print $1 " : 1:(1, 1).";
-	 pos++;
+         print $1 " : 1:(1, 1).";
+         pos++;
       }
    }	
    else
    {
       if($2)
       {
-	 for(i=0; i<$1; i++)
-	 {
-	    print $2 " : 1:(1, -1).";
-	    neg++;
-	 }
+         for(i=0; i<$1; i++)
+         {
+            print $2 " : 1:(1, -1).";
+            neg++;
+         }
       }
       else
       {
-	 print $1 " : 1:(1, -1).";
-	 neg++;
+         print $1 " : 1:(1, -1).";
+         neg++;
       }
    }
    toggle = !toggle;

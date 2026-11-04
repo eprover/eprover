@@ -35,23 +35,23 @@ function classify_term()
    {
       if(toggle)
       {
-	 pos++;
-	 print "f2" count2 "(f1" count1 "(" $1 ")," $1, ") : 1:(1, 1).";
-	 count1++;
-	 if(count1 == 2)
-	 {
-	    count1 = 0;
-	 }
-	 count2++;
-	 if(count2 == 3)
-	 {
-	    count2 = 0;
-	 }
+         pos++;
+         print "f2" count2 "(f1" count1 "(" $1 ")," $1, ") : 1:(1, 1).";
+         count1++;
+         if(count1 == 2)
+         {
+            count1 = 0;
+         }
+         count2++;
+         if(count2 == 3)
+         {
+            count2 = 0;
+         }
       }
       else
       {
-	 neg++;
-	 print $1 " : 1:(1,-1).";
+         neg++;
+         print $1 " : 1:(1,-1).";
       }
    }
    toggle = !toggle;

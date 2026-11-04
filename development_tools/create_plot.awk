@@ -13,7 +13,7 @@ function done_in_time(times, limit,               i, res)
    {
       if((0+times[i])<=(0+limit))
       {
-	 res++;
+         res++;
       }
    }
    return res;
@@ -68,12 +68,12 @@ BEGIN{
    {
       if(fileno)
       {
-	 compute_distrib(times, "plotfile" fileno);
-	 delete times;
-	 first = 0;
-	 plot = plot sep "\"plotfile" fileno "\" title \"" title[last_file] "\"";
-	 sep = ",";
-	 counter = 0;
+         compute_distrib(times, "plotfile" fileno);
+         delete times;
+         first = 0;
+         plot = plot sep "\"plotfile" fileno "\" title \"" title[last_file] "\"";
+         sep = ",";
+         counter = 0;
       }
       proc_arg = ARGIND;
       last_file = ARGV[proc_arg];

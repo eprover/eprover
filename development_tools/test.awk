@@ -9,9 +9,9 @@ function get_MHz(host,   pipe, tmp, res, i)
   {
      if(i = index(tmp, mhz_string))
      {
-	print tmp, i
-	res = int(substr(tmp, i+mhz_string_l))
-	break;
+        print tmp, i
+        res = int(substr(tmp, i+mhz_string_l))
+        break;
      }
   }
   close(pipe);  

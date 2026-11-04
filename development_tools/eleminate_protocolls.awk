@@ -25,10 +25,10 @@ BEGIN{
    if(start)
    {
       key = substr(praekey, RSTART, RLENGTH-1);
-	 if(wanted[key])
-	 {
-	    print;
-	 }
+         if(wanted[key])
+         {
+            print;
+         }
    }
    next;
 }

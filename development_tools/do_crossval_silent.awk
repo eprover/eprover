@@ -15,7 +15,7 @@ function success_rate(file    , tmp, succ)
    {
       if(match(tmp, /successes\,/))
       {
-	 succ = substr(tmp, RSTART+RLENGTH);
+         succ = substr(tmp, RSTART+RLENGTH);
       }
    }	 
    close(pipe);

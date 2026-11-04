@@ -49,16 +49,16 @@ BEGIN{
       test1 = getline < ARGV[1];
       close(ARGV[1]);
       if(test1 == -1)
-	{
-	  if(!index(ARGV[1],"PROTOCOL"))
-	    {
-	      if(substr(ARGV[1], length(ARGV[1]))!="/")
-		{
-		  ARGV[1] = ARGV[1] "/";
-		}
-	      ARGV[1] = ARGV[1] "PROTOCOL";
-	    }
-	}
+        {
+          if(!index(ARGV[1],"PROTOCOL"))
+            {
+              if(substr(ARGV[1], length(ARGV[1]))!="/")
+                {
+                  ARGV[1] = ARGV[1] "/";
+                }
+              ARGV[1] = ARGV[1] "PROTOCOL";
+            }
+        }
     }
 }
 
@@ -74,26 +74,26 @@ function float(x)
       total++;
       if(($2 == "F")||((float($3))>= timelimit))
       {
-	 if($4 == "unknown")
-	 {
-	    bugs++;
-	 }
-	 if($4 == "maxmem" && ((float($3)) < timelimit))
-	 {
-	    nomem++;
-	 }
-	 if($4 == "incomplete" && ((float($3)) < timelimit))
-	 {
-	    incomplete++;
-	 }
+         if($4 == "unknown")
+         {
+            bugs++;
+         }
+         if($4 == "maxmem" && ((float($3)) < timelimit))
+         {
+            nomem++;
+         }
+         if($4 == "incomplete" && ((float($3)) < timelimit))
+         {
+            incomplete++;
+         }
       }
       else
       {
-	 # /* if(($2 == "N")) */
-	 {
-	    succ++;
-	    ttime+=$3;
-	 }
+         # /* if(($2 == "N")) */
+         {
+            succ++;
+            ttime+=$3;
+         }
       }
    }
 }

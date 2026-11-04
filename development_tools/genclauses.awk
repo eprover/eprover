@@ -27,12 +27,12 @@ function genterm(depth,        res, arity)
    else if(arity == 2)
    {
       res = sprintf("f2%d(%s,%s)", randint(3), 
-		    genterm(depth-1),genterm(randint(depth-1)));      
+                    genterm(depth-1),genterm(randint(depth-1)));      
    }
    else
    {
       res = sprintf("f3%d(%s,%s,%s)", randint(3), genterm(randint(depth-1)),
-		    genterm(depth-1),genterm(randint(depth-1)));      
+                    genterm(depth-1),genterm(randint(depth-1)));      
    }
    return res;
 }
@@ -43,11 +43,11 @@ function genliteral(depth)
    {
       if(rand()>0.5)
       {
-	 return genterm(depth);
+         return genterm(depth);
       }
       else
       {
-	 return "~" genterm(depth);
+         return "~" genterm(depth);
       }
    }
    if(rand()>0.5)
@@ -90,13 +90,13 @@ function permute_clause(array, perm, len,    i, picked, store)
    {
       for(i in array)
       {
-	 picked = i;
-	 store = array[i];
-	 perm[len-1] = array[i];
-	 delete array[i];
-	 permute_clause(array, perm, len-1);
-	 array[picked] = store;
-	 res = 1;
+         picked = i;
+         store = array[i];
+         perm[len-1] = array[i];
+         delete array[i];
+         permute_clause(array, perm, len-1);
+         array[picked] = store;
+         res = 1;
       }
    }
 }

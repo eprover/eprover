@@ -81,15 +81,15 @@ END{
    {
       if(max(res1[i], res2[i]) > 0)
       {
-	 d = abs(res1[i] - res2[i])/max(res1[i], res2[i]);
+         d = abs(res1[i] - res2[i])/max(res1[i], res2[i]);
       }
       else
       {
-	 d = 0;
+         d = 0;
       }
       if(d <= diff) 
       {
-	 printf("%-20s %-20s %-20s\n", i, data1[i], data2[i]);
+         printf("%-20s %-20s %-20s\n", i, data1[i], data2[i]);
       }
    }
 }

@@ -13,17 +13,17 @@ CSSPA(state, clause, accept)
    }
    else
    {
-	collect subsumed clauses from state;
-	if(accept || weight of subsumed clauses > weight of clause)
-	{
-	   remove subsumed clauses;
-	   add clause to state;
-	   Output "Clause accepted"
-	}
-	else
-	{
+        collect subsumed clauses from state;
+        if(accept || weight of subsumed clauses > weight of clause)
+        {
+           remove subsumed clauses;
+           add clause to state;
+           Output "Clause accepted"
+        }
+        else
+        {
            delete clause;
-	   Output "Clause rejected"
-	}
+           Output "Clause rejected"
+        }
    }
 }

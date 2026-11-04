@@ -36,7 +36,7 @@ END{
       i++;
       if(i==10)
       {
-	 i=0;
+         i=0;
       }
    }
    system("rm " file2);
@@ -45,20 +45,20 @@ END{
    {
       if(i<9)
       {
-	 file = "crossval0" i+1;
+         file = "crossval0" i+1;
       }
       else
       {
-	 file = "crossval10";
+         file = "crossval10";
       }
       print "# Split " i+1 " - " total-count[i] "/" 0+count[i] " Terms">file; 
       print "Training: \n">file;
       for(j=0; j<10; j++)
       {
-	 if(i!=j)
-	 {
-	    printf set[j]>file;
-	 }
+         if(i!=j)
+         {
+            printf set[j]>file;
+         }
       }
       print ".\n">file;
       print "Test: \n">file;

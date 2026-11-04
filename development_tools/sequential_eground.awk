@@ -69,52 +69,52 @@ function check_and_initialize(    tmp, job)
   if(first_job)
     {
       if(!executable)
-	{
-	  print "sequential_eground.awk: No executable found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "sequential_eground.awk: No executable found" > "/dev/stderr";
+          exit 1;
+        }
       if(!logfile)
-	{
-	  print "sequential_eground.awk: No logfile found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "sequential_eground.awk: No logfile found" > "/dev/stderr";
+          exit 1;
+        }
       if(!problemdir)
-	{
-	  print "sequential_eground.awk: No problemdir found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "sequential_eground.awk: No problemdir found" > "/dev/stderr";
+          exit 1;
+        }
       if(!file_exists(logfile))
-	{
-	  print "Creating log file " logfile
-	  print "# " args " " auto_args > logfile;
-	  tmp = "which " executable;
-	  tmp | getline execpath;
-	  close(tmp);
-	  tmp = "ls -l " execpath;
-	  tmp | getline execdate;
-	  close(tmp);
-	  print "# " substr(execdate, 42) > logfile;
-	}
+        {
+          print "Creating log file " logfile
+          print "# " args " " auto_args > logfile;
+          tmp = "which " executable;
+          tmp | getline execpath;
+          close(tmp);
+          tmp = "ls -l " execpath;
+          tmp | getline execdate;
+          close(tmp);
+          print "# " substr(execdate, 42) > logfile;
+        }
       else
-	{
-	  print "Logfile " logfile " exists, using old results";
-	  
-	  processed_count = 0;
-	  while ((getline tmp < logfile) > 0)
-	  {
-	     if(match(tmp, /^[A-Za-z].*\.lop/)||
-		match(tmp, /^[A-Za-z].*\.p/)||
-		match(tmp, /^[A-Za-z].*\.e/)||
-		match(tmp, /^[A-Za-z].*\.tptp/))
-	     {
-		job = substr(tmp, RSTART, RLENGTH);
-		processed_jobs[job] = 1;
-		processed_count++;
-	     }
-	  }
-	  close(logfile);
-	  print "Found " processed_count " old results";
-	}	      
+        {
+          print "Logfile " logfile " exists, using old results";
+          
+          processed_count = 0;
+          while ((getline tmp < logfile) > 0)
+          {
+             if(match(tmp, /^[A-Za-z].*\.lop/)||
+                match(tmp, /^[A-Za-z].*\.p/)||
+                match(tmp, /^[A-Za-z].*\.e/)||
+                match(tmp, /^[A-Za-z].*\.tptp/))
+             {
+                job = substr(tmp, RSTART, RLENGTH);
+                processed_jobs[job] = 1;
+                processed_count++;
+             }
+          }
+          close(logfile);
+          print "Found " processed_count " old results";
+        }	      
       first_job = 0;	    
     }  
 }
@@ -135,36 +135,36 @@ function process_result(job,    file, tmp,  time, status, reason, name)
    {
       if(index(tmp, "# Success!"))
       {
-	 status = "S";
-	 reason = "success";
+         status = "S";
+         reason = "success";
       }
       else if(index(tmp, "# Failure: Resource limit exceeded (memory)"))
       {
-	 reason = "maxmem ";
+         reason = "maxmem ";
       }
       else if(index(tmp, "# Failure: Resource limit exceeded (time)"))
       {
-	 reason = "maxtime ";
+         reason = "maxtime ";
       }	 
       else if(index(tmp, "# Total time"))
       {
-	 time = substr(tmp, 30);
+         time = substr(tmp, 30);
       }
       else if(index(tmp, "# Generated clauses                    :"))
       {
-	 clauses = substr(tmp, 42);
+         clauses = substr(tmp, 42);
       }
       else if(index(tmp, "# Generated literals                   :"))
       {
-	 literals = substr(tmp, 42);
+         literals = substr(tmp, 42);
       }
       
    }
    close(file);
    printf("%-29s %s %8.3f %8s %10d %10d\n", name, status, 0+time,
-	  reason, clauses, literals) >> logfile;
+          reason, clauses, literals) >> logfile;
    printf("%-29s %s %8.3f %8s %10d %10d\n", name, status, 0+time,
-	  reason, clauses, literals);
+          reason, clauses, literals);
    system("rm " file);
 }
 
@@ -229,8 +229,8 @@ BEGIN{
    if(global_hostname in reserved_hosts)
    {
       global_checkreservation = "/home/" \
-	 reserved_hosts[global_hostname] \
-	 "/HOST_RESERVED_" global_hostname;
+         reserved_hosts[global_hostname] \
+         "/HOST_RESERVED_" global_hostname;
    }
 
    print "PID is " procid " on host " global_hostname ".";

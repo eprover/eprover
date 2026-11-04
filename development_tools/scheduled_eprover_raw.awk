@@ -69,53 +69,53 @@ function check_and_initialize(    tmp, job)
   if(first_job)
     {
       if(!executable)
-	{
-	  print "scheduled_eprover_raw.awk: No executable found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "scheduled_eprover_raw.awk: No executable found" > "/dev/stderr";
+          exit 1;
+        }
       if(!logfile)
-	{
-	  print "scheduled_eprover_raw.awk: No logfile found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "scheduled_eprover_raw.awk: No logfile found" > "/dev/stderr";
+          exit 1;
+        }
       if(!problemdir)
-	{
-	  print "scheduled_eprover_raw.awk: No problemdir found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "scheduled_eprover_raw.awk: No problemdir found" > "/dev/stderr";
+          exit 1;
+        }
       if(!file_exists(logfile))
-	{
-	  print "Creating log file " logfile
-	  print "# " args " " auto_args > logfile;
-	  tmp = "which " executable;
-	  tmp | getline execpath;
-	  close(tmp);
-	  tmp = "ls -l " execpath;
-	  tmp | getline execdate;
-	  close(tmp);
-	  print "# " substr(execdate, 42) > logfile;
-	}
+        {
+          print "Creating log file " logfile
+          print "# " args " " auto_args > logfile;
+          tmp = "which " executable;
+          tmp | getline execpath;
+          close(tmp);
+          tmp = "ls -l " execpath;
+          tmp | getline execdate;
+          close(tmp);
+          print "# " substr(execdate, 42) > logfile;
+        }
       else
-	{
-	  print "Logfile " logfile " exists, using old results";
-	  
-	  processed_count = 0;
-	  while ((getline tmp < logfile) > 0)
-	  {
-	     if(match(tmp, /^[0-9A-Za-z].*\.lop/) ||
+        {
+          print "Logfile " logfile " exists, using old results";
+          
+          processed_count = 0;
+          while ((getline tmp < logfile) > 0)
+          {
+             if(match(tmp, /^[0-9A-Za-z].*\.lop/) ||
                 match(tmp, /^[0-9A-Za-z].*\.p/)||   
                 match(tmp, /^[0-9A-Za-z].*\.e/)  || 
                 match(tmp, /^[0-9A-Za-z].*\.tpt/)  ||
                 match(tmp, /^[0-9A-Za-z].*\.tptp/))
-	     {
-		job = substr(tmp, RSTART, RLENGTH);
-		processed_jobs[job] = 1;
-		processed_count++;
-	     }
-	  }
-	  close(logfile);
-	  print "Found " processed_count " old results";
-	}	      
+             {
+                job = substr(tmp, RSTART, RLENGTH);
+                processed_jobs[job] = 1;
+                processed_count++;
+             }
+          }
+          close(logfile);
+          print "Found " processed_count " old results";
+        }	      
       first_job = 0;	    
     }  
 }
@@ -130,8 +130,8 @@ function host_cpu_limit_opt(limit)
 
 
 function process_result(job,    file, name, tmp,  time, status,
-			reason, generated, processed, shared_terms,
-			raw_terms, rewrite_steps, r_matches, e_matches, literals)
+                        reason, generated, processed, shared_terms,
+                        raw_terms, rewrite_steps, r_matches, e_matches, literals)
 {
    file = cwd "/__prvout__" procid "_" global_hostname "__";
    name = job;
@@ -151,38 +151,38 @@ function process_result(job,    file, name, tmp,  time, status,
    {
       if(index(tmp, "# SZS status: Satisfiable"))
       {
-	 status = "N";
-	 reason = "success";
+         status = "N";
+         reason = "success";
       }
       else if(index(tmp, "# SZS status: CounterSatisfiable"))
       {
-	 status = "N";
-	 reason = "success";
+         status = "N";
+         reason = "success";
       }
       else if(index(tmp, "# SZS status: Unsatisfiable"))
       {
-	 status = "T";
-	 reason = "success";
+         status = "T";
+         reason = "success";
       }
       else if(index(tmp, "# SZS status: Theorem"))
       {
-	 status = "T";
-	 reason = "success";
+         status = "T";
+         reason = "success";
       }
       else if(index(tmp, "# SZS status: GaveUp!"))
       {
-	 status = "F";
-	 reason = "maxtime";
+         status = "F";
+         reason = "maxtime";
       }
       else if(index(tmp, "# Total time"))
       {
-	 time = substr(tmp, 30);
+         time = substr(tmp, 30);
       }
    }
    close(file);
 
    printf("%-29s " status " %8.3f  %-10s\n",
-	  name, 0+time, reason) >> logfile;
+          name, 0+time, reason) >> logfile;
    printf("%-29s " status " %8.3f  " reason "\n", name, 0+time);
    system("rm " file);
 }

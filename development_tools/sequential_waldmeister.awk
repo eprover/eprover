@@ -37,7 +37,7 @@ function get_cluster_name(   pipe, tmp)
       print no, "---", int(no);
       if(int(no) > 87)
       {
-	 return "sunhalle_blades";
+         return "sunhalle_blades";
       }
       return "sunhalle";
    }
@@ -103,51 +103,51 @@ function check_and_initialize(    tmp, job)
   if(first_job)
     {
       if(!executable)
-	{
-	  print "sequential_eprover.awk: No executable found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "sequential_eprover.awk: No executable found" > "/dev/stderr";
+          exit 1;
+        }
       if(!logfile)
-	{
-	  print "sequential_eprover.awk: No logfile found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "sequential_eprover.awk: No logfile found" > "/dev/stderr";
+          exit 1;
+        }
       if(!problemdir)
-	{
-	  print "sequential_eprover.awk: No problemdir found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "sequential_eprover.awk: No problemdir found" > "/dev/stderr";
+          exit 1;
+        }
       if(!file_exists(logfile))
-	{
-	  print "Creating log file " logfile
-	  print "# " args " " auto_args > logfile;
-	  tmp = "which " executable;
-	  tmp | getline execpath;
-	  close(tmp);
-	  tmp = "ls -l " execpath;
-	  tmp | getline execdate;
-	  close(tmp);
-	  print "# " substr(execdate, 42) > logfile;
-	}
+        {
+          print "Creating log file " logfile
+          print "# " args " " auto_args > logfile;
+          tmp = "which " executable;
+          tmp | getline execpath;
+          close(tmp);
+          tmp = "ls -l " execpath;
+          tmp | getline execdate;
+          close(tmp);
+          print "# " substr(execdate, 42) > logfile;
+        }
       else
-	{
-	  print "Logfile " logfile " exists, using old results";
-	  
-	  processed_count = 0;
-	  while ((getline tmp < logfile) > 0)
-	  {
-	     if(match(tmp, /^[A-Za-z].*\.lop/)||
-		match(tmp, /^[A-Za-z].*\.p/)||
-		match(tmp, /^[A-Za-z].*\.tptp/))
-	     {
-		job = substr(tmp, RSTART, RLENGTH);
-		processed_jobs[job] = 1;
-		processed_count++;
-	     }
-	  }
-	  close(logfile);
-	  print "Found " processed_count " old results";
-	}	      
+        {
+          print "Logfile " logfile " exists, using old results";
+          
+          processed_count = 0;
+          while ((getline tmp < logfile) > 0)
+          {
+             if(match(tmp, /^[A-Za-z].*\.lop/)||
+                match(tmp, /^[A-Za-z].*\.p/)||
+                match(tmp, /^[A-Za-z].*\.tptp/))
+             {
+                job = substr(tmp, RSTART, RLENGTH);
+                processed_jobs[job] = 1;
+                processed_count++;
+             }
+          }
+          close(logfile);
+          print "Found " processed_count " old results";
+        }	      
       first_job = 0;	    
     }  
 }
@@ -179,28 +179,28 @@ function process_result(job,    file, tmp,  time, status, reason, name)
    {
       if(index(tmp, "wct)"))
       {
-	 raw = tmp;
-	 split(tmp, res_parts , " *& *");
-	 res_parts[15]=substr(res_parts[15],1,1)
-	 status = status_table[res_parts[15]];
-	 reason = reason_table[res_parts[15]];
-	 processed = res_parts[3];
-	 generated = res_parts[2];
-	 rmatches = res_parts[9];
-	 ematches = res_parts[10];
-	 reductions = res_parts[8];
-	 split(res_parts[14], res_time);
-	 time = res_time[1]+res_time[3];
+         raw = tmp;
+         split(tmp, res_parts , " *& *");
+         res_parts[15]=substr(res_parts[15],1,1)
+         status = status_table[res_parts[15]];
+         reason = reason_table[res_parts[15]];
+         processed = res_parts[3];
+         generated = res_parts[2];
+         rmatches = res_parts[9];
+         ematches = res_parts[10];
+         reductions = res_parts[8];
+         split(res_parts[14], res_time);
+         time = res_time[1]+res_time[3];
       }
    }
    close(file);
    printf("%-29s " status " %8.3f  %-10s %10d %10d %10s %10s %10d %10d %10d \n", \
-	  name, 0+time, reason, generated, processed,"X","X",\
-	  reductions, rmatches, ematches) >> logfile;
+          name, 0+time, reason, generated, processed,"X","X",\
+          reductions, rmatches, ematches) >> logfile;
 
    print "#" raw >> logfile
    printf("%-29s " status " %8.3f  %-10s %10d %10d\n", \
-	  name, 0+time, reason, generated, processed);
+          name, 0+time, reason, generated, processed);
    system("rm " file);
 }
 
@@ -299,8 +299,8 @@ BEGIN{
    if(global_hostname in reserved_hosts)
    {
       global_checkreservation = "/home/" \
-	 reserved_hosts[global_hostname] \
-	 "/HOST_RESERVED_" global_hostname;
+         reserved_hosts[global_hostname] \
+         "/HOST_RESERVED_" global_hostname;
    }
 
    print "PID is " procid " on host " global_hostname ".";

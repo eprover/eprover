@@ -45,8 +45,8 @@ BEGIN{
    {
       if(reserved_hosts[i]==user)
       {
-	 host = i;
-	 break;
+         host = i;
+         break;
       }
    }
    if(host=="")

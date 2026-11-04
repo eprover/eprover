@@ -13,8 +13,8 @@ if [ "$1" ]; then
     shift
     for file in $dir/*.tptp ; do
         base=`basename $file`
-	echo $base
-	echo $base >>  CLASS_`classify_problem $* $file |grep " : "| cut -d\( -f2-|cut -d: -f2-| sed -e's/ //'g `
+        echo $base
+        echo $base >>  CLASS_`classify_problem $* $file |grep " : "| cut -d\( -f2-|cut -d: -f2-| sed -e's/ //'g `
     done
     echo generate_class_lists.sh $cl > description
 else

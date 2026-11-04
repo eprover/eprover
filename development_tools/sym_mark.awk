@@ -34,18 +34,18 @@ function classify_term()
    {
       if(toggle)
       {
-	 pos++;
-	 print "f2" count "(" $1 "," $1, ") : 1:(1, 1).";
-	 count++;
-	 if(count == 2)
-	 {
-	    count = 0;
-	 }
+         pos++;
+         print "f2" count "(" $1 "," $1, ") : 1:(1, 1).";
+         count++;
+         if(count == 2)
+         {
+            count = 0;
+         }
       }
       else
       {
-	 neg++;
-	 print $1 " : 1:(1,-1).";
+         neg++;
+         print $1 " : 1:(1,-1).";
       }
    }
    toggle = !toggle;

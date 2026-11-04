@@ -56,7 +56,7 @@ function get_cluster_name(   pipe, tmp)
 
 
 function print_used_hosts(print_diffs     ,i, count_files,
-			  count_array, files, array)
+                          count_array, files, array)
 {
    count_files = 0;
    count_array = 0;
@@ -68,23 +68,23 @@ function print_used_hosts(print_diffs     ,i, count_files,
 
       if(array)
       {
-	 /* print "In use: " all_hosts[i]; */
-	 count_array++;
+         /* print "In use: " all_hosts[i]; */
+         count_array++;
       }
       if(files)
       {
-	 count_files++;
+         count_files++;
       }
       if(print_diffs)
       {
-	 if((array && (!files)))
-	 {
-	    print all_hosts[i] " in host_in_use[], but no lock file";
-	 }
-	 if(((!array) && files))
-	 {
-	    print all_hosts[i] " has lock file, but no host_in_use[] entry";
-	 }
+         if((array && (!files)))
+         {
+            print all_hosts[i] " in host_in_use[], but no lock file";
+         }
+         if(((!array) && files))
+         {
+            print all_hosts[i] " has lock file, but no host_in_use[] entry";
+         }
       }
    }   
    print "Found " count_array " array entries";
@@ -121,14 +121,14 @@ function collect_host_info(    res, sum, count, i)
   {
      if(exclude_hosts[all_hosts[i]]!=1)
      {
-	print "Checking host " all_hosts[i] ".";
-	res = get_load(all_hosts[i]);
-	if(res != 1000000)
-	{	  
-	   sum+=res;
-	   count++;
-	   host_is_available[all_hosts[i]] = 1;
-	}
+        print "Checking host " all_hosts[i] ".";
+        res = get_load(all_hosts[i]);
+        if(res != 1000000)
+        {	  
+           sum+=res;
+           count++;
+           host_is_available[all_hosts[i]] = 1;
+        }
      }
   }
   print "Found " count " hosts, average load is " sum/count ".";
@@ -197,42 +197,42 @@ function check_and_initialize(    tmp, job)
    {
       if(!executable)
       {
-	 print "distribute_eprover.awk: No executable found" > "/dev/stderr";
-	 exit 1;
+         print "distribute_eprover.awk: No executable found" > "/dev/stderr";
+         exit 1;
       }
       if(!logfile)
       {
-	 print "distribute_eprover.awk: No logfile found" > "/dev/stderr";
-	 exit 1;
+         print "distribute_eprover.awk: No logfile found" > "/dev/stderr";
+         exit 1;
       }
       if(!problemdir)
       {
-	 print "distribute_eprover.awk: No problemdir found" > "/dev/stderr";
-	 exit 1;
+         print "distribute_eprover.awk: No problemdir found" > "/dev/stderr";
+         exit 1;
       }
       if(!file_exists(logfile))
       {
-	 print "Creating log file " logfile;
-	 print "# " args " " auto_args > logfile;
+         print "Creating log file " logfile;
+         print "# " args " " auto_args > logfile;
       }
       else
       {
-	 print "Logfile " logfile " exists, using old results";
-	 
-	 processed_count = 0;
-	 while ((getline tmp < logfile) > 0)
-	 {
-	    if(match(tmp, /^[A-Z]+[0-9]+.*\.lop/) || 
-	       match(tmp, /^[A-Z]+[0-9]+.*\.p/) ||
-	       match(tmp, /^[A-Z]+[0-9]+.*\.tptp/))
-	    {
-	       job = substr(tmp, RSTART, RLENGTH);
-	       processed_jobs[job] = 1;
-	       processed_count++;
-	    }
-	 }
-	 close(logfile);
-	 print "Found " processed_count " old results";
+         print "Logfile " logfile " exists, using old results";
+         
+         processed_count = 0;
+         while ((getline tmp < logfile) > 0)
+         {
+            if(match(tmp, /^[A-Z]+[0-9]+.*\.lop/) || 
+               match(tmp, /^[A-Z]+[0-9]+.*\.p/) ||
+               match(tmp, /^[A-Z]+[0-9]+.*\.tptp/))
+            {
+               job = substr(tmp, RSTART, RLENGTH);
+               processed_jobs[job] = 1;
+               processed_count++;
+            }
+         }
+         close(logfile);
+         print "Found " processed_count " old results";
       }
       first_job = 0;	    
    }  
@@ -257,12 +257,12 @@ function process_result(host     , file, tmp, name)
       print "No valid job in " host"_complete: Something strange";
       if(!file_exists(file))
       {
-	 print host"_complete does not seem to exists?!?!";
+         print host"_complete does not seem to exists?!?!";
       }
       else
       {
-	 system("echo " file " >> buggy_complete");
-	 system("cat "  file " >> buggy_complete");
+         system("echo " file " >> buggy_complete");
+         system("cat "  file " >> buggy_complete");
       }
    }
    system("rm " cwd "/" host "_*");
@@ -285,31 +285,31 @@ function get_host(   i, host, load, tmp_count)
    {
       for(i = 1; i<= host_number; i++)
       {
-	 update_global_host_count();
-	 if(host_is_available[all_hosts[global_host_count]])
-	 {
-	    if((host_in_use[all_hosts[global_host_count]]==0) &&
-	       (!file_exists(all_hosts[global_host_count] "_lock")))
-	    {
-	       load = get_load(all_hosts[global_host_count]);
-	       
-	       if((load <= no_real_load) || 
-		  (load <= min(acceptable_load, avg_load+0.5)))
-	       {		  
-		  host = all_hosts[global_host_count];
-		  break;
-	       }
-	    } 
-	 }
+         update_global_host_count();
+         if(host_is_available[all_hosts[global_host_count]])
+         {
+            if((host_in_use[all_hosts[global_host_count]]==0) &&
+               (!file_exists(all_hosts[global_host_count] "_lock")))
+            {
+               load = get_load(all_hosts[global_host_count]);
+               
+               if((load <= no_real_load) || 
+                  (load <= min(acceptable_load, avg_load+0.5)))
+               {		  
+                  host = all_hosts[global_host_count];
+                  break;
+               }
+            } 
+         }
       }
       if(!host)
       {
-	 print "No host, processing results";
-	 if(!process_pending_results())
-	 {
-	    print "No host available, sleeping";
-	    system("sleep 30");
-	 }
+         print "No host, processing results";
+         if(!process_pending_results())
+         {
+            print "No host available, sleeping";
+            system("sleep 30");
+         }
       }
    }  
    return host;
@@ -390,10 +390,10 @@ function check_alive(     current_time, i)
    {
       if(host_in_use[i] && ((current_time - host_in_use[i]) > time_limit*10))
       {
-	 print "Trying to kill dormant job on " i ".";
-	 kill_job(i "_lock");
-	 open_jobs--;
-	 host_in_use[i] = 0;
+         print "Trying to kill dormant job on " i ".";
+         kill_job(i "_lock");
+         open_jobs--;
+         host_in_use[i] = 0;
       }
    }   
 }
@@ -408,9 +408,9 @@ function number_of_lock_files(        pipe, count)
   while ((pipe | getline tmp) > 0)
     {
       if(match(tmp, /sunhalle[0-9]+_lock/))
-	{
-	  count++;
-	}
+        {
+          count++;
+        }
     }	  
   close(pipe);
   
@@ -429,9 +429,9 @@ function process_pending_results(     pipe, count, tmp)
    {
       if(match(tmp, /sunhalle[0-9]+/))
       {
-	 host = substr(tmp, RSTART, RLENGTH);
-	 process_result(host);
-	 count++;
+         host = substr(tmp, RSTART, RLENGTH);
+         process_result(host);
+         count++;
       }
    }	  
    close(pipe);
@@ -536,13 +536,13 @@ BEGIN{
       printf "Distributing " job " onto " host_local ". ";
       if(system("ssh -n " host_local " \"" "(touch " outfile1  "; (" prefix command "; sync; sleep 3; echo " job ">" outfile2 ")&)>&/dev/null\""))
       {
-	 print "Warning: " host_local " returned error";
+         print "Warning: " host_local " returned error";
       }
       else
       {
-	 open_jobs++;	       
-	 print "Open jobs: " open_jobs;
-	 host_in_use[host_local] = systime();
+         open_jobs++;	       
+         print "Open jobs: " open_jobs;
+         host_in_use[host_local] = systime();
       }
    }   
    else
@@ -563,11 +563,11 @@ END{
       count++;
       if(count%10 == 0)
       {
-	 check_alive();
+         check_alive();
       }
       else
       {
-	 process_pending_results();
+         process_pending_results();
       }
     }
   print "Sorting Result file";

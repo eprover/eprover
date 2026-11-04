@@ -22,53 +22,53 @@
    {
       if(mem_array[$2])
       {
-	 print $0 " doubly allocated";
-	 fail_array[count++] = $0 " DA";
+         print $0 " doubly allocated";
+         fail_array[count++] = $0 " DA";
       }
       else
       {
-	 mem_array[$2] = $5+1;
+         mem_array[$2] = $5+1;
       }
    }
    else if($3=="D:")
    {
       if(!mem_array[$2])
       {
-	 print $0 " freeed but not allocated";
-	 fail_array[count++] = $0 " FN";
+         print $0 " freeed but not allocated";
+         fail_array[count++] = $0 " FN";
       }
       else
       {
-	 if(mem_array[$2] != ($5+1))
-	 {
-	    print $0 " freed with wrong size " mem_array[$2]-1;
-	    fail_array[count++] = $0 " WS";
-	   }
-	 delete mem_array[$2];
+         if(mem_array[$2] != ($5+1))
+         {
+            print $0 " freed with wrong size " mem_array[$2]-1;
+            fail_array[count++] = $0 " WS";
+           }
+         delete mem_array[$2];
       }
    }
    else if($3=="M:" || $3=="R:")
    {
       if(raw_array[$2])
       {
-	 print $0 " doubly malloc()ed";
-	 fail_array[count++] = $0 " DM";
+         print $0 " doubly malloc()ed";
+         fail_array[count++] = $0 " DM";
       }
       else
       {
-	 raw_array[$2] = 1;
+         raw_array[$2] = 1;
       }
    }
    else if($3=="F:")
    {
       if(!raw_array[$2])
       {
-	 print $0 " FREEed but not malloc()ed";
-	 fail_array[count++] = $0 " FM";
+         print $0 " FREEed but not malloc()ed";
+         fail_array[count++] = $0 " FM";
       }
       else
       {
-	 delete raw_array[$2];
+         delete raw_array[$2];
       }
    }
    

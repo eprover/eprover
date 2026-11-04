@@ -98,14 +98,14 @@ def get_problem_class(filename):
     # side anyways... 
     try:
         for line in clres:
-	    if line.startswith(filename):
-		tmp = colon_pattern.split(line)
+            if line.startswith(filename):
+                tmp = colon_pattern.split(line)
                 if len(tmp)!=3:
                     raise cl_error_exception
                 res = "CLASS_"+tmp[2][:-1]
                 break;
         if not res:
-	    raise cl_error_exception
+            raise cl_error_exception
 
     except cl_error_exception:        
         sys.exit("Could not get class of " +filename);
@@ -681,28 +681,28 @@ def run_prover(schedule, filename):
     rest=0
     
     for item in schedule:
-    	count=count+1
+        count=count+1
     
     for strat in schedule:
-	count2=count2+1
+        count2=count2+1
 
-	total = total+strat[1]
-	print strat
-	if(count==count2):
-		rest = 600-total
-		print "Additional Time",rest
+        total = total+strat[1]
+        print strat
+        if(count==count2):
+                rest = 600-total
+                print "Additional Time",rest
 
 
-	#option = strat_options[strat[0]]
+        #option = strat_options[strat[0]]
         time = int((strat[1]+rest) * e_mark_scale);
-	p=os.popen("eprover "+strat_options[strat[0]]+\
+        p=os.popen("eprover "+strat_options[strat[0]]+\
                    " "+"--tstp-in --cpu-limit="+ str(time)+" "+filename, "r");
-	#print "pass"
-	res=p.readlines()
-	p.close()
-	for lines in res:
-	    #print lines
-	    if(lines.rstrip()=="# SZS status: Unsatisfiable" \
+        #print "pass"
+        res=p.readlines()
+        p.close()
+        for lines in res:
+            #print lines
+            if(lines.rstrip()=="# SZS status: Unsatisfiable" \
                or lines.rstrip()=="# SZS status: Satisfiable"\
                or lines.rstrip()=="# SZS status: Theorem"\
                or lines.rstrip()=="# SZS status: CounterSatisfiable"):
@@ -1189,11 +1189,11 @@ if __name__ == '__main__':
         
     cl = get_problem_class(args[0])
     try:
-	#cl="vshsjhfsfhsfjhsfshhh"
-   	schedule = schedules[cl]
-	if not schedule: 
-		raise schedule_unavailable
-	
+        #cl="vshsjhfsfhsfjhsfshhh"
+        schedule = schedules[cl]
+        if not schedule: 
+                raise schedule_unavailable
+        
     except :
                schedule = schedules["DEFAULT"];
 

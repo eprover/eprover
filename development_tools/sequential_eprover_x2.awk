@@ -33,7 +33,7 @@ function get_cluster_name(   pipe, tmp)
       print no, "---", int(no);
       if(int(no) > 87)
       {
-	 return "sunhalle_blades";
+         return "sunhalle_blades";
       }
       return "sunhalle";
    }
@@ -99,52 +99,52 @@ function check_and_initialize(    tmp, job)
   if(first_job)
     {
       if(!executable)
-	{
-	  print "sequential_eprover.awk: No executable found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "sequential_eprover.awk: No executable found" > "/dev/stderr";
+          exit 1;
+        }
       if(!logfile)
-	{
-	  print "sequential_eprover.awk: No logfile found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "sequential_eprover.awk: No logfile found" > "/dev/stderr";
+          exit 1;
+        }
       if(!problemdir)
-	{
-	  print "sequential_eprover.awk: No problemdir found" > "/dev/stderr";
-	  exit 1;
-	}
+        {
+          print "sequential_eprover.awk: No problemdir found" > "/dev/stderr";
+          exit 1;
+        }
       if(!file_exists(logfile))
-	{
-	  print "Creating log file " logfile
-	  print "# " args " " auto_args > logfile;
-	  tmp = "which " executable;
-	  tmp | getline execpath;
-	  close(tmp);
-	  tmp = "ls -l " execpath;
-	  tmp | getline execdate;
-	  print "# " substr(execdate, 42) >> logfile;
-	  print "# Problem name               |S|Time    |Reason    |Generated |Processed|Sh. terms |Terms     |Rewrites |R-Matches |E-Matches |Gen. lits |Cur. lits" >> logfile;
-	  close(tmp);
-	}
+        {
+          print "Creating log file " logfile
+          print "# " args " " auto_args > logfile;
+          tmp = "which " executable;
+          tmp | getline execpath;
+          close(tmp);
+          tmp = "ls -l " execpath;
+          tmp | getline execdate;
+          print "# " substr(execdate, 42) >> logfile;
+          print "# Problem name               |S|Time    |Reason    |Generated |Processed|Sh. terms |Terms     |Rewrites |R-Matches |E-Matches |Gen. lits |Cur. lits" >> logfile;
+          close(tmp);
+        }
       else
-	{
-	  print "Logfile " logfile " exists, using old results";
-	  
-	  processed_count = 0;
-	  while ((getline tmp < logfile) > 0)
-	  {
-	     if(match(tmp, /^[A-Za-z].*\.lop/)||
-		match(tmp, /^[A-Za-z].*\.p/)||
-		match(tmp, /^[A-Za-z].*\.tptp/))
-	     {
-		job = substr(tmp, RSTART, RLENGTH);
-		processed_jobs[job] = 1;
-		processed_count++;
-	     }
-	  }
-	  close(logfile);
-	  print "Found " processed_count " old results";
-	}	      
+        {
+          print "Logfile " logfile " exists, using old results";
+          
+          processed_count = 0;
+          while ((getline tmp < logfile) > 0)
+          {
+             if(match(tmp, /^[A-Za-z].*\.lop/)||
+                match(tmp, /^[A-Za-z].*\.p/)||
+                match(tmp, /^[A-Za-z].*\.tptp/))
+             {
+                job = substr(tmp, RSTART, RLENGTH);
+                processed_jobs[job] = 1;
+                processed_count++;
+             }
+          }
+          close(logfile);
+          print "Found " processed_count " old results";
+        }	      
       first_job = 0;	    
     }  
 }
@@ -171,78 +171,78 @@ function process_result(job,    file, tmp,  time, status, reason, name)
    {
       if(index(tmp, "# No proof found!"))
       {
-	 status = "N";
-	 reason = "success";
+         status = "N";
+         reason = "success";
       }
       else if(index(tmp, "# Proof found!"))
       {
-	 status = "T";
-	 reason = "success";
+         status = "T";
+         reason = "success";
       }
       else if(index(tmp, "# Failure: Out of unprocessed clauses!"))
       {
-	 status = "F";
-	 reason = "incomplete";
+         status = "F";
+         reason = "incomplete";
       }
       else if(index(tmp, "# Failure: Resource limit exceeded (memory)"))
       {
-	 reason = "maxmem ";
+         reason = "maxmem ";
       }
       else if(index(tmp, "# Failure: Resource limit exceeded (time)"))
       {
-	 reason = "maxtime ";
+         reason = "maxtime ";
       }	 
       else if(index(tmp, "# Failure: User resource limit exceeded"))
       {
-	 reason = "maxres";
+         reason = "maxres";
       }	 
       else if(index(tmp, "# Processed clauses                    :"))
       {
-	 processed = substr(tmp, 42);
+         processed = substr(tmp, 42);
       }	 
       else if(index(tmp, "# Generated clauses                    :"))
       {
-	 generated = substr(tmp, 42);
+         generated = substr(tmp, 42);
       }	 
       else if(index(tmp, "# Shared term nodes                    :"))
       {
-	 shared_terms = substr(tmp, 42);
+         shared_terms = substr(tmp, 42);
       }	 
       else if(index(tmp, "# ...corresponding unshared nodes      :"))
       {
-	 raw_terms = substr(tmp, 42);
+         raw_terms = substr(tmp, 42);
       }	 
       else if(index(tmp, "# ...number of literals in the above   :"))
       {
-	 literals = substr(tmp, 42);
+         literals = substr(tmp, 42);
       }       
       else if(index(tmp, "# Shared rewrite steps                 :"))
       {
-	 rewrite_steps = substr(tmp, 42);
+         rewrite_steps = substr(tmp, 42);
       }	 
       else if(index(tmp, "# Match attempts with oriented units   :"))
       {
-	 r_matches = substr(tmp, 42);
+         r_matches = substr(tmp, 42);
       }	 
       else if(index(tmp, "# Match attempts with unoriented units :"))
       {
-	 e_matches = substr(tmp, 42);
+         e_matches = substr(tmp, 42);
       }	 
       else if(index(tmp, "# Total literals in generated clauses  :"))
       {
-	 gen_literals = substr(tmp, 42);
+         gen_literals = substr(tmp, 42);
       }
       else if(index(tmp, "# Total time"))
       {
-	 time = substr(tmp, 30);
+         time = substr(tmp, 30);
       }
    }
    close(file);
    printf("%-29s " status " %8.3f  %-10s %10d %10d %10d %10d %10d %10d %10d %10d %10d\n", \
-	  name, 0+time, reason, generated, processed,shared_terms,raw_terms,\
-	  rewrite_steps, r_matches, e_matches, gen_literals,literals) >> logfile;
+          name, 0+time, reason, generated, processed,shared_terms,raw_terms,\
+          rewrite_steps, r_matches, e_matches, gen_literals,literals) >> logfile;
    printf("%-29s " status " %8.3f  %-10s\n", \
-	  name, 0+time, reason);
+          name, 0+time, reason);
    system("rm " file);
 }
 
@@ -330,8 +330,8 @@ BEGIN{
    if(global_hostname in reserved_hosts)
    {
       global_checkreservation = "/home/" \
-	 reserved_hosts[global_hostname] \
-	 "/HOST_RESERVED_" global_hostname;
+         reserved_hosts[global_hostname] \
+         "/HOST_RESERVED_" global_hostname;
    }
 
    print "PID is " procid " on host " global_hostname ".";

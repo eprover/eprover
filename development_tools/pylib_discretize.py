@@ -20,7 +20,7 @@ class equidist_round:
     """
     def __init__(self, distance=5):
         self.distance = distance
-		
+                
     def __call__(self, val):
         return int(math.ceil(float(val)/self.distance)*self.distance)
 
@@ -31,7 +31,7 @@ def prop_round(val):
     base = 1;
     while val > 5:
         base = base*10;
-	val = val/10;
+        val = val/10;
     if val < 1:
         res = 1
     elif val < 2:
@@ -53,7 +53,7 @@ class log_round:
         while res<val:
             res *=2
         return res
-    		
+                
 def no_round(val):
     """
     Identity function, don't round at all.

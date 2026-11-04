@@ -9,17 +9,17 @@ set final="--cpu-limit="$STAREXEC_CPU_LIMIT" "$1
 set ecmd="./eprover ""$defaultargs $flags $satflags $heuristic $final"
 
 if ( `expr "$ProblemSPC" : "FOF.*"` || `expr "$ProblemSPC" : "CNF.*"` ) then
-	echo "% Command    : " $ecmd
-	/home/starexec/bin/GetComputerInfo -p THIS Model CPUModel RAMPerCPU OS | \
+        echo "% Command    : " $ecmd
+        /home/starexec/bin/GetComputerInfo -p THIS Model CPUModel RAMPerCPU OS | \
         sed -e "s/Computer     /% Computer   /" \
             -e "s/Model        /% Model      /" \
             -e "s/CPUModel     /% CPU        /" \
             -e "s/RAMPerCPU    /% Memory     /" \
             -e "s/OS           /% OS         /"
-	echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
-	echo -n "% DateTime   : " ; date
-	echo "% CPUTime    : "
-	$ecmd
+        echo -n "% CPULimit   : " ; echo "$STAREXEC_CPU_LIMIT"
+        echo -n "% DateTime   : " ; date
+        echo "% CPUTime    : "
+        $ecmd
 else
     echo "% SZS status Inappropriate"
 endif

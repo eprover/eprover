@@ -11,19 +11,19 @@ function genterm(depth,    tmp, res)
      tmp = rand();
      if(tmp < 0.25)
      {
-	res = "a";
+        res = "a";
      }
      else if(tmp < 0.5)
      {
-	res = "b";
+        res = "b";
      }
      else if(tmp < 0.75)
      {
-	res = "c";
+        res = "c";
      }
      else 
      {
-	res = "d";
+        res = "d";
      }
   }
   else
@@ -31,19 +31,19 @@ function genterm(depth,    tmp, res)
      tmp = rand();
      if(tmp < 0.25)
      {
-	res = "i(" genterm(depth-1) ")";
+        res = "i(" genterm(depth-1) ")";
      }
      else if(tmp < 0.5)
      {
-	res = "j(" genterm(depth-1) ")";
+        res = "j(" genterm(depth-1) ")";
      }
      else if(tmp < 0.75)
      {	
-	res = "f(" genterm(depth-1) "," genterm(depth-1) ")";
+        res = "f(" genterm(depth-1) "," genterm(depth-1) ")";
      }
      else
      {
-	res = "g(" genterm(depth-1) "," genterm(depth-1) ")";
+        res = "g(" genterm(depth-1) "," genterm(depth-1) ")";
      }
   }
   return res;
@@ -78,14 +78,14 @@ BEGIN{
      term = genterm(depth);
      if(!(term in terms))
      {
-	class = classifyterm(term);
-	tmpstring = sprintf("%s: 1: (1, %d).", term, class);
-	terms[term] = tmpstring;
-	i++;
-	if(class == 1)
-	{
-	   class1++;
-	}
+        class = classifyterm(term);
+        tmpstring = sprintf("%s: 1: (1, %d).", term, class);
+        terms[term] = tmpstring;
+        i++;
+        if(class == 1)
+        {
+           class1++;
+        }
      }
   }
   print "# " i " terms, split = " class1/i > "/dev/stderr";
