@@ -79,21 +79,21 @@ int sat_translate_literal(Eqn_p eqn, SatClauseSet_p set)
 
    if(EqnIsEquLit(eqn))
    {
-      lterm = TBInsertInstantiated(eqn->bank, eqn->lterm);
-      rterm = TBInsertInstantiated(eqn->bank, eqn->rterm);
+      lterm = TBInsertInstantiated(EqnGetBank(eqn), eqn->lterm);
+      rterm = TBInsertInstantiated(EqnGetBank(eqn), eqn->rterm);
       // We normalize literals to avoid spurious failures
       if(PGreater(lterm, rterm))
       {
-         lit_term = EqnTermsTBTermEncode(eqn->bank, lterm, rterm, true, PENormal);
+         lit_term = EqnTermsTBTermEncode(lterm, rterm, true, PENormal);
       }
       else
       {
-         lit_term = EqnTermsTBTermEncode(eqn->bank, lterm, rterm, true, PEReverse);
+         lit_term = EqnTermsTBTermEncode(lterm, rterm, true, PEReverse);
       }
    }
    else
    {
-      lit_term = TBInsertInstantiated(eqn->bank, eqn->lterm);
+      lit_term = TBInsertInstantiated(EqnGetBank(eqn), eqn->lterm);
    }
    lit_code = lit_term->entry_no;
 

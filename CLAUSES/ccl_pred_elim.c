@@ -688,7 +688,7 @@ Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
    Eqn_p p_lit = find_lit_w_head(p_cpy->literals, f, &p_rest, ONLY_POS);
    assert(p_lit);
 
-   Clause_p n_cpy = ClauseCopy(n_cl, p_lit->bank);
+   Clause_p n_cpy = ClauseCopy(n_cl, EqnGetBank(p_lit));
    Eqn_p n_rest = NULL;
    Eqn_p n_lit = find_lit_w_head(n_cpy->literals, f, &n_rest, ONLY_NEG);
    assert(n_lit);
@@ -698,8 +698,8 @@ Clause_p build_neq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
 
    if(SubstComputeMgu(n_lit->lterm, p_lit->lterm, subst))
    {
-      EqnListMapTerms(p_rest, (TermMapper_p)inst_term, p_lit->bank);
-      EqnListMapTerms(n_rest, (TermMapper_p)inst_term, n_lit->bank);
+      EqnListMapTerms(p_rest, (TermMapper_p)inst_term, EqnGetBank(p_lit));
+      EqnListMapTerms(n_rest, (TermMapper_p)inst_term, EqnGetBank(n_lit));
       EqnListAppend(&p_rest, n_rest);
       p_cpy->literals = NULL;
       n_cpy->literals = NULL;
@@ -749,7 +749,7 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
    Eqn_p p_lit = find_lit_w_head(p_disjoint, f, &p_rest, ONLY_POS);
    assert(p_lit);
 
-   Eqn_p n_copy = EqnListCopy(n_cl->literals, p_lit->bank);
+   Eqn_p n_copy = EqnListCopy(n_cl->literals, EqnGetBank(p_lit));
    Eqn_p n_rest = NULL;
    Eqn_p n_lit = find_lit_w_head(n_copy, f, &n_rest, ONLY_NEG);
    assert(n_lit);
@@ -770,8 +770,8 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
       SubstComputeMgu(p_lit->lterm, n_lit->lterm, subst);
       assert(unif);
 
-      EqnListMapTerms(p_rest, (TermMapper_p)inst_term, p_lit->bank);
-      EqnListMapTerms(n_rest, (TermMapper_p)inst_term, n_lit->bank);
+      EqnListMapTerms(p_rest, (TermMapper_p)inst_term, EqnGetBank(p_lit));
+      EqnListMapTerms(n_rest, (TermMapper_p)inst_term, EqnGetBank(n_lit));
       EqnListAppend(&res_lits, p_rest);
       EqnListAppend(&res_lits, n_rest);
       SubstDelete(subst);
@@ -781,7 +781,7 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
       for(int i=0; i<p_lit->lterm->arity; i++)
       {
          Eqn_p neq = EqnAlloc(p_lit->lterm->args[i], n_lit->lterm->args[i],
-                              p_lit->bank, false);
+                              EqnGetBank(p_lit), false);
          neq->next = res_lits;
          res_lits = neq;
       }
@@ -887,7 +887,7 @@ void check_unsat_and_tauto(PETask_p task, TB_p tmp_terms)
    Clause_p pivot_fresh = ClauseCopyDisjoint(pivot);
    Eqn_p rest_fresh = NULL;
    Eqn_p fresh_lit = find_lit_w_head(pivot_fresh->literals, task->sym,  &rest_fresh, ANY_SIGN);
-   TB_p bank = fresh_lit->bank;
+   TB_p bank = EqnGetBank(fresh_lit);
    pivot_fresh->literals = rest_fresh;
    ClauseRecomputeLitCounts(pivot_fresh);
 
@@ -1136,7 +1136,7 @@ void do_gates_against_offending(PETask_p task, PStack_p cls,
             if(!ClauseIsTautology(tmp_terms, res))
             {
                ClauseNormalizeVars(res, freshvars);
-               EqnListMapTerms(res->literals, reassign_vars, sym_occ->bank);
+               EqnListMapTerms(res->literals, reassign_vars, EqnGetBank(sym_occ));
                PStackPushP(worklist, res);
             }
             else

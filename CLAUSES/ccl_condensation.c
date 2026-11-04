@@ -62,7 +62,7 @@ static bool try_condensation(Clause_p clause, Eqn_p l1, Eqn_p l2, bool swap)
 
    if(LiteralUnifyOneWay(l1, l2, subst, false))
    {
-      newlits = EqnListCopyExcept(clause->literals,l2, l1->bank);
+      newlits = EqnListCopyExcept(clause->literals,l2, EqnGetBank(l1));
       SubstBacktrack(subst);
       EqnListRemoveDuplicates(newlits);
       EqnListRemoveResolved(&newlits);

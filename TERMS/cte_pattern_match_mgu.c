@@ -145,7 +145,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
             res = new_matrix;
             while(!PStackEmpty(dbvars))
             {
-               res = CloseWithDBVar(bank, ((Term_p)PStackPopP(dbvars))->type, res);
+               res = CloseWithDBVar(((Term_p)PStackPopP(dbvars))->type, res);
             }
          }
       }
@@ -158,7 +158,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
    }
    else if (TermIsAppliedFreeVar(t))
    {
-      t = NormalizePatternAppVar(bank, t);
+      t = NormalizePatternAppVar(t);
       if(!t)
       {
          *unif_res = NOT_IN_FRAGMENT;
@@ -209,7 +209,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
             t_prefix[i-1] = t->args[i]->type;
          }
          SubstAddBinding(subst, t_var,
-                         CloseWithTypePrefix(bank, t_prefix, NUM_ACTUAL_ARGS(t), t_binding_matrix));
+                         CloseWithTypePrefix(t_prefix, NUM_ACTUAL_ARGS(t), t_binding_matrix));
          res = ApplyTerms(bank, GetFVarHead(t_binding_matrix), s_dbs);
          
          PStackFree(t_dbs);
@@ -265,7 +265,7 @@ Term_p solve_flex_rigid(TB_p bank, Term_p s_var, IntMap_p db_map, Term_p t,
 OracleUnifResult flex_rigid(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 {
    assert(TermIsTopLevelFreeVar(s));
-   s = NormalizePatternAppVar(bank, s);
+   s = NormalizePatternAppVar(s);
    OracleUnifResult res = UNIFIABLE;
    if(!s)
    {
@@ -298,7 +298,7 @@ OracleUnifResult flex_rigid(TB_p bank, Term_p s, Term_p t, Subst_p subst)
             s_prefix[i-1] = s->args[i]->type;
          }
          SubstAddBinding(subst, s_var,
-                         CloseWithTypePrefix(bank, s_prefix, NUM_ACTUAL_ARGS(s), s_binding_matrix));
+                         CloseWithTypePrefix(s_prefix, NUM_ACTUAL_ARGS(s), s_binding_matrix));
       }
       IntMapFree(db_map);
    }
@@ -322,8 +322,8 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 {
    OracleUnifResult res = UNIFIABLE;
 
-   s = NormalizePatternAppVar(bank, s);
-   t = NormalizePatternAppVar(bank, t);
+   s = NormalizePatternAppVar(s);
+   t = NormalizePatternAppVar(t);
 
    if(!s || !t)
    {
@@ -358,7 +358,7 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
          t_prefix[i-1] = t->args[i]->type;
       }
       SubstAddBinding(subst, t_var,
-                      CloseWithTypePrefix(bank, t_prefix, NUM_ACTUAL_ARGS(t), t_binding_matrix));
+                      CloseWithTypePrefix(t_prefix, NUM_ACTUAL_ARGS(t), t_binding_matrix));
 
       Term_p s_var = GetFVarHead(s);
       Term_p s_binding_matrix =
@@ -369,7 +369,7 @@ OracleUnifResult flex_flex_diff(TB_p bank, Term_p s, Term_p t, Subst_p subst)
          s_prefix[i-1] = s->args[i]->type;
       }
       SubstAddBinding(subst, s_var, 
-                      CloseWithTypePrefix(bank, s_prefix, NUM_ACTUAL_ARGS(s), s_binding_matrix));
+                      CloseWithTypePrefix(s_prefix, NUM_ACTUAL_ARGS(s), s_binding_matrix));
 
       IntMapFree(db_map);
       PStackFree(t_dbs);
@@ -405,8 +405,8 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
    else
    {
       assert(TermIsAppliedFreeVar(t));
-      s = NormalizePatternAppVar(bank, s);
-      t = NormalizePatternAppVar(bank, t);
+      s = NormalizePatternAppVar(s);
+      t = NormalizePatternAppVar(t);
       if(!s || !t)
       {
          res = NOT_IN_FRAGMENT;
@@ -431,7 +431,7 @@ OracleUnifResult flex_flex_same(TB_p bank, Term_p s, Term_p t, Subst_p subst)
 
          Term_p matrix = FreshVarWArgs(bank, db_args, GetRetType(var->type));
          SubstAddBinding(subst, var, 
-                         CloseWithTypePrefix(bank, var->type->args, max_args, matrix));
+                         CloseWithTypePrefix(var->type->args, max_args, matrix));
          PStackFree(db_args);
       }
    }
@@ -501,7 +501,7 @@ void eta_expand_otf(TB_p bank, Term_p *lambda_ref, Term_p *non_lambda_ref)
       PStackAssignP(dbvars, i, TBRequestDBVar(bank, dbvar_ty, pref_len-i-1));
    }
 
-   *non_lambda_ref = ApplyTerms(bank, ShiftDB(bank, non_lambda, pref_len), dbvars);
+   *non_lambda_ref = ApplyTerms(bank, ShiftDB(non_lambda, pref_len), dbvars);
    PStackFree(dbvars);
 }
 
@@ -526,7 +526,7 @@ Term_p do_remap(TB_p bank, IntMap_p dbmap, Term_p t, OracleUnifResult* res, long
 
    if(TermIsAppliedFreeVar(t))
    {
-      t = NormalizePatternAppVar(bank, t);
+      t = NormalizePatternAppVar(t);
       if(!t)
       {
          *res = NOT_IN_FRAGMENT;
@@ -549,7 +549,7 @@ Term_p do_remap(TB_p bank, IntMap_p dbmap, Term_p t, OracleUnifResult* res, long
       {
          while(!PStackEmpty(dbvars))
          {
-            new_matrix = CloseWithDBVar(bank, ((Term_p)PStackPopP(dbvars))->type,
+            new_matrix = CloseWithDBVar(((Term_p)PStackPopP(dbvars))->type,
                                         new_matrix);
          }
          ret = new_matrix;
@@ -658,7 +658,7 @@ OracleUnifResult match_var(TB_p bank, Subst_p subst,
                            Term_p matcher, Term_p to_match)
 {
    assert(TermIsTopLevelFreeVar(matcher));
-   matcher = NormalizePatternAppVar(bank, matcher);
+   matcher = NormalizePatternAppVar(matcher);
    if(!matcher)
    {
       return NOT_IN_FRAGMENT;
@@ -688,7 +688,7 @@ OracleUnifResult match_var(TB_p bank, Subst_p subst,
       if(binding)
       {
          assert(res == UNIFIABLE);
-         binding = CloseWithTypePrefix(bank, tys, matcher->arity-1, 
+         binding = CloseWithTypePrefix(tys, matcher->arity-1, 
                                        remap_variables(bank, matcher, to_match, &res));
          assert(TermIsAppliedFreeVar(matcher));
          SubstAddBinding(subst, matcher->args[0], binding);
@@ -782,7 +782,7 @@ OracleUnifResult SubstComputeMguPattern(Term_p t1, Term_p t2, Subst_p subst)
 
    PQueueStoreP(jobs, t1);
    PQueueStoreP(jobs, t2);
-   TB_p bank = TermGetBank(t1) ? TermGetBank(t1) : TermGetBank(t2);
+   TB_p bank = TermFindBank(t1) ? TermFindBank(t1) : TermFindBank(t2);
    assert(bank);
 
    VarBankSetVCountsToUsed(bank->vars);
@@ -920,7 +920,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
       return NOT_UNIFIABLE;
    }
 
-   TB_p bank = TermGetBank(matcher) ? TermGetBank(matcher) : TermGetBank(to_match);
+   TB_p bank = TermFindBank(matcher) ? TermFindBank(matcher) : TermFindBank(to_match);
    assert(bank || TermIsAnyVar(matcher) || TermIsAnyVar(to_match));
    assert(!(TermGetBank(matcher) && TermGetBank(to_match)) 
             || TermGetBank(matcher) == TermGetBank(to_match));
@@ -929,8 +929,8 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
    PLocalStackInit(jobs);
 
    // to make the weight stuff work!!!
-   matcher = LambdaEtaExpandDB(bank, matcher);
-   to_match = LambdaEtaExpandDB(bank, to_match);
+   matcher = LambdaEtaExpandDB(matcher);
+   to_match = LambdaEtaExpandDB(to_match);
 
    PLocalStackPush(jobs, matcher);
    PLocalStackPush(jobs, to_match);
@@ -947,7 +947,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
       PruneLambdaPrefix(bank, &matcher, &to_match);
       if(TermIsGround(to_match) && TermIsGround(matcher))
       {
-         if(LambdaNormalizeDB(bank, to_match) != LambdaNormalizeDB(bank, matcher))
+         if(LambdaNormalizeDB(to_match) != LambdaNormalizeDB(matcher))
          {
             UNIF_FAIL(res);
          }
@@ -959,7 +959,7 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
 
       if(TermIsTopLevelFreeVar(matcher))
       {
-         matcher = NormalizePatternAppVar(bank, matcher);
+         matcher = NormalizePatternAppVar(matcher);
          if(!matcher)
          {
             res = NOT_IN_FRAGMENT;
@@ -970,8 +970,8 @@ OracleUnifResult SubstComputeMatchPattern(Term_p matcher, Term_p to_match, Subst
          if(fvar->binding)
          {
             DerefType dummy = DEREF_ONCE;
-            matcher = LambdaNormalizeDB(bank, TermDeref(matcher, &dummy));
-            if(matcher != LambdaNormalizeDB(bank, to_match))
+            matcher = LambdaNormalizeDB(TermDeref(matcher, &dummy));
+            if(matcher != LambdaNormalizeDB(to_match))
             {
                UNIF_FAIL(res);
             }

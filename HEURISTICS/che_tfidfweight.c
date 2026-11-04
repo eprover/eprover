@@ -81,8 +81,7 @@ static void tfidf_documents_add_term(
    /* The index keeps pointers to (applied) variables of the term, so
       insert a shared copy that lives as long as the index. The index
       requires beta-normal terms. */
-   shared = BetaNormalizeDB(documents->bank,
-                            TBInsert(documents->bank,copy,DEREF_NEVER));
+   shared = BetaNormalizeDB(TBInsert(documents->bank,copy,DEREF_NEVER));
    TermFree(copy);
 
    pos          = ClausePosCellAlloc();

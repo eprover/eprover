@@ -982,11 +982,11 @@ void ClauseExtractHODefinition(Clause_p clause, EqnSide def_side, Term_p *lside,
       PStackPushP(vars, def_term->args[i]);
    }
    Term_p other_term = def_side == LeftSide ? lit->rterm : lit->lterm;
-   Term_p abstracted_term = AbstractVars(lit->bank, other_term, vars);
+   Term_p abstracted_term = AbstractVars(EqnGetBank(lit), other_term, vars);
    Term_p symbol = TermTopAlloc(def_term->f_code, 0);
    symbol->type = abstracted_term->type;
-   assert(symbol->type == SigGetType(lit->bank->sig, symbol->f_code));
-   symbol = TBTermTopInsert(lit->bank, symbol);
+   assert(symbol->type == SigGetType(EqnGetBank(lit)->sig, symbol->f_code));
+   symbol = TBTermTopInsert(EqnGetBank(lit), symbol);
    PStackFree(vars);
 
    *lside = symbol;
@@ -1580,10 +1580,10 @@ void ClauseTSTPPrint(FILE* out, Clause_p clause, bool fullterms, bool complete)
    {
       // Print as universally quantified formula
       assert(clause->literals);
-      form = TFormulaClauseEncode(clause->literals->bank, clause);
-      form = TFormulaClosure(clause->literals->bank, form, true);
+      form = TFormulaClauseEncode(EqnGetBank(clause->literals), clause);
+      form = TFormulaClosure(EqnGetBank(clause->literals), form, true);
 
-      TFormulaTPTPPrint(out, clause->literals->bank, form, fullterms, false);
+      TFormulaTPTPPrint(out, EqnGetBank(clause->literals), form, fullterms, false);
       // TermPrintDbg(out, form, clause->literals->bank->sig, DEREF_NEVER);
       // handled by GC, no need to free
    }
@@ -2507,7 +2507,7 @@ Clause_p ClauseNormalizeVars(Clause_p clause, VarBank_p fresh_vars)
 
       if(!SubstIsEmpty(subst))
       {
-         tmplist = EqnListCopy(clause->literals, clause->literals->bank);
+         tmplist = EqnListCopy(clause->literals, EqnGetBank(clause->literals));
          EqnListFree(clause->literals);
          clause->literals = tmplist;
       }
@@ -2580,7 +2580,7 @@ long ClauseReturnFCodes(Clause_p clause, PStack_p f_codes)
       return res;
    }
    assert(clause->literals);
-   sig = clause->literals->bank->sig;
+   sig = EqnGetBank(clause->literals)->sig;
    assert(sig);
 
    stack = PStackAlloc();
@@ -2695,11 +2695,11 @@ bool ClauseRecognizeChoice(IntMap_p choice_symbols_map, Clause_p cl)
    FAIL_ON(EqnIsEquLit(pos_lit));
    FAIL_ON(EqnIsEquLit(neg_lit));
 
-   TB_p bank = pos_lit->bank;
+   TB_p bank = EqnGetBank(pos_lit);
    Term_p neg_term =
-      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, neg_lit->lterm));
+      BetaNormalizeDB(LambdaEtaReduceDB(neg_lit->lterm));
    Term_p pos_term =
-      BetaNormalizeDB(bank, LambdaEtaReduceDB(bank, pos_lit->lterm));
+      BetaNormalizeDB(LambdaEtaReduceDB(pos_lit->lterm));
 
    FAIL_ON(!TermIsAppliedFreeVar(neg_term));
    FAIL_ON(!TermIsAppliedFreeVar(pos_term));

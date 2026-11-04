@@ -113,7 +113,7 @@ int    CommentPrint(FILE* out, const char* format, ...)
 
 #define DBG_TPRINT(out, prefix, term, suffix) \
    fprintf(out, "%s", prefix);\
-   TermPrintDbg(out, term, TermGetBank(term)->sig, DEREF_NEVER);\
+   TermPrintDbg(out, term, TermFindBank(term)->sig, DEREF_NEVER);\
    fprintf(out, "%s", suffix)
 
 

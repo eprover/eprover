@@ -1284,15 +1284,15 @@ void PatternEqnPrint(FILE* out, PatternSubst_p subst, Eqn_p eqn,
    {
       if(!direction)
       {
-         PatternTermPrint(out, subst, eqn->lterm, eqn->bank->sig);
+         PatternTermPrint(out, subst, eqn->lterm, EqnGetBank(eqn)->sig);
          fputs(EqnIsPositive(eqn)?"=":"!=", out);
-         PatternTermPrint(out, subst, eqn->rterm, eqn->bank->sig);
+         PatternTermPrint(out, subst, eqn->rterm, EqnGetBank(eqn)->sig);
       }
       else
       {
-         PatternTermPrint(out, subst, eqn->rterm, eqn->bank->sig);
+         PatternTermPrint(out, subst, eqn->rterm, EqnGetBank(eqn)->sig);
          fputs(EqnIsPositive(eqn)?"=":"!=", out);
-         PatternTermPrint(out, subst, eqn->lterm, eqn->bank->sig);
+         PatternTermPrint(out, subst, eqn->lterm, EqnGetBank(eqn)->sig);
       }
    }
    else
@@ -1301,7 +1301,7 @@ void PatternEqnPrint(FILE* out, PatternSubst_p subst, Eqn_p eqn,
       {
          fputc('~', out);
       }
-      PatternTermPrint(out, subst, eqn->lterm, eqn->bank->sig);
+      PatternTermPrint(out, subst, eqn->lterm, EqnGetBank(eqn)->sig);
    }
 }
 

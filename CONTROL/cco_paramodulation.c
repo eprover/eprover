@@ -659,12 +659,13 @@ static long compute_pos_from_pm(ParamodInfo_p pminfo,
 //
 /----------------------------------------------------------------------*/
 
-long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
+long ComputeClauseClauseParamodulants(OCB_p ocb, Clause_p
                                       clause, Clause_p parent_alias,
                                       Clause_p with, ClauseSet_p
                                       store, VarBank_p freshvars,
                                       ParamodulationType pm_type)
 {
+   TB_p bank = ClauseGetBank(clause);
    Clause_p    paramod;
    Term_p      test;
    ClausePos_p pos1, pos2;
@@ -791,7 +792,7 @@ long ComputeClauseClauseParamodulants(TB_p bank, OCB_p ocb, Clause_p
 //
 /----------------------------------------------------------------------*/
 
-long ComputeAllParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
+long ComputeAllParamodulants(OCB_p ocb, Clause_p clause,
               Clause_p parent_alias, ClauseSet_p
               with_set, ClauseSet_p store, VarBank_p
               freshvars, ParamodulationType pm_type)
@@ -803,7 +804,7 @@ long ComputeAllParamodulants(TB_p bank, OCB_p ocb, Clause_p clause,
        handle = handle->succ)
    {
       paramod_count +=
-    ComputeClauseClauseParamodulants(bank, ocb, clause,
+    ComputeClauseClauseParamodulants(ocb, clause,
                                           parent_alias, handle,
                                           store, freshvars, pm_type);
    }
@@ -979,7 +980,7 @@ long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
 //
 /----------------------------------------------------------------------*/
 
-long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
+long ComputeAllParamodulantsIndexed(OCB_p ocb,
                                     VarBank_p freshvars,
                                     Clause_p clause,
                                     Clause_p parent_alias,
@@ -989,6 +990,7 @@ long ComputeAllParamodulantsIndexed(TB_p bank, OCB_p ocb,
                                     ClauseSet_p store,
                                     ParamodulationType pm_type)
 {
+   TB_p bank = ClauseGetBank(clause);
    long res = 0;
    ParamodInfoCell pminfo;
 

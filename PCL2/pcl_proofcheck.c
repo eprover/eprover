@@ -167,9 +167,9 @@ static void eqn_print_otter(FILE* out, Eqn_p eqn)
    }
    else
    {
-      if(eqn->lterm==eqn->bank->true_term)
+      if(eqn->lterm==EqnGetBank(eqn)->true_term)
       {
-         assert(eqn->rterm==eqn->bank->true_term);
+         assert(eqn->rterm==EqnGetBank(eqn)->true_term);
          /* Special case, one more hack */;
          if(EqnIsPositive(eqn))
          {
@@ -191,7 +191,7 @@ static void eqn_print_otter(FILE* out, Eqn_p eqn)
          {
             fputc(' ', out);
          }
-         TBPrintTerm(out, eqn->bank, eqn->lterm, true);
+         TBPrintTerm(out, EqnGetBank(eqn), eqn->lterm, true);
       }
    }
 }
@@ -391,9 +391,9 @@ static void eqn_print_dfg(FILE* out, Eqn_p eqn)
    {
       fputs("not(", out);
    }
-   if(eqn->lterm==eqn->bank->true_term)
+   if(eqn->lterm==EqnGetBank(eqn)->true_term)
    {
-      assert(eqn->rterm==eqn->bank->true_term);
+      assert(eqn->rterm==EqnGetBank(eqn)->true_term);
       /* Special case, one more hack */;
       fputs("equal(spass_hack,spass_hack)", out);
    }
@@ -439,12 +439,12 @@ static void clause_print_dfg(FILE* out, Clause_p clause)
       {
          assert(clause->literals);
          var = cell->key;
-         TBPrintTerm(out, clause->literals->bank, var, true);
+         TBPrintTerm(out, EqnGetBank(clause->literals), var, true);
          while((cell=OrdSetTraverseNext(stack)))
          {
             fputc(',', out);
             var = cell->key;
-            TBPrintTerm(out, clause->literals->bank, var, true);
+            TBPrintTerm(out, EqnGetBank(clause->literals), var, true);
          }
       }
       OrdSetTraverseExit(stack);

@@ -669,11 +669,11 @@ Eqn_p EqnAlloc(Term_p lterm, Term_p rterm, TB_p bank,  bool positive)
    {
       TermAssertSameSort(bank->sig, lterm, rterm);
    }
-   handle->bank = bank;
    handle->next = NULL;
 
    handle->lterm = lterm;
    handle->rterm = rterm;
+   assert(EqnGetBank(handle) == bank);
 
 
    /* EqnPrint(stdout, handle, false, true);
@@ -856,7 +856,7 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
 
       if(TypeIsBool(lterm->type))
       {
-         lterm = EqnTermsTBTermEncode(bank, lterm, bank->true_term, true, PENormal);
+         lterm = EqnTermsTBTermEncode(lterm, bank->true_term, true, PENormal);
       }
    }
    else
@@ -891,9 +891,10 @@ Eqn_p EqnHOFParse(Scanner_p in, TB_p bank, bool* continue_parsing)
 //
 /----------------------------------------------------------------------*/
 
-Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
+Term_p EqnTermsTBTermEncode(Term_p lterm, Term_p rterm,
                             bool positive, PatEqnDirection dir)
 {
+   TB_p    bank = TermGetBank(lterm) ? TermGetBank(lterm) : TermGetBank(rterm);
    Term_p  handle;
 
    assert(bank);
@@ -934,8 +935,9 @@ Term_p EqnTermsTBTermEncode(TB_p bank, Term_p lterm, Term_p rterm,
 //
 /----------------------------------------------------------------------*/
 
-Eqn_p EqnTBTermDecode(TB_p terms, Term_p eqn)
+Eqn_p EqnTBTermDecode(Term_p eqn)
 {
+   TB_p terms = TermGetBank(eqn);
    Eqn_p res;
    bool positive = false;
 
@@ -972,7 +974,7 @@ Term_p EqnTBTermParse(Scanner_p in, TB_p bank)
 
    positive = eqn_parse_real(in, bank, &lterm, &rterm, false);
 
-   return EqnTermsTBTermEncode(bank, lterm, rterm, positive,
+   return EqnTermsTBTermEncode(lterm, rterm, positive,
                                PENormal);
 }
 
@@ -1025,26 +1027,26 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
       if(EqnIsEquLit(eq))
       {
          fputs(EQUAL_PREDICATE"(", out);
-         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
          fprintf(out, ", ");
-         TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->rterm, fullterms);
          fputc(')', out);
       }
       else
       {
-         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
       }
    }
    else
    {
       if(EqnUseInfix &&
          (EqnFullEquationalRep ||
-          eq->rterm!=eq->bank->true_term
+          eq->rterm!=EqnGetBank(eq)->true_term
           /* || eq->lterm==eq->bank->true_term*/
             ))
       {
          PRINT_HO_PAREN(out, '(');
-         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
 
          if(!positive)
          {
@@ -1052,7 +1054,7 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
          }
          fprintf(out, (EqnIsOriented(eq)&EqnPrintOriented)?"->":"=");
          /* fprintf(out, "="); */
-         TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->rterm, fullterms);
          PRINT_HO_PAREN(out, ')');
       }
       else
@@ -1061,20 +1063,20 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
          {
             fputc('~', out);
          }
-         if((eq->rterm!=eq->bank->true_term) ||
+         if((eq->rterm!=EqnGetBank(eq)->true_term) ||
             EqnFullEquationalRep/* ||
                                    eq->lterm==eq->bank->true_term*/)
          {
             fputs(EQUAL_PREDICATE"(", out);
-            TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+            TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
             fprintf(out, ", ");
-            TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+            TBPrintTerm(out, EqnGetBank(eq), eq->rterm, fullterms);
             fputc(')', out);
          }
          else
          {
             PRINT_HO_PAREN(out, '(');
-            TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+            TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
             PRINT_HO_PAREN(out, ')');
          }
       }
@@ -1098,9 +1100,9 @@ void EqnPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms)
 /----------------------------------------------------------------------*/
 void EqnPrintDBG(FILE* out, Eqn_p eq)
 {
-   TermPrintDbg(out, eq->lterm, eq->bank->sig, DEREF_NEVER);
+   TermPrintDbg(out, eq->lterm, EqnGetBank(eq)->sig, DEREF_NEVER);
    fprintf(out, "%s=", EqnIsPositive(eq)?"":"!");
-   TermPrintDbg(out, eq->rterm, eq->bank->sig, DEREF_NEVER);
+   TermPrintDbg(out, eq->rterm, EqnGetBank(eq)->sig, DEREF_NEVER);
    fprintf(out, "%s", EqnIsMaximal(eq) ? "*" : "");
    fprintf(out, "%s", EqnIsOriented(eq) ? ">" : "");
    fprintf(out, "%s", EqnQueryProp(eq, EPIsEquLiteral) ? COMCHARRAW : "");
@@ -1120,9 +1122,9 @@ void EqnPrintDBG(FILE* out, Eqn_p eq)
 
 void EqnPrintDeref(FILE* out, Eqn_p eq, DerefType deref)
 {
-   TermPrint(out, eq->lterm, eq->bank->sig, deref);
+   TermPrint(out, eq->lterm, EqnGetBank(eq)->sig, deref);
    fprintf(out, "%s", EqnIsPositive(eq)?"=":"!=");
-   TermPrint(out, eq->rterm, eq->bank->sig, deref);
+   TermPrint(out, eq->rterm, EqnGetBank(eq)->sig, deref);
 }
 
 
@@ -1164,7 +1166,7 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
       {
          PRINT_HO_PAREN(out, '(');
          PRINT_HO_PAREN(out, '(');
-         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
          PRINT_HO_PAREN(out, ')');
          if(!positive)
          {
@@ -1172,7 +1174,7 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
          }
          fputc('=', out);
          PRINT_HO_PAREN(out, '(');
-         TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->rterm, fullterms);
          PRINT_HO_PAREN(out, ')');
          PRINT_HO_PAREN(out, ')');
       }
@@ -1183,7 +1185,7 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
             fputc('~', out);
          }
          PRINT_HO_PAREN(out, '(');
-         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
          PRINT_HO_PAREN(out, ')');
       }
    }
@@ -1196,14 +1198,14 @@ void EqnFOFPrint(FILE* out, Eqn_p eq, bool negated,  bool fullterms, bool pcl)
       if(EqnIsEquLit(eq))
       {
          fputs(EQUAL_PREDICATE"(", out);
-         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
          fprintf(out, ", ");
-         TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->rterm, fullterms);
          fputc(')', out);
       }
       else
       {
-         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
       }
    }
 }
@@ -1226,18 +1228,18 @@ void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
 {
    bool positive = XOR(EqnIsPositive(eq), negated);
 
-   Term_p l_app_enc = TermAppEncode(eq->lterm, eq->bank->sig);
+   Term_p l_app_enc = TermAppEncode(eq->lterm, EqnGetBank(eq)->sig);
    if(EqnIsEquLit(eq))
    {
-      Term_p r_app_enc = TermAppEncode(eq->rterm, eq->bank->sig);
+      Term_p r_app_enc = TermAppEncode(eq->rterm, EqnGetBank(eq)->sig);
 
-      TermPrintFO(out, l_app_enc, eq->bank->sig, DEREF_NEVER);
+      TermPrintFO(out, l_app_enc, EqnGetBank(eq)->sig, DEREF_NEVER);
       if(!positive)
       {
          fputc('!', out);
       }
       fputc('=', out);
-      TermPrintFO(out, r_app_enc, eq->bank->sig, DEREF_NEVER);
+      TermPrintFO(out, r_app_enc, EqnGetBank(eq)->sig, DEREF_NEVER);
 
       TermFree(r_app_enc);
    }
@@ -1247,7 +1249,7 @@ void EqnAppEncode(FILE* out, Eqn_p eq, bool negated)
       {
          fputc('~', out);
       }
-      TermPrintFO(out, l_app_enc, eq->bank->sig, DEREF_NEVER);
+      TermPrintFO(out, l_app_enc, EqnGetBank(eq)->sig, DEREF_NEVER);
    }
    TermFree(l_app_enc);
 }
@@ -1275,7 +1277,7 @@ void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
    {
       if(EqnIsEquLit(eq))
       {
-         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
          if(EqnPrintOriented & EqnIsOriented(eq))
          {
             fprintf(out, "%s>", EqnIsNegative(eq)?"!-":"-");
@@ -1284,7 +1286,7 @@ void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
          {
             fprintf(out, "%s", EqnIsNegative(eq)?"!=":"=");
          }
-         TBPrintTerm(out, eq->bank, eq->rterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->rterm, fullterms);
       }
       else
       {
@@ -1292,7 +1294,7 @@ void EqnTSTPPrint(FILE* out, Eqn_p eq, bool fullterms)
          {
             fputc('~', out);
          }
-         TBPrintTerm(out, eq->bank, eq->lterm, fullterms);
+         TBPrintTerm(out, EqnGetBank(eq), eq->lterm, fullterms);
       }
    }
 }
@@ -1405,7 +1407,7 @@ Eqn_p EqnFlatCopy(Eqn_p eq)
    rterm = eq->rterm;
 
    /* Properties will be taken care of later! */
-   handle = EqnAlloc(lterm, rterm, eq->bank, EqnIsPositive(eq));
+   handle = EqnAlloc(lterm, rterm, EqnGetBank(eq), EqnIsPositive(eq));
    // in HO version positivity is computed in relatively complex way,
    // thus EPIsPositive must be preserved!
    handle->properties =
@@ -1507,11 +1509,11 @@ Eqn_p EqnCopyOpt(Eqn_p eq)
    Eqn_p  handle;
    Term_p lterm, rterm;
 
-   lterm = TBInsertOpt(eq->bank, eq->lterm, DEREF_ALWAYS);
-   rterm = TBInsertOpt(eq->bank, eq->rterm, DEREF_ALWAYS);
+   lterm = TBInsertOpt(EqnGetBank(eq), eq->lterm, DEREF_ALWAYS);
+   rterm = TBInsertOpt(EqnGetBank(eq), eq->rterm, DEREF_ALWAYS);
 
    /* Properties will be taken care of later! */
-   handle = EqnAlloc(lterm, rterm, eq->bank, EqnIsPositive(eq));
+   handle = EqnAlloc(lterm, rterm, EqnGetBank(eq), EqnIsPositive(eq));
    // in HO version positivity is computed in relatively complex way,
    // thus EPIsPositive must be preserved!
    handle->properties =
@@ -1542,11 +1544,11 @@ Eqn_p EqnCopyDisjoint(Eqn_p eq)
    Eqn_p  handle;
    Term_p lterm, rterm;
 
-   lterm = TBInsertDisjoint(eq->bank, eq->lterm);
-   rterm = TBInsertDisjoint(eq->bank, eq->rterm);
+   lterm = TBInsertDisjoint(EqnGetBank(eq), eq->lterm);
+   rterm = TBInsertDisjoint(EqnGetBank(eq), eq->rterm);
 
    /* Properties will be taken care of later! */
-   handle = EqnAlloc(lterm, rterm, eq->bank, EqnIsPositive(eq));
+   handle = EqnAlloc(lterm, rterm, EqnGetBank(eq), EqnIsPositive(eq));
    // in HO version positivity is computed in relatively complex way,
    // thus EPIsPositive must be preserved!
    handle->properties =
@@ -1574,7 +1576,7 @@ Eqn_p EqnCopyDisjoint(Eqn_p eq)
 
 bool EqnIsACTrivial(Eqn_p eq)
 {
-   return TermACEqual(eq->bank->sig, eq->lterm, eq->rterm);
+   return TermACEqual(EqnGetBank(eq)->sig, eq->lterm, eq->rterm);
 }
 
 
@@ -1595,10 +1597,10 @@ bool EqnTermsAreDistinct(Eqn_p eq)
 {
    if(TermIsConst(eq->lterm)  &&
       TermIsConst(eq->rterm)  &&
-      SigIsAnyFuncPropSet(eq->bank->sig, eq->lterm->f_code,
-                          eq->bank->sig->distinct_props)   &&
-      SigIsAnyFuncPropSet(eq->bank->sig, eq->rterm->f_code,
-                          eq->bank->sig->distinct_props)   &&
+      SigIsAnyFuncPropSet(EqnGetBank(eq)->sig, eq->lterm->f_code,
+                          EqnGetBank(eq)->sig->distinct_props)   &&
+      SigIsAnyFuncPropSet(EqnGetBank(eq)->sig, eq->rterm->f_code,
+                          EqnGetBank(eq)->sig->distinct_props)   &&
       (eq->lterm->f_code!=eq->rterm->f_code))
    {
       return true;
@@ -1707,14 +1709,14 @@ EqnSide EqnIsDefinition(Eqn_p eq, int min_arity)
       return NoSide;
    }
    if(TermIsDefTerm(eq->lterm, min_arity) &&
-      !SigQueryFuncProp(eq->bank->sig, eq->lterm->f_code, FPPseudoPred)&&
+      !SigQueryFuncProp(EqnGetBank(eq)->sig, eq->lterm->f_code, FPPseudoPred)&&
       !TermHasFCode(eq->rterm, eq->lterm->f_code) &&
       !EqnHasUnboundVars(eq, LeftSide))
    {
       return LeftSide;
    }
    if(TermIsDefTerm(eq->rterm, min_arity) &&
-      !SigQueryFuncProp(eq->bank->sig, eq->rterm->f_code, FPPseudoPred)&&
+      !SigQueryFuncProp(EqnGetBank(eq)->sig, eq->rterm->f_code, FPPseudoPred)&&
       !TermHasFCode(eq->lterm, eq->rterm->f_code) &&
       !EqnHasUnboundVars(eq, RightSide))
    {
@@ -2153,7 +2155,7 @@ bool LiteralSubsumeP(Eqn_p subsumer, Eqn_p subsumed)
 
 bool EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst)
 {
-   assert(eq1->bank == eq2->bank);
+   assert(EqnGetBank(eq1) == EqnGetBank(eq2));
 
    PStackPointer backtrack = PStackGetSP(subst);
    bool res;
@@ -2394,11 +2396,11 @@ bool EqnOrient(OCB_p ocb, Eqn_p eq)
    {
       relation = to_equal;
    }
-   else if(eq->lterm == eq->bank->true_term)
+   else if(eq->lterm == EqnGetBank(eq)->true_term)
    {
       relation = to_lesser;
    }
-   else if(eq->rterm == eq->bank->true_term)
+   else if(eq->rterm == EqnGetBank(eq)->true_term)
    {
       relation = to_greater;
    }
@@ -2664,8 +2666,8 @@ PStackPointer SubstNormEqn(Eqn_p eq, Subst_p subst, VarBank_p vars)
 {
    PStackPointer res;
 
-   res = SubstNormTerm(eq->lterm, subst, vars, eq->bank->sig);
-   SubstNormTerm(eq->rterm, subst, vars, eq->bank->sig);
+   res = SubstNormTerm(eq->lterm, subst, vars, EqnGetBank(eq)->sig);
+   SubstNormTerm(eq->rterm, subst, vars, EqnGetBank(eq)->sig);
 
    return res;
 }
@@ -3427,7 +3429,7 @@ void EqnMap(Eqn_p lit, TermMapper_p f, void* arg)
    DBGTermCheckUnownedSubterm(stdout, lterm, "EqnMapL1");
    DBGTermCheckUnownedSubterm(stdout, rterm, "EqnMapL2");
    bool negate = false;
-   TB_p bank = lit->bank;
+   TB_p bank = EqnGetBank(lit);
 
    if(lterm == bank->false_term)
    {

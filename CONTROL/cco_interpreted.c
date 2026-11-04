@@ -66,7 +66,7 @@ void answer_lit_print(FILE* out, Eqn_p lit)
    fprintf(out, "[");
    if(EqnQueryProp(lit, EPPseudoLit)
       &&
-      SigIsSimpleAnswerPred(lit->bank->sig, lit->lterm->f_code)
+      SigIsSimpleAnswerPred(EqnGetBank(lit)->sig, lit->lterm->f_code)
       &&
       lit->lterm->args[0]->f_code > 0)
    {
@@ -75,7 +75,7 @@ void answer_lit_print(FILE* out, Eqn_p lit)
       for(i=0; i<answer_term->arity; i++)
       {
          fprintf(out, "%s", sep);
-         TBPrintTermFull(out, lit->bank, answer_term->args[i]);
+         TBPrintTermFull(out, EqnGetBank(lit), answer_term->args[i]);
          sep = ", ";
       }
    }

@@ -191,9 +191,6 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
 
       old = PStackElementP(pos, i);
       handle = TermTopCopy(old);
-      /* The copy is part of the new term in bank, and WHNF_deref()
-         takes the bank from the term. */
-      TermSetBank(handle, bank);
       assert(handle->arity > subscript);
 #ifdef ENABLE_LFHO
       if(remains != -1)

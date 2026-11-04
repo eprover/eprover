@@ -677,7 +677,7 @@ FreqVector_p FVCollectFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
    if(!ClauseIsEmpty(clause))
    {
       PStack_p mod_stack = PStackAlloc();
-      long max_fun = clause->literals->bank->sig->f_count;
+      long max_fun = EqnGetBank(clause->literals)->sig->f_count;
       long findex;
 
       if(cspec->use_litcount)

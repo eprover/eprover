@@ -528,7 +528,7 @@ static void derivation_complete_sides(Derivation_p derivation,
       end        = i+4+PStackElementInt(step_sides, i+3);
       if(PTreeObjFindObj(&(derivation->deriv), &key, derived_compare))
       {
-         *copy_side = term_replace_at(key.clause->literals->bank,
+         *copy_side = term_replace_at(EqnGetBank(key.clause->literals),
                                       *prev_side, step_sides,
                                       i+4, end, *copy_side);
       }
@@ -1249,7 +1249,7 @@ void DerivStackGCMarkTerms(TB_p bank, PStack_p derivation)
             term = PStackElementP(derivation, i);
             if(!TermIsFreeVar(term))
             {
-               TBGCMarkTerm(bank, term);
+               TBGCMarkTerm(term);
             }
          }
       }

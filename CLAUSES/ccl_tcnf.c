@@ -1147,12 +1147,12 @@ TFormula_p do_simplify_decoded(TB_p terms, TFormula_p form, bool unroll_implicat
          Type_p bool_ty = terms->sig->type_bank->bool_type;
          if (form->args[0] == neutral_element)
          {
-            res = CloseWithDBVar(terms, bool_ty,
+            res = CloseWithDBVar(bool_ty,
                                  TBRequestDBVar(terms, bool_ty, 0));
          }
          else if (form->args[0] == asbsorbing_element)
          {
-            res = CloseWithDBVar(terms, bool_ty, asbsorbing_element);
+            res = CloseWithDBVar(bool_ty, asbsorbing_element);
          }
       }
       else if(form->arity == 2)
@@ -1606,7 +1606,7 @@ TFormula_p TFormulaDefRename(TB_p bank, TFormula_p form, int polarity,
       /* printf(COMCHAR" Found %d free variables\n", PStackGetSP(var_stack)); */
 
       rename_atom = TBAllocNewSkolem(bank, var_stack, bank->sig->type_bank->bool_type);
-      rename_atom = EqnTermsTBTermEncode(bank, rename_atom,
+      rename_atom = EqnTermsTBTermEncode(rename_atom,
                                          bank->true_term, true, PENormal);
       PStackFree(var_stack);
       OrdSetFree(free_vars);

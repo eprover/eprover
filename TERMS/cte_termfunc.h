@@ -272,7 +272,7 @@ static inline Term_p TermEquivCellAlloc(Term_p source, VarBank_p vars)
    if(TermIsFreeVar(source))
    {
       Term_p res = VarBankVarAssertAlloc(vars, source->f_code, source->type);
-      //TermSetBank(res, TermGetBank(source));
+      //TermSetBank(res, TermFindBank(source));
       return res;
    }
    else

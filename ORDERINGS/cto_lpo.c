@@ -146,7 +146,7 @@ static inline void adjust_ho_deref(Term_p *t, DerefType* deref)
 #ifdef ENABLE_LFHO
    if(*deref == DEREF_ONCE && TermHasAppVar(*t))
    {
-      *t = TBInsertInstantiated(TermGetBank(*t), *t);
+      *t = TBInsertInstantiated(TermFindBank(*t), *t);
       *deref = DEREF_NEVER;
    }
 #endif
@@ -167,18 +167,16 @@ static inline void adjust_ho_deref(Term_p *t, DerefType* deref)
 static inline bool is_ho_subterm(Term_p super, Term_p test, DerefType super_deref)
 {
 #ifdef ENABLE_LFHO
-   TB_p bank = TermGetBank(super);
+   TB_p bank = TermFindBank(super);
 
-   super = LambdaEtaReduceDB(bank,
-      BetaNormalizeDB(bank, TermDeref(super, &super_deref)));
+   super = LambdaEtaReduceDB(BetaNormalizeDB(TermDeref(super, &super_deref)));
    
    if(TermIsAppliedFreeVar(super))
    {
       assert(super_deref == DEREF_NEVER || super_deref == DEREF_ALWAYS);
       if(super_deref == DEREF_ALWAYS)
       {
-         super = LambdaEtaReduceDB(bank,
-            BetaNormalizeDB(bank, TBInsert(bank, super, super_deref)));
+         super = LambdaEtaReduceDB(BetaNormalizeDB(TBInsert(bank, super, super_deref)));
       }
       // in ho we do not go below app var
       return super == test;
@@ -572,12 +570,10 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
    }
    recursion_depth++;
 
-   s = LambdaEtaReduceDB(TermGetBank(s),
-         deref_s == DEREF_NEVER ? s : (deref_s == DEREF_ALWAYS ? WHNF_deref(s) : 
-                                       WHNF_step(TermGetBank(s), TermDeref(s, &deref_s))));
-   t = LambdaEtaReduceDB(TermGetBank(t),
-         deref_t == DEREF_NEVER ? t : (deref_t == DEREF_ALWAYS ? WHNF_deref(t) : 
-                                       WHNF_step(TermGetBank(t), TermDeref(t, &deref_t))));
+   s = LambdaEtaReduceDB(deref_s == DEREF_NEVER ? s : (deref_s == DEREF_ALWAYS ? WHNF_deref(s) : 
+                                       WHNF_step(TermDeref(s, &deref_s))));
+   t = LambdaEtaReduceDB(deref_t == DEREF_NEVER ? t : (deref_t == DEREF_ALWAYS ? WHNF_deref(t) : 
+                                       WHNF_step(TermDeref(t, &deref_t))));
 
    if(TermIsTopLevelFreeVar(s))
    {
@@ -587,7 +583,7 @@ static bool lpo4_greater(OCB_p ocb, Term_p s, Term_p t,
    {
       if(TermIsAppliedFreeVar(t) && deref_t == DEREF_ALWAYS)
       {
-         t = TBInsertInstantiatedDeref(TermGetBank(t), t, deref_t);
+         t = TBInsertInstantiatedDeref(TermFindBank(t), t, deref_t);
       }
       res = is_ho_subterm(s, t, deref_s);
    }

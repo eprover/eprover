@@ -27,7 +27,7 @@
 #include <cte_termbanks.h>
 #include <cte_subst.h>
 
-typedef Term_p (*TermNormalizer)(TB_p bank, Term_p t);
+typedef Term_p (*TermNormalizer)(Term_p t);
 
 
 
@@ -38,21 +38,35 @@ typedef Term_p (*TermNormalizer)(TB_p bank, Term_p t);
 void       SetEtaNormalizer(TermNormalizer);
 TermNormalizer GetEtaNormalizer();
 TFormula_p NamedLambdaSNF(TB_p terms, TFormula_p t);
-TFormula_p NamedToDB(TB_p bank, TFormula_p lambda);
-Term_p     CloseWithDBVar(TB_p bank, Type_p ty, Term_p body);
-Term_p     CloseWithTypePrefix(TB_p bank, Type_p* tys, long size, Term_p matrix);
-Term_p     ShiftDB(TB_p bank, Term_p term, int shift_val);
+TFormula_p NamedToDB(TFormula_p lambda);
+Term_p     CloseWithDBVar(Type_p ty, Term_p body);
+Term_p     CloseWithTypePrefix(Type_p* tys, long size, Term_p matrix);
+Term_p     ShiftDB(Term_p term, int shift_val);
 Term_p     AbstractVars(TB_p terms, Term_p matrix, PStack_p var_prefix);
-Term_p     WHNF_step(TB_p bank, Term_p t);
+Term_p     WHNF_step(Term_p t);
 Term_p     WHNF_deref(Term_p t);
-Term_p     BetaNormalizeDB(TB_p bank, Term_p term);
-Term_p     LambdaEtaReduceDB(TB_p bank, Term_p term);
-Term_p     LambdaEtaExpandDBTopLevel(TB_p bank, Term_p t);
-Term_p     LambdaEtaExpandDB(TB_p bank, Term_p term);
-Term_p     LambdaNormalizeDB(TB_p bank, Term_p term);
-Term_p     PostCNFEncodeFormulas(TB_p bank, Term_p term);
-Term_p     DecodeFormulasForCNF(TB_p bank, Term_p term);
+Term_p     BetaNormalizeDB(Term_p term);
+Term_p     LambdaEtaReduceDB(Term_p term);
+Term_p     LambdaEtaExpandDBTopLevel(Term_p t);
+Term_p     LambdaEtaExpandDB(Term_p term);
+Term_p     LambdaNormalizeDB(Term_p term);
+Term_p     PostCNFEncodeFormulas(Term_p term);
+Term_p     DecodeFormulasForCNF(Term_p term);
 Term_p     FlattenApps(TB_p bank, Term_p hd, Term_p* args, long num_args, Type_p res_type);
+
+/* Adapters for EqnMap()/EqnListMapTerms(), which pass an extra
+   argument that these functions do not need. */
+static inline Term_p LambdaNormalizeDBMapper(void* unused, Term_p t)
+{
+   UNUSED(unused);
+   return LambdaNormalizeDB(t);
+}
+
+static inline Term_p PostCNFEncodeFormulasMapper(void* unused, Term_p t)
+{
+   UNUSED(unused);
+   return PostCNFEncodeFormulas(t);
+}
 
 /*-----------------------------------------------------------------------
 //

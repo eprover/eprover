@@ -75,7 +75,7 @@ static void prfx_insert_term(
    /* The index keeps pointers to (applied) variables of the term, so
       insert a shared copy that lives as long as the index. The index
       requires beta-normal terms. */
-   shared = BetaNormalizeDB(tree->bank,TBInsert(tree->bank,norm,DEREF_NEVER));
+   shared = BetaNormalizeDB(TBInsert(tree->bank,norm,DEREF_NEVER));
    TermFree(norm);
    PDTreeInsertTerm(tree,shared,NULL,false);
 }

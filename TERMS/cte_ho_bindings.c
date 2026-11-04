@@ -109,7 +109,7 @@ Term_p build_imitation(TB_p bank, Term_p flex, Term_p rhs)
          matrix->type = GetRetType(rigid_ty);
 #endif
          matrix = TBTermTopInsert(bank, matrix);
-         res = CloseWithTypePrefix(bank, var_ty->args, TypeGetMaxArity(var_ty), matrix);
+         res = CloseWithTypePrefix(var_ty->args, TypeGetMaxArity(var_ty), matrix);
 
          PStackFree(db_vars);
       }
@@ -146,7 +146,7 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
    Type_p var_ty = GetFVarHead(flex)->type;
    // optimization for not calling WHNF
    Term_p arg =
-       TermIsTopLevelFreeVar(rhs) ? flex->args[idx + 1] : WHNF_step(bank, flex->args[idx + 1]);
+       TermIsTopLevelFreeVar(rhs) ? flex->args[idx + 1] : WHNF_step(flex->args[idx + 1]);
    assert(GetRetType(var_ty) == GetRetType(arg->type));
    if (!TermIsTopLevelFreeVar(arg) && !TermIsTopLevelFreeVar(rhs))
    {
@@ -202,7 +202,7 @@ Term_p build_projection(TB_p bank, Term_p flex, Term_p rhs, int idx)
    {
       matrix = TBRequestDBVar(bank, arg->type, TypeGetMaxArity(var_ty) - idx - 1);
    }
-   return CloseWithTypePrefix(bank, var_ty->args, var_ty->arity - 1, matrix);
+   return CloseWithTypePrefix(var_ty->args, var_ty->arity - 1, matrix);
 }
 
 /*-----------------------------------------------------------------------
@@ -233,7 +233,7 @@ Term_p build_elim(TB_p bank, Term_p flex, int idx)
    Term_p res = FreshVarWArgs(bank, db_vars, flex->type);
    for (int i = flex->arity - 1; i >= 1; i--)
    {
-      res = CloseWithDBVar(bank, flex->args[i]->type, res);
+      res = CloseWithDBVar(flex->args[i]->type, res);
    }
    PStackFree(db_vars);
 
@@ -301,9 +301,9 @@ bool build_ident(TB_p bank, Term_p lhs, Term_p rhs,
       Term_p matrix_r = ApplyTerms(bank, matrix_var, to_apply_r);
 
       *l_target =
-          CloseWithTypePrefix(bank, l_ty->args, TypeGetMaxArity(l_ty), matrix_l);
+          CloseWithTypePrefix(l_ty->args, TypeGetMaxArity(l_ty), matrix_l);
       *r_target =
-          CloseWithTypePrefix(bank, r_ty->args, TypeGetMaxArity(r_ty), matrix_r);
+          CloseWithTypePrefix(r_ty->args, TypeGetMaxArity(r_ty), matrix_r);
 
       PStackFree(to_apply_r);
       PStackFree(to_apply_l);
@@ -343,10 +343,10 @@ bool build_trivial_ident(TB_p bank, Term_p lhs, Term_p rhs,
           TBInsert(bank, VarBankGetFreshVar(bank->vars, GetRetType(l_ty)), DEREF_NEVER);
 
       *l_target =
-          CloseWithTypePrefix(bank, l_ty->args,
+          CloseWithTypePrefix(l_ty->args,
                               TypeIsArrow(l_ty) ? l_ty->arity - 1 : 0, matrix);
       *r_target =
-          CloseWithTypePrefix(bank, r_ty->args,
+          CloseWithTypePrefix(r_ty->args,
                               TypeIsArrow(r_ty) ? r_ty->arity - 1 : 0, matrix);
       res = true;
    }

@@ -403,7 +403,7 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
 {
    assert(!EqnIsEquLit(task->lit));
    Eqn_p lit = task->lit;
-   TB_p bank = lit->bank;
+   TB_p bank = EqnGetBank(lit);
    bool res;
 
    PStack_p same_head = PStackAlloc();
@@ -419,7 +419,7 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
       }
       else
       {
-         Eqn_p eq_copy = EqnCopy(p_lit, p_lit->bank);
+         Eqn_p eq_copy = EqnCopy(p_lit, EqnGetBank(p_lit));
          EqnListInsertFirst(&others, eq_copy);
       }
    }
@@ -432,11 +432,11 @@ bool check_blockedness_eq(BCE_task_p task, Clause_p partner, TB_p tmp_bank)
       for(int i=0; i<p_lit->lterm->arity; i++)
       {
          Eqn_p neq = EqnAlloc(p_lit->lterm->args[i], lit->lterm->args[i],
-                              p_lit->bank, false);
+                              EqnGetBank(p_lit), false);
          EqnListInsertFirst(&cond, neq);
       }
       Eqn_p orig_cl = EqnListCopyExcept(task->parent->literals,
-                                        task->lit, task->lit->bank);
+                                        task->lit, EqnGetBank(task->lit));
       cond = EqnListAppend(&cond, orig_cl);
       cond = EqnListAppend(&cond, EqnListCopy(others, bank));
       Clause_p tmp_cl = ClauseAlloc(cond);

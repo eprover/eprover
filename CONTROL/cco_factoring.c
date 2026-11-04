@@ -59,10 +59,11 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
+long ComputeAllOrderedFactors(OCB_p ocb,
                Clause_p clause, ClauseSet_p store,
                VarBank_p freshvars)
 {
+   TB_p bank = ClauseGetBank(clause);
    Clause_p    factor;
    Eqn_p       test;
    ClausePos_p pos1, pos2;
@@ -111,10 +112,11 @@ long ComputeAllOrderedFactors(TB_p bank, OCB_p ocb,
 //
 /----------------------------------------------------------------------*/
 
-long ComputeAllEqualityFactors(TB_p bank, OCB_p ocb,
+long ComputeAllEqualityFactors(OCB_p ocb,
                Clause_p clause, ClauseSet_p store,
                VarBank_p freshvars)
 {
+   TB_p bank = ClauseGetBank(clause);
    Clause_p    factor;
    Eqn_p       test;
    ClausePos_p pos1, pos2;

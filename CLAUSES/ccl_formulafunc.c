@@ -374,7 +374,7 @@ Term_p refresh_qvars(TB_p terms, Term_p form)
 //
 /----------------------------------------------------------------------*/
 
-Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
+Term_p do_rw_with_defs(Term_p t, IntMap_p def_map,
                        OrdSet_p *used_defs, int *steps, bool snf)
 {
    if (*steps <= 0)
@@ -386,7 +386,7 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
    Term_p new = TermTopAlloc(t->f_code, t->arity);
    for (long i = 0; i < t->arity; i++)
    {
-      new->args[i] = do_rw_with_defs(terms, t->args[i], def_map, used_defs, steps, snf);
+      new->args[i] = do_rw_with_defs(t->args[i], def_map, used_defs, steps, snf);
       changed = changed || new->args[i] != t->args[i];
    }
 
@@ -397,22 +397,23 @@ Term_p do_rw_with_defs(TB_p terms, Term_p t, IntMap_p def_map,
    }
    else
    {
-      new = TBTermTopInsert(terms, new);
+      new = TBTermTopInsert(TermFindBank(t), new);
    }
 
    WFormula_p wform = IntMapGetVal(def_map, new->f_code);
    if (wform)
    {
+      TB_p terms = TermGetBank(new);
       Term_p rhs = refresh_qvars(terms, wform->tformula->args[1]);
       PStack_p args = PStackAlloc();
       for (long i = 0; i < new->arity; i++)
       {
          PStackPushP(args, new->args[i]);
       }
-      new = snf ? BetaNormalizeDB(terms, ApplyTerms(terms, rhs, args))
+      new = snf ? BetaNormalizeDB(ApplyTerms(terms, rhs, args))
                 : ApplyTerms(terms, rhs, args);
       OrdSetStore(used_defs, wform);
-      new = do_rw_with_defs(terms, new,
+      new = do_rw_with_defs(new,
                             def_map, used_defs, steps, snf);
       *steps = *steps - 1; //forgot the precedence :)
       PStackFree(args);
@@ -480,8 +481,8 @@ OrdSet_p create_sym_map(FormulaSet_p set, IntMap_p sym_def_map, bool unfold_only
          Term_p tmp = VarBankGetFreshVar(bank->vars, ty);
          PStackAssignP(bvars, i, tmp);
       }
-      lhs_body = BetaNormalizeDB(bank, ApplyTerms(bank, lhs, bvars));
-      Term_p rhs_applied = BetaNormalizeDB(bank, ApplyTerms(bank, rhs, bvars));
+      lhs_body = BetaNormalizeDB(ApplyTerms(bank, lhs, bvars));
+      Term_p rhs_applied = BetaNormalizeDB(ApplyTerms(bank, rhs, bvars));
 
       // now the definition is of the form f @ ..terms.. = \xyz. body
       // and we need to check if terms are distinct variables
@@ -566,7 +567,7 @@ void intersimplify_definitions(TB_p terms, IntMap_p sym_def_map)
    {
       OrdSet_p used_defs = NULL;
       int max_steps = MAX_RW_STEPS;
-      Term_p new_rhs = do_rw_with_defs(terms, next->tformula->args[1],
+      Term_p new_rhs = do_rw_with_defs(next->tformula->args[1],
                                        sym_def_map, &used_defs,
                                        &max_steps, true);
       if (new_rhs != next->tformula->args[1])
@@ -639,7 +640,7 @@ TFormula_p answer_lit_alloc(TB_p terms, PStack_p varstack)
    res->args[0] = handle;
    res->type = terms->sig->type_bank->bool_type;
    res = TBTermTopInsert(terms, res);
-   res = EqnTermsTBTermEncode(terms, res, terms->true_term, false, PENormal);
+   res = EqnTermsTBTermEncode(res, terms->true_term, false, PENormal);
 
    return res;
 }
@@ -746,8 +747,9 @@ static void check_all_found(Scanner_p in, StrTree_p name_selector)
 //
 /----------------------------------------------------------------------*/
 
-static bool fool_should_ignore(Term_p t, TB_p bank)
+static bool fool_should_ignore(Term_p t)
 {
+   TB_p  bank = TermGetBank(t);
    Sig_p sig = bank->sig;
    if(!TypeIsBool(t->type))
    {
@@ -779,7 +781,7 @@ static bool fool_should_ignore(Term_p t, TB_p bank)
 //
 /----------------------------------------------------------------------*/
 
-bool find_fool_subterm(TB_p bank, Term_p t, TermPos_p pos)
+bool find_fool_subterm(Term_p t, TermPos_p pos)
 {
    int i;
    PStackPushP(pos, t);
@@ -793,7 +795,7 @@ bool find_fool_subterm(TB_p bank, Term_p t, TermPos_p pos)
 
          if(TypeIsBool(t->args[i]->type))
          {
-            if(!(fool_should_ignore(t->args[i], bank) ||
+            if(!(fool_should_ignore(t->args[i]) ||
                   t->args[i]->f_code == SIG_TRUE_CODE
                || t->args[i]->f_code == SIG_FALSE_CODE))
             {
@@ -801,7 +803,7 @@ bool find_fool_subterm(TB_p bank, Term_p t, TermPos_p pos)
                break;
             }
          }
-         else if(find_fool_subterm(bank, t->args[i], pos))
+         else if(find_fool_subterm(t->args[i], pos))
          {
             found = true;
             break;
@@ -857,15 +859,15 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
       /* printf("arg[1]: "); */
       /* TBPrintTerm(stdout, terms,  form->args[1], true); */
       /* printf("\n"); */
-      form = LambdaEtaReduceDB(terms, form);
+      form = LambdaEtaReduceDB(form);
       TermPos_p pos = PStackAlloc();
       PStackPushP(pos, form);
       PStackPushInt(pos, 0);
-      if (!find_fool_subterm(terms, form->args[0], pos))
+      if (!find_fool_subterm(form->args[0], pos))
       {
          PStackDiscardTop(pos);
          PStackPushInt(pos, 1);
-         if (!find_fool_subterm(terms, form->args[1], pos))
+         if (!find_fool_subterm(form->args[1], pos))
          {
             PStackReset(pos);
          }
@@ -1462,7 +1464,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
                   ClauseSet_p step_archive)
 {
    DBGTermCheckUnownedSubterm(stdout, form->tformula, "WFormulaCNF2_0");
-   form->tformula = LambdaNormalizeDB(terms, form->tformula);
+   form->tformula = LambdaNormalizeDB(form->tformula);
    if (form->is_clause)
    {
       Clause_p clause = WFormClauseToClause(form);
@@ -1470,7 +1472,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
       if(problemType == PROBLEM_HO)
       {
          EqnListMapTerms(clause->literals,
-            (TermMapper_p)PostCNFEncodeFormulas, terms);
+            PostCNFEncodeFormulasMapper, terms);
       }
       ClauseSetInsert(set, clause);
 
@@ -1885,7 +1887,7 @@ long TFormulaToCNF(WFormula_p form, FormulaProperties type, ClauseSet_p set,
 
          if(problemType == PROBLEM_HO)
          {
-            EqnListMapTerms(clause->literals, (TermMapper_p)PostCNFEncodeFormulas, terms);
+            EqnListMapTerms(clause->literals, PostCNFEncodeFormulasMapper, terms);
          }
 
          ClauseSetInsert(set, clause);
@@ -2228,7 +2230,7 @@ long TFormulaSetLambdaNormalize(FormulaSet_p set, FormulaSet_p archive, TB_p ter
       for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
          DBGTermCheckUnownedSubterm(stdout, form->tformula, "LambdaNormUnowned1");
-         TFormula_p handle = LambdaToForall(terms, BetaNormalizeDB(terms, form->tformula));
+         TFormula_p handle = LambdaToForall(terms, BetaNormalizeDB(form->tformula));
 
          if (handle != form->tformula)
          {
@@ -2284,7 +2286,7 @@ long TFormulaSetUnfoldDefSymbols(FormulaSet_p set, FormulaSet_p archive,
          {
             OrdSet_p used_defs = NULL;
             int max_steps = MAX_RW_STEPS;
-            TFormula_p handle = do_rw_with_defs(terms, form->tformula,
+            TFormula_p handle = do_rw_with_defs(form->tformula,
                                                 sym_def_map, &used_defs,
                                                 &max_steps, true);
 
@@ -2427,7 +2429,7 @@ long TFormulaSetNamedToDBLambdas(FormulaSet_p set, FormulaSet_p archive, TB_p te
    {
       for (WFormula_p form = set->anchor->succ; form != set->anchor; form = form->succ)
       {
-         TFormula_p handle = NamedToDB(terms, form->tformula);
+         TFormula_p handle = NamedToDB(form->tformula);
          if (handle != form->tformula)
          {
             form->tformula = handle;
@@ -2735,7 +2737,7 @@ Term_p cond_lift_lambda(TB_p terms, Term_p term,
    {
       //printf("### cond_lift_lambda lterm: ");
       //TermPrintDbg(stdout, term, terms->sig, DEREF_NEVER);
-      tmp = DecodeFormulasForCNF(terms, term);
+      tmp = DecodeFormulasForCNF(term);
       //printf(" => ");
       //TermPrintDbg(stdout, tmp, terms->sig, DEREF_NEVER);
       //printf("\n");

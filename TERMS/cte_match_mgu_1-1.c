@@ -312,7 +312,7 @@ int SubstComputeMatchHO(Term_p matcher, Term_p to_match, Subst_p subst)
    assert(problemType == PROBLEM_HO);
    long matcher_weight  = TermStandardWeight(matcher);
    long to_match_weight = TermStandardWeight(to_match);
-   TB_p bank = TermGetBank(matcher) ? TermGetBank(matcher) : TermGetBank(to_match);
+   TB_p bank = TermFindBank(matcher) ? TermFindBank(matcher) : TermFindBank(to_match);
    assert(bank || TermIsAnyVar(matcher) || TermIsAnyVar(to_match));
    assert(!(TermGetBank(matcher) && TermGetBank(to_match))
             || TermGetBank(matcher) == TermGetBank(to_match));
@@ -591,10 +591,10 @@ UnificationResult SubstComputeMguHO(Term_p t1, Term_p t2, Subst_p subst)
 
    PQueue_p jobs = PQueueAlloc();
    UnificationResult res = UNIF_SUCC;
-   TB_p bank = TermGetBank(t1);
+   TB_p bank = TermFindBank(t1);
    if(!bank)
    {
-      bank = TermGetBank(t2);
+      bank = TermFindBank(t2);
    }
    Sig_p sig = bank->sig;
 
@@ -740,8 +740,8 @@ __inline__ bool SubstMatchComplete(Term_p pattern, Term_p target, Subst_p subst)
    {
       PStackPointer backtrack = PStackGetSP(subst);
 
-      Term_p reduced_p = LambdaEtaReduceDB(TermGetBank(pattern), pattern),
-             reduced_t = LambdaEtaReduceDB(TermGetBank(target), target);
+      Term_p reduced_p = LambdaEtaReduceDB(pattern),
+             reduced_t = LambdaEtaReduceDB(target);
       int res_i = SubstComputeMatchHO(reduced_p, reduced_t, subst);
 
       if(res_i != 0 && TermIsNonFOPattern(pattern) && TermIsNonFOPattern(target))
@@ -777,9 +777,9 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
 {
    bool res;
    // DBG_PRINT(stderr, "unifying: ", TermPrintDbg(stderr, t,
-   //           TermGetBank(t)->sig, DEREF_NEVER), " <=?=> ");
+   //           TermFindBank(t)->sig, DEREF_NEVER), " <=?=> ");
    // DBG_PRINT(stderr, "", TermPrintDbg(stderr, s,
-   //           TermGetBank(s)->sig, DEREF_NEVER), ".\n");
+   //           TermFindBank(s)->sig, DEREF_NEVER), ".\n");
    if(problemType != PROBLEM_HO)
    {
       res = SubstComputeMgu(t, s, subst);
@@ -788,8 +788,8 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
    {
       // no arguments of s remaining after the match
       PStackPointer backtrack = PStackGetSP(subst);
-      Term_p reduced_t = LambdaEtaReduceDB(TermGetBank(t), t),
-             reduced_s = LambdaEtaReduceDB(TermGetBank(s), s);
+      Term_p reduced_t = LambdaEtaReduceDB(t),
+             reduced_s = LambdaEtaReduceDB(s);
 
       res = SubstComputeMguHO(reduced_t, reduced_s, subst);
 
@@ -810,12 +810,12 @@ __inline__ bool SubstMguComplete(Term_p t, Term_p s, Subst_p subst)
    // if(res)
    // {
    //    DBG_PRINT(stderr, "success: ",
-   //              SubstPrint(stderr, subst, TermGetBank(t)->sig, DEREF_NEVER), ".\n");
+   //              SubstPrint(stderr, subst, TermFindBank(t)->sig, DEREF_NEVER), ".\n");
    // }
    // else
    // {
    //    DBG_PRINT(stderr, "failed: ",
-   //              SubstPrint(stderr, subst, TermGetBank(t)->sig, DEREF_NEVER), ".\n");
+   //              SubstPrint(stderr, subst, TermFindBank(t)->sig, DEREF_NEVER), ".\n");
    // }
    return res;
 }

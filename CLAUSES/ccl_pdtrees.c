@@ -1166,11 +1166,11 @@ bool PDTreeInsertTerm(PDTree_p tree, Term_p term, ClausePos_p demod_side,
 
    if(TermIsNonFOPattern(term))
    {
-      term = LambdaEtaExpandDB(tree->bank, term);
+      term = LambdaEtaExpandDB(term);
    }
    else
    {
-      term = LambdaEtaReduceDB(tree->bank, term);
+      term = LambdaEtaReduceDB(term);
    }
 
    TermLRTraverseInit(tree->term_stack, term);
@@ -1314,11 +1314,11 @@ long PDTreeDelete(PDTree_p tree, Term_p term, Clause_p clause)
 
    if(TermIsNonFOPattern(term))
    {
-      term = LambdaEtaExpandDB(tree->bank, term);
+      term = LambdaEtaExpandDB(term);
    }
    else
    {
-      term = LambdaEtaReduceDB(tree->bank, term);
+      term = LambdaEtaReduceDB(term);
    }
 
    PStack_p  del_stack = PStackAlloc();
@@ -1434,11 +1434,11 @@ void PDTreeSearchInit(PDTree_p tree, Term_p term, SysDate age_constr,
 
    if(TermIsNonFOPattern(term))
    {
-      term = LambdaEtaExpandDB(tree->bank, term);
+      term = LambdaEtaExpandDB(term);
    }
    else
    {
-      term = LambdaEtaReduceDB(tree->bank, term);
+      term = LambdaEtaReduceDB(term);
    }
 
    TermLRTraverseInit(tree->term_stack, term);

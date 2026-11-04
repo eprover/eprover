@@ -534,15 +534,15 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
    if(control->heuristic_parms.enable_eq_factoring)
    {
       state->factor_count+=
-         ComputeAllEqualityFactors(state->terms, control->ocb, clause,
+         ComputeAllEqualityFactors(control->ocb, clause,
                                    state->tmp_store, state->freshvars);
    }
    state->resolv_count+=
-      ComputeAllEqnResolvents(state->terms, clause, state->tmp_store,
+      ComputeAllEqnResolvents(clause, state->tmp_store,
                               state->freshvars);
 
    state->disequ_deco_count+=
-      ComputeDisEqDecompositions(state->terms, clause, state->tmp_store,
+      ComputeDisEqDecompositions(clause, state->tmp_store,
                                  control->heuristic_parms.diseq_decomposition,
                                  control->heuristic_parms.diseq_decomp_maxarity);
 
@@ -556,8 +556,7 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
       if(state->gindices.pm_into_index)
       {
          state->paramod_count+=
-            ComputeAllParamodulantsIndexed(state->terms,
-                                           control->ocb,
+            ComputeAllParamodulantsIndexed(control->ocb,
                                            state->freshvars,
                                            tmp_copy,
                                            clause,
@@ -570,13 +569,13 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
       else
       {
          state->paramod_count+=
-            ComputeAllParamodulants(state->terms, control->ocb,
+            ComputeAllParamodulants(control->ocb,
                                     tmp_copy, clause,
                                     state->processed_pos_rules,
                                     state->tmp_store, state->freshvars,
                                     control->heuristic_parms.pm_type);
          state->paramod_count+=
-            ComputeAllParamodulants(state->terms, control->ocb,
+            ComputeAllParamodulants(control->ocb,
                                     tmp_copy, clause,
                                     state->processed_pos_eqns,
                                     state->tmp_store, state->freshvars,
@@ -585,14 +584,14 @@ static void generate_new_clauses(ProofState_p state, ProofControl_p
          if(control->heuristic_parms.enable_neg_unit_paramod && !ClauseIsNegative(clause))
          { /* We never need to try to overlap purely negative clauses! */
             state->paramod_count+=
-               ComputeAllParamodulants(state->terms, control->ocb,
+               ComputeAllParamodulants(control->ocb,
                                        tmp_copy, clause,
                                        state->processed_neg_units,
                                        state->tmp_store, state->freshvars,
                                        control->heuristic_parms.pm_type);
          }
          state->paramod_count+=
-            ComputeAllParamodulants(state->terms, control->ocb,
+            ComputeAllParamodulants(control->ocb,
                                     tmp_copy, clause,
                                     state->processed_non_units,
                                     state->tmp_store, state->freshvars,
@@ -720,8 +719,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
       if(control->heuristic_parms.er_aggressive &&
          control->heuristic_parms.er_varlit_destructive &&
          (clause_count =
-          ClauseERNormalizeVar(state->terms,
-                               handle,
+          ClauseERNormalizeVar(handle,
                                state->tmp_store,
                                state->freshvars,
                                control->heuristic_parms.er_strong_destructive,
@@ -806,8 +804,7 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    else
    if(control->heuristic_parms.er_varlit_destructive &&
       (clause_count =
-       ClauseERNormalizeVar(state->terms,
-                            pclause->clause,
+       ClauseERNormalizeVar(pclause->clause,
                             state->tmp_store,
                             state->freshvars,
                             control->heuristic_parms.er_strong_destructive,

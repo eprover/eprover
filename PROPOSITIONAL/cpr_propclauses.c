@@ -143,7 +143,7 @@ DPLLClause_p DPLLClauseFromClause(PropSig_p psig, Clause_p clause)
           SYNTAX_ERROR);
       }
       atom = PropSigInsertAtom(psig,
-                SigFindName(eqn->bank->sig,eqn->lterm->f_code));
+                SigFindName(EqnGetBank(eqn)->sig,eqn->lterm->f_code));
       if(EqnIsNegative(eqn))
       {
     atom = -atom;

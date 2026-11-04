@@ -344,7 +344,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
    {
       return 0;
    }
-   bank = clause->literals->bank;
+   bank = EqnGetBank(clause->literals);
    size = lit_no*sizeof(LitSplitDescCell);
    lit_table = SizeMalloc(size);
 
