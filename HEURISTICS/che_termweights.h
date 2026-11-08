@@ -58,6 +58,7 @@ void TuplePrint(FixedDArray_p t);
 
 void TBIncSubtermsFreqs(Term_p term, NumTree_p* freqs);
 NumTree_p TBCountTermFreqs(TB_p bank);
+long      TermFreqsFind(NumTree_p* freqs, Term_p term);
 
 #endif
 

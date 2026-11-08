@@ -413,7 +413,10 @@ void TuplePrint(FixedDArray_p t)
 // Function: TBIncSubtermsFreqs()
 //
 //   Increase the frequency of all subterms of `term` in `freqs` where
-//   `freqs` is a map from Term_p.entry_no to the frequency.
+//   `freqs` is a map from Term_p.entry_no to the frequency. Variables
+//   are not counted. This includes DB variables, whose entry_no is
+//   their de Bruijn index and would clash with the number of a term
+//   in the bank.
 //
 // Global Variables: -
 //
@@ -434,11 +437,11 @@ void TBIncSubtermsFreqs(Term_p term, NumTree_p* freqs)
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if (TermIsFreeVar(subterm))
+      if (TermIsAnyVar(subterm))
       {
          continue;
       }
-         
+
       //subterm->freq++;
       cell = NumTreeFind(freqs, subterm->entry_no);
       if (cell)
@@ -465,9 +468,12 @@ void TBIncSubtermsFreqs(Term_p term, NumTree_p* freqs)
 //
 // Function: TBCountTermFreqs()
 //
-//   Iterates over a term bank and set the number of occurences 
+//   Iterates over a term bank and set the number of occurences
 //   (frequencies) for each term. Only top positions are processed
 //   but other terms are also visited as all subterms are considered.
+//   All cells of the term store are visited, and those with TPTopPos
+//   are counted (a cell with TPTopPos can be below one without it in
+//   the store's trees, whose shape depends on cell addresses).
 //
 // Global Variables: -
 //
@@ -483,26 +489,53 @@ NumTree_p TBCountTermFreqs(TB_p bank)
    NumTree_p freqs = NULL;
 
    for(i=0; i<TERM_STORE_HASH_SIZE; i++)
-   {      
+   {
       PStackPushP(stack, bank->term_store.store[i]);
       while(!PStackEmpty(stack))
       {
          term = PStackPopP(stack);
-         if ((!term) || (!TermCellQueryProp(term,TPTopPos)))
+         if (!term)
          {
             continue;
          }
-         TBIncSubtermsFreqs(term, &freqs);
-         if(term)
+         if (TermCellQueryProp(term,TPTopPos))
          {
-            PStackPushP(stack, term->lson);
-            PStackPushP(stack, term->rson);
+            TBIncSubtermsFreqs(term, &freqs);
          }
+         PStackPushP(stack, term->lson);
+         PStackPushP(stack, term->rson);
       }
    }
    PStackFree(stack);
 
    return freqs;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TermFreqsFind()
+//
+//   Return the frequency of term in freqs (a map from Term_p.entry_no
+//   to the frequency, as built by TBCountTermFreqs()), or 0 if it has
+//   none. Variables, including DB variables, have no frequency.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long TermFreqsFind(NumTree_p* freqs, Term_p term)
+{
+   NumTree_p cell;
+
+   if (TermIsAnyVar(term))
+   {
+      return 0;
+   }
+   cell = NumTreeFind(freqs, term->entry_no);
+
+   return cell ? cell->val1.i_val : 0;
 }
 
 /*---------------------------------------------------------------------*/

@@ -174,7 +174,7 @@ static void termweight_update_conjecture_freqs(
    while (!PStackEmpty(stack))
    {
       subterm = PStackPopP(stack);
-      if (TermIsFreeVar(subterm))
+      if (TermIsAnyVar(subterm))
       {
          continue;
       }
@@ -208,7 +208,6 @@ static double termweight_term_weight(Term_p term, TermWeightParam_p data)
 {
    Term_p repr;
    long freq;
-   NumTree_p cell;
 
    repr = termweight_insert(data->eval_bank, term, data->var_norm);
    termweight_update_conjecture_freqs(data->eval_bank, &data->eval_freqs,
@@ -219,8 +218,7 @@ static double termweight_term_weight(Term_p term, TermWeightParam_p data)
       return data->vweight;
    }
 
-   cell = NumTreeFind(&data->eval_freqs, repr->entry_no);
-   freq = cell ? (cell->val1.i_val) : 0;
+   freq = TermFreqsFind(&data->eval_freqs, repr);
    if (TermIsConst(repr))
    {
       return (freq>0) ? data->conj_cweight : data->cweight;

@@ -81,6 +81,20 @@ Version 3.2.5 -> 3.5.X Countess Grey
   could wait forever for a strategy process that was blocked writing
   its (large) output into the pipe to the parent. The parent now
   closes the pipe before it terminates the process.
+- Fixed a crash of ConjectureStrucDistanceWeight on HO problems: it
+  compared the arguments of terms with the same head but different
+  numbers of arguments (partial applications) pairwise, reading past
+  the end of the shorter argument list.
+- Fixed a crash of ConjectureTreeDistanceWeight on HO problems: its
+  arrays were sized by the term weight, which does not count all
+  term cells in HO (applications, lambdas), and it treated DB
+  variables as inner nodes. The arrays are now allocated on the heap
+  instead of the stack.
+- ConjectureRelativeTermWeight and ConjectureTermTfIdfWeight no
+  longer count (or look up) frequencies of DB variables, whose numbers
+  clashed with those of terms. Counting the conjecture term
+  frequencies no longer skips terms depending on the term store
+  layout (i.e. on memory addresses).
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

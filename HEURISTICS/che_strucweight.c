@@ -210,6 +210,30 @@ static void strc_init(StrucWeightParam_p data)
    }
 }
 
+/*-----------------------------------------------------------------------
+//
+// Function: strc_same_head()
+//
+//   Return true if the two (non-variable) terms have the same top
+//   symbol. The f_code of a DB variable is its de Bruijn index, so it
+//   only matches a DB variable of the same type.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool strc_same_head(Term_p term1, Term_p term2)
+{
+   if (TermIsDBVar(term1) || TermIsDBVar(term2))
+   {
+      return TermIsDBVar(term1) && TermIsDBVar(term2) &&
+         term1->f_code == term2->f_code && term1->type == term2->type;
+   }
+   return term1->f_code == term2->f_code;
+}
+
 double strc_terms_distance(
    Term_p term1,
    Term_p term2,
@@ -244,20 +268,23 @@ double strc_terms_distance(
       return gen_factor*TermWeight(term1,1,1);
    }
 
-   if ((term1->f_code != term2->f_code) && (term1->arity != term2->arity)) 
+   // The arguments can only be compared pairwise if there are equally
+   // many. In FO, this is always the case for equal symbols, in HO
+   // not (partial applications, applied variables).
+   if (term1->arity != term2->arity)
    {
       return (gen_factor*TermWeight(term1,1,1))+(inst_factor*TermWeight(term2,1,1));
    }
 
    double argdist = 0;
-   for (i=0; i<term1->arity; i++) 
+   for (i=0; i<term1->arity; i++)
    {
       argdist += strc_terms_distance(term1->args[i],term2->args[i],
          vars,var_norm,var_mismatch,sym_mismatch,inst_factor,gen_factor);
    }
-      
+
    double geninst = (gen_factor*TermWeight(term1,1,1))+(inst_factor*TermWeight(term2,1,1));
-   double fact = (term1->f_code==term2->f_code?1:sym_mismatch);
+   double fact = (strc_same_head(term1,term2)?1:sym_mismatch);
    
    return MIN(fact*argdist,geninst);
 }

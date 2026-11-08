@@ -218,9 +218,11 @@ static void ted_forest_distance(
    int del_cost, 
    int ch_cost)
 {
-   long fd[i+1][j+1];
+   /* (i+1)x(j+1) array on the heap (the terms can be large) */
+   size_t fd_size = (i+1)*(j+1)*sizeof(long);
+   long (*fd)[j+1] = SizeMalloc(fd_size);
    long di, dj;
-   
+
    for (di=0; di<=i; di++) 
    {
       for (dj=0; dj<=j; dj++) 
@@ -259,6 +261,34 @@ static void ted_forest_distance(
          }
       }
    }
+   SizeFree(fd, fd_size);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: ted_term_size()
+//
+//   Return the number of term cells (nodes) of term, i.e. the number
+//   of indices ted_lmld_kr() assigns. In FO, this is
+//   TermWeight(term,1,1), in HO, TermWeight() does not count some
+//   cells (applications, lambdas).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static long ted_term_size(Term_p term)
+{
+   long res = 1;
+   int  i;
+
+   for (i=0; i<term->arity; i++)
+   {
+      res += ted_term_size(term->args[i]);
+   }
+   return res;
 }
 
 static long ted_lmld_kr(
@@ -272,7 +302,7 @@ static long ted_lmld_kr(
    int i;
    long idx, lidx;
 
-   if (TermIsFreeVar(term)||TermIsConst(term)) 
+   if (term->arity == 0) /* Variables (also DB) and constants */
    {
       idx = (*fresh)++;
       l[idx] = idx;
@@ -310,13 +340,16 @@ static double ted_term_distance(
    int del_cost, 
    int ch_cost)
 {
-   long len1 = TermWeight(term1,1,1);
-   long len2 = TermWeight(term2,1,1);
+   long len1 = ted_term_size(term1);
+   long len2 = ted_term_size(term2);
    long l1[len1+1];
    long l2[len2+1];
    FunCode code1[len1+1];
    FunCode code2[len2+1];
-   long td[len1+1][len2+1];
+   /* (len1+1)x(len2+1) array on the heap (the terms can be large) */
+   size_t td_size = (len1+1)*(len2+1)*sizeof(long);
+   long (*td)[len2+1] = SizeMalloc(td_size);
+   long res;
    PStack_p kr1, kr2;
    long fresh;
    long x, y;
@@ -355,7 +388,10 @@ static double ted_term_distance(
    //TermPrint(GlobalOut,term2,SIG,DEREF_NEVER);
    //printf(" = %ld\n",td[len1][len2]);
 
-   return td[len1][len2];
+   res = td[len1][len2];
+   SizeFree(td, td_size);
+
+   return res;
 }
 
 static double ted_term_weight(Term_p term, TreeWeightParam_p data)
