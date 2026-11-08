@@ -40,6 +40,14 @@ Changes
 
 #define NAME "classify_problem"
 
+/* Maximal mask lengths. The class string has SPEC_STRING_MEM-1
+   letters, but SpecTypeString() accepts and DEFAULT_MASK has one
+   more. */
+#define SPEC_CLASS_LEN     SPEC_STRING_MEM
+#define SPEC_CLASS_LEN_STR "22"
+#define RAW_CLASS_LEN      (RAW_CLASS_SIZE-1)
+#define RAW_CLASS_LEN_STR  "15"
+
 typedef enum
 {
    OPT_NOOPT=0,
@@ -65,7 +73,6 @@ typedef enum
    OPT_SINE,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
-   OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
    OPT_MINISCOPE_LIMIT,
    OPT_MASK,
@@ -73,13 +80,9 @@ typedef enum
    OPT_NGU_ABSOLUTE,
    OPT_NGU_FEW_LIMIT,
    OPT_NGU_MANY_LIMIT,
-   OPT_NGU_FEW_COUNT,
-   OPT_NGU_MANY_COUNT,
    OPT_GPC_ABSOLUTE,
    OPT_GPC_FEW_LIMIT,
    OPT_GPC_MANY_LIMIT,
-   OPT_GPC_FEW_COUNT,
-   OPT_GPC_MANY_COUNT,
    OPT_AXIOM_MANY_LIMIT,
    OPT_AXIOM_SOME_LIMIT,
    OPT_LIT_MANY_LIMIT,
@@ -124,10 +127,8 @@ OptCell opts[] =
    {OPT_VERBOSE,
     'v', "verbose",
     OptArg, "1",
-    "Verbose comments on the progress of the program. This differs "
-    "from the output level (below) in that technical information is "
-    "printed to stderr, while the output level determines which "
-    "logical manipulations of the clauses are printed to stdout."},
+    "Verbose comments on the progress of the program, printed to "
+    "stderr."},
 
    {OPT_OUTPUT,
     'o', "output-file",
@@ -160,7 +161,7 @@ OptCell opts[] =
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
     NoArg, NULL,
-    "No effect (since not clauses/formulas are printed)."},
+    "No effect (no clauses/formulas are printed)."},
 
    {OPT_TPTP_FORMAT,
     '\0', "tptp-format",
@@ -170,13 +171,13 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse TSTP format instead of E-LOP (not all all optional "
+    "Parse TSTP format instead of E-LOP (not all optional "
     "extensions are currently supported)."},
 
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
-    "No effect (since not clauses/formulas are printed)."},
+    "No effect (no clauses/formulas are printed)."},
 
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",
@@ -210,7 +211,7 @@ OptCell opts[] =
     '\0', "specsig",
     NoArg, NULL,
     "Compute and print new-style features based on the distribution "
-    "of symbols of differnt arities."},
+    "of symbols of different arities."},
 
    {OPT_GEN_TPTP_HEADER,
     'H', "generate-tptp-header",
@@ -276,37 +277,28 @@ OptCell opts[] =
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
 
-   {OPT_DEF_CNF_OLD,
-    '\0', "old-cnf",
-    OptArg, TFORM_RENAME_LIMIT_STR,
-    "As the previous option, but use the classical, well-tested "
-    "clausification algorithm as opposed to the newewst one which "
-    "avoides some algorithmic pitfalls and hence works better on "
-    "some exotic formulae. The two may produce slightly different "
-    "(but equisatisfiable) clause normal forms."},
-
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
     OptArg, TFORM_MINISCOPE_LIMIT_STR,
-    "Set the limit of variables to miniscope per input formula. The build-in "
-    "default is 1000. Only applies to the new (default) clausification "
-    "algorithm"},
+    "Set the limit of variables to miniscope per input formula."},
 
    {OPT_MASK,
     'c', "class-mask",
     ReqArg, NULL,
-    "Provide a mask for the class description. A mask is a 13 letter "
-    "string, with positions corresponding to the class "
-    "descriptors. Any dash ('-') in the string masks out the "
-    "corresponding position in the class descriptor."},
+    "Provide a mask for the class description. A mask is a string "
+    "of 13 to " SPEC_CLASS_LEN_STR " letters, with positions corresponding "
+    "to the class descriptors. Any dash ('-') in the string masks out the "
+    "corresponding position in the class descriptor. Positions beyond "
+    "the end of the mask are not masked."},
 
    {OPT_RAW_MASK,
     '\0', "raw-mask",
     ReqArg, NULL,
-    "Provide a mask for the rawclass description. A mask is a 7 letter "
-    "string, with positions corresponding to the class "
-    "descriptors. Any dash ('-') in the string masks out the "
-    "corresponding position in the class descriptor."},
+    "Provide a mask for the rawclass description. A mask is a string "
+    "of at most " RAW_CLASS_LEN_STR " letters, with positions corresponding "
+    "to the class descriptors. Any dash ('-') in the string masks out the "
+    "corresponding position in the class descriptor. Positions beyond "
+    "the end of the mask are not masked."},
 
    {OPT_NGU_ABSOLUTE,
     'a', "ngu-absolute",
@@ -468,7 +460,9 @@ OptCell opts[] =
     '\0', "merged-classification",
     ReqArg, NULL,
     "Perform classification that merges formula and clause properties. "
-    "The required argument is the timeout given to clausification (seconds)."},
+    "The required argument is the timeout given to clausification (seconds). "
+    "This uses the default masks, not the ones given by --class-mask and "
+    "--raw-mask."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -917,9 +911,9 @@ int main(int argc, char* argv[])
                SpecSigFeaturePrint(GlobalOut, &specsigfeatures);
                fprintf(GlobalOut, " : \n");
             }
-            DestroyScanner(in);
-            ProofStateFree(fstate);
          }
+         DestroyScanner(in);
+         ProofStateFree(fstate);
       }
    }
    CLStateFree(state);
@@ -1046,19 +1040,21 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             miniscope_limit =  CLStateGetIntArg(handle, arg);
             break;
       case OPT_MASK:
-       mask = arg;
-       if(strlen(mask)<13)
-       {
-          Error("Option -c (--class-mask) requires at least 13-letter "
-                "string as an argument", USAGE_ERROR);
-       }
-       break;
+            mask = arg;
+            if(strlen(mask)<13 || strlen(mask)>SPEC_CLASS_LEN)
+            {
+               Error("Option -c (--class-mask) requires a string of 13 "
+                     "to " SPEC_CLASS_LEN_STR " letters as an argument",
+                     USAGE_ERROR);
+            }
+            break;
       case OPT_RAW_MASK:
             raw_mask = arg;
-            if(strlen(raw_mask)<11)
+            if(strlen(raw_mask)>RAW_CLASS_LEN)
             {
-               Error("Option -c (--class-mask) requires at least 11-letter "
-                     "string as an argument", USAGE_ERROR);
+               Error("Option --raw-mask requires a string of at most "
+                     RAW_CLASS_LEN_STR " letters as an argument",
+                     USAGE_ERROR);
             }
             break;
       case OPT_NGU_ABSOLUTE:
@@ -1169,13 +1165,13 @@ void print_help(FILE* out)
 \n\
 " NAME " " VERSION "\n\
 \n\
-Usage: classify_problem [options] [files]\n\
+Usage: " NAME " [options] [files]\n\
 \n\
 Read sets of clauses and classify them according to predefined criteria.\n\
 \n");
-   PrintOptions(stdout, opts, "Options:\n\n");
+   PrintOptions(out, opts, "Options:\n\n");
    fprintf(out, "\n\
-Copyright (C) 1998-2009 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 1998-2026 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\

@@ -1983,6 +1983,9 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
    SpecFeatureCell features;
    SpecLimits_p limits = CreateDefaultSpecLimits();
 
+   /* Flush pending output, so that the child does not inherit and
+      later repeat it. */
+   fflush(NULL);
    pid_t pid = fork();
    if (pid == -1)
    {
@@ -1996,7 +1999,7 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
       if(SetSoftRlimit(RLIMIT_CPU, timeout) != RLimSuccess)
       {
          fprintf(stderr, "softrlimit call failed.\n");
-         exit(-1);
+         _exit(-1);
       }
       FormulaSetPreprocConjectures(state->f_axioms, state->f_ax_archive, false, false);
       FormulaSetCNF2(state->f_axioms, state->f_ax_archive,
@@ -2013,13 +2016,16 @@ void ClausifyAndClassifyWTimeout(ProofState_p state, int timeout,
       {
          perror("could not write");
       }
-      exit(0);
+      /* _exit() does not flush the stdio buffers inherited from the
+         parent, which would print the parent's pending output twice. */
+      _exit(0);
    }
    else
    {
       // parent
       close(fds[1]);
       int nbytes = read(fds[0], class, SPEC_STRING_MEM);
+      close(fds[0]);
       if(nbytes < SPEC_STRING_MEM)
       {
          memset(class, '-', SPEC_STRING_MEM-1);
