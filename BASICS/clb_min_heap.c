@@ -45,8 +45,8 @@
 //
 // Function: bubble_up()
 //
-//   If an element at child_idx was just inserted or its value has been
-//   decreased then bring the element up as necessary.
+//   If an element at child_idx was just inserted or its value has
+//   been decreased then bring the element up as necessary.
 //
 // Global Variables: -
 //
@@ -54,7 +54,7 @@
 //
 /----------------------------------------------------------------------*/
 
-void bubble_up(MinHeap_p h, PStackPointer child_idx)
+static void bubble_up(MinHeap_p h, PStackPointer child_idx)
 {
    while(!IS_ROOT(child_idx))
    {
@@ -78,10 +78,10 @@ void bubble_up(MinHeap_p h, PStackPointer child_idx)
 
 /*-----------------------------------------------------------------------
 //
-// Function: bubble_up()
+// Function: bubble_down()
 //
-//   If an element at child_idx was just increased in value, drop it down
-//   to its position in heap.
+//   If an element at child_idx was just increased in value, bubble it
+//   down to its position in heap.
 //
 // Global Variables: -
 //
@@ -89,7 +89,7 @@ void bubble_up(MinHeap_p h, PStackPointer child_idx)
 //
 /----------------------------------------------------------------------*/
 
-void drop_down(MinHeap_p h, PStackPointer curr_idx)
+static void bubble_down(MinHeap_p h, PStackPointer curr_idx)
 {
    PStackPointer size = PStackGetSP(h->arr);
    while(!IS_LEAF(curr_idx, size))
@@ -140,7 +140,7 @@ void drop_down(MinHeap_p h, PStackPointer curr_idx)
 //
 /-----------------------------------------------------------------------*/
 
-void add(MinHeap_p h, IntOrP key)
+static void add(MinHeap_p h, IntOrP key)
 {
    push(h->arr, key);
    CALL_SETTER(h, key.p_val, PStackGetTopSP(h->arr));
@@ -234,7 +234,7 @@ void MinHeapAddInt(MinHeap_p h, long i)
 //
 // Function: MinHeapPopMin()
 //
-//   Pop the maximum element and restore heap property. O(log n)
+//   Pop the minimum element and restore heap property. O(log n)
 //
 // Global Variables: -
 //
@@ -252,7 +252,7 @@ IntOrP MinHeapPopMin(MinHeap_p h)
       {
          *PStackElementRef(h->arr, 0) = last;
          CALL_SETTER(h, last.p_val, 0);
-         drop_down(h, 0);
+         bubble_down(h, 0);
       }
       CALL_SETTER(h, ret_val.p_val, -1);
       return ret_val;
@@ -268,7 +268,8 @@ IntOrP MinHeapPopMin(MinHeap_p h)
 //
 // Function: MinHeapDecrKey()
 //
-//   Notify that the key assigned to the idx has (possibly) been decreased. O(log n)
+//   Notify that the key assigned to the idx has (possibly) been
+//   decreased. O(log n)
 //
 // Global Variables: -
 //
@@ -278,14 +279,15 @@ IntOrP MinHeapPopMin(MinHeap_p h)
 
 void MinHeapDecrKey(MinHeap_p h, long idx)
 {
-   drop_down(h, idx);
+   bubble_up(h, idx);
 }
 
 /*-----------------------------------------------------------------------
 //
 // Function: MinHeapIncrKey()
 //
-//   Notify that the key assigned to the idx has (possibly) been increased. O(log n)
+//   Notify that the key assigned to the idx has (possibly) been
+//   increased. O(log n)
 //
 // Global Variables: -
 //
@@ -295,7 +297,7 @@ void MinHeapDecrKey(MinHeap_p h, long idx)
 
 void MinHeapIncrKey(MinHeap_p h, long idx)
 {
-   bubble_up(h, idx);
+   bubble_down(h, idx);
 }
 
 /*-----------------------------------------------------------------------
@@ -373,14 +375,14 @@ void MinHeapUpdateElement(MinHeap_p h, long idx)
       }
       else
       {
-         drop_down(h, idx);
+         bubble_down(h, idx);
       }
    }
 }
 
 /*-----------------------------------------------------------------------
 //
-// Function: MinHeapUpdateElement()
+// Function: MinHeapRemoveElement()
 //
 //   Assuming the index is within the heap, the function removes
 //   an element with index idx from the heap. O(log n)

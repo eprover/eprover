@@ -1427,15 +1427,16 @@ void eliminate_predicates(ClauseSet_p passive, ClauseSet_p archive,
 //
 // Function: idx_setter()
 //
+//   Index callback for the task queue: record the current position
+//   of task in the heap (-1 if it is not in the heap).
 //
+// Global Variables: -
 //
-// Global Variables:
-//
-// Side Effects    :
+// Side Effects    : Changes task
 //
 /----------------------------------------------------------------------*/
 
-void idx_setter(void* task, int idx)
+static void idx_setter(void* task, long idx)
 {
    ((PETask_p)task)->heap_idx = idx;
 }

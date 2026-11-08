@@ -27,7 +27,7 @@
 #include <clb_pstacks.h>
 
 typedef int (*CmpFun)(IntOrP*, IntOrP*);
-typedef void (*SetIndexFun)(void*, int);
+typedef void (*SetIndexFun)(void*, long);
 
 typedef struct min_heap_cell
 {
