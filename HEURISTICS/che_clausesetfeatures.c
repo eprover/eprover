@@ -1952,13 +1952,18 @@ void SpecLimitsPrint(FILE* out, SpecLimits_p limits)
 //
 // Function: ClausifyAndClassifyWTimeout()
 //
-//   Run the defaultclausification and get the corresponding classification
-//   string. If last three arguments are non-NULL, the full classification string
-//   with computed features will be output to stdout.
+//   Run the default clausification in a child process with the
+//   given CPU time limit and compute the classification string of
+//   the result, masked with mask. The child sends the string to the
+//   parent through a pipe, and it is returned in class. If the child
+//   does not deliver a result (e.g. on timeout), class is filled with
+//   '-'.
 //
-// Global Variables: Plenty, most simple flags used read-only
+// Global Variables: problemType (read, via SpecTypeString())
 //
-// Side Effects    : Does everything...
+// Side Effects    : Forks a child process, which clausifies the
+//                   formulas in state (the parent's state is not
+//                   changed).
 //
 /----------------------------------------------------------------------*/
 
