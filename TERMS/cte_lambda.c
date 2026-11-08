@@ -146,8 +146,9 @@ Term_p FlattenApps(TB_p bank, Term_p hd, Term_p* args, long num_args,
 Term_p flatten_and_make_shared(TB_p bank, Term_p t)
 {
    assert(!TermIsShared(t));
-   if(TermIsPhonyApp(t) &&
-      !(TermIsAnyVar(t->args[0]) || TermIsLambda(t->args[0])))
+   /* Applied variables, lambdas, ite and let terms stay phony
+      applications */
+   if(TermIsPhonyApp(t) && !TermIsPhonyAppTarget(t->args[0]))
    {
       Term_p junk = t;
       t = FlattenApps(bank, t->args[0], t->args+1, t->arity-1, t->type);

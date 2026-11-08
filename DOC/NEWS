@@ -102,6 +102,11 @@ Version 3.2.5 -> 3.5.X Countess Grey
   $ite @ c @ t @ e (as used by TPTP since v8.1.1), optionally applied
   to further arguments. Partial applications of $ite are rejected
   with a syntax error.
+- Fixed applied $ite terms with function-typed branches in THF: if
+  beta reduction produced an application of an $ite term (e.g.
+  (^[F]: F @ a) @ $ite(c, f, g)), the arguments were dropped (giving
+  p @ f instead of p @ (f @ a)). Lifting an applied $ite inserted
+  non-normal terms (only visible as an assertion in debug builds).
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

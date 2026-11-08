@@ -42,6 +42,50 @@ extern TB_p bank;
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+#ifdef ENABLE_LFHO
+/*-----------------------------------------------------------------------
+//
+// Function: flatten_phony_head()
+//
+//   handle is an unshared top cell of a phony application whose head
+//   (args[0]) may just have been replaced. If the head is no longer a
+//   phony application target (but e.g. a constant or an applied
+//   symbol), return the flattened term head(head args, remaining
+//   args) (an unshared top cell, handle is freed). Otherwise return
+//   handle.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Term_p flatten_phony_head(Term_p handle)
+{
+   Term_p head = handle->args[0];
+   Term_p res;
+   int    i;
+
+   if(!TermIsPhonyApp(handle) || TermIsPhonyAppTarget(head))
+   {
+      return handle;
+   }
+   res = TermTopAlloc(head->f_code, head->arity + handle->arity - 1);
+   res->type = handle->type;
+   for(i=0; i<head->arity; i++)
+   {
+      res->args[i] = head->args[i];
+   }
+   for(i=1; i<handle->arity; i++)
+   {
+      res->args[head->arity+i-1] = handle->args[i];
+   }
+   TermTopFree(handle);
+
+   return res;
+}
+#endif
+
 
 
 /*---------------------------------------------------------------------*/
@@ -155,7 +199,10 @@ Term_p TermFollowRWChain(Term_p term)
 //
 //   New in E/HO: If we have to replace top-level term and some arguments
 //   are remaining in it, we need the pointer to the original term
-//   since we are replacing a (prefix) subterm.
+//   since we are replacing a (prefix) subterm. If the head of a
+//   phony application is replaced by a term that is no phony
+//   application target (e.g. a constant), the application is
+//   flattened, so that only normal terms are inserted.
 //
 // Global Variables: -
 //
@@ -205,6 +252,12 @@ Term_p TBTermPosReplace(TB_p bank, Term_p repl, TermPos_p pos,
       else
       {
          handle->args[subscript] = repl;
+      }
+      if(subscript == 0)
+      {
+         /* Keep applications flat if the head of a phony application
+            is replaced by a symbol (e.g. ite lifting) */
+         handle = flatten_phony_head(handle);
       }
 #else
       handle->args[subscript] = repl;
