@@ -73,6 +73,10 @@ Version 3.2.5 -> 3.5.X Countess Grey
   ConjectureTermPrefixWeight normalizes the evaluated terms like the
   indexed ones, so variables now match. This changes the evaluation
   (and hence the search) of strategies using ConjectureTermPrefixWeight.
+- In scheduling mode, eprover no longer repeats header lines (e.g. the
+  preprocessing class) when its output goes to a file or pipe. The
+  forked strategy processes printed their copy of the parent's
+  buffered output again.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

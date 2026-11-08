@@ -130,6 +130,9 @@ char* run_command(InteractiveSpec_p interactive,
    long wct_limit=30;
    int pid;
 
+   /* Flush pending output, so that the child does not inherit and
+      later repeat it. */
+   fflush(NULL);
    if ((pid = fork()) == -1)
    {
       return ERR_ERROR_MESSAGE;

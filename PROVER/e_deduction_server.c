@@ -190,6 +190,9 @@ int main(int argc, char* argv[])
             // all other errors indicate a more severe problem - no retry
             SysError("Unable to listen on socket %d", SYS_ERROR, oldsock);
          }
+         /* Flush pending output, so that the child does not inherit
+            and later repeat it. */
+         fflush(NULL);
          if ((pid = fork()) == -1)
          {
             close(sock_fd);

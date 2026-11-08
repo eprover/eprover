@@ -161,6 +161,9 @@ EGPCtrl_p EGPCtrlCreate(char *name, int cores, rlim_t cpu_limit)
    }
    CommentPrint(GlobalOut, " Starting %s with %jus (%d) cores\n", name, (uintmax_t)cpu_limit, cores);
 
+   /* Flush pending output, so that the child does not inherit and
+      later repeat it. */
+   fflush(NULL);
    if((childpid = fork()) <0 )
    {
       SysError("fork failed", SYS_ERROR);
