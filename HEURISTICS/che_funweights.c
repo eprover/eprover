@@ -717,19 +717,21 @@ WFCB_p RelevanceLevelWeightInit2(ClausePrioFun prio_fun,
 
 /*-----------------------------------------------------------------------
 //
-// Function: ConjectureSymbolWeightParse()
+// Function: ConjectureGeneralSymbolWeightParse()
 //
-//   Parse a funweight-weight function giving different weights to
-//   conjecture symbols and other symbols.
+//   Parse ConjectureGeneralSymbolWeight, a symbol-counting weight
+//   function giving different weights to conjecture symbols and other
+//   symbols, with separate weights for function symbols, constants
+//   and predicate symbols.
 //
 // Global Variables: -
 //
-// Side Effects    : Via ConjectureFunWeightInit, I/O.
+// Side Effects    : Via ConjectureSymbolWeightInit(), I/O.
 //
 /----------------------------------------------------------------------*/
 
-WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-                                state)
+WFCB_p ConjectureGeneralSymbolWeightParse(Scanner_p in, OCB_p ocb,
+                                          ProofState_p state)
 {
    ClausePrioFun prio_fun;
    int vweight, fweight, pweight, cweight, conj_fweight, conj_pweight, conj_cweight;
@@ -786,20 +788,21 @@ WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
 
 /*-----------------------------------------------------------------------
 //
-// Function: ConjectureSimplifiedSymbolWeightParse()
+// Function: ConjectureSymbolWeightParse()
 //
-//   Parse a funweight-weight function giving different weights to
-//   conjecture symbols and other symbols. Does not special-case
-//   constants.
+//   Parse ConjectureSymbolWeight, a symbol-counting weight function
+//   giving different weights to conjecture symbols and other
+//   symbols. Unlike ConjectureGeneralSymbolWeight, it does not
+//   special-case constants (they get the function symbol weight).
 //
 // Global Variables: -
 //
-// Side Effects    : Via ConjectureFunWeightInit, I/O.
+// Side Effects    : Via ConjectureSymbolWeightInit(), I/O.
 //
 /----------------------------------------------------------------------*/
 
-WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
-                                             ProofState_p state)
+WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb,
+                                   ProofState_p state)
 {
    ClausePrioFun prio_fun;
    int vweight, fweight, pweight, conj_fweight, conj_pweight;

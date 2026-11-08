@@ -138,10 +138,10 @@ WFCB_p SymOffsetWeightInit(ClausePrioFun prio_fun,
                            PStack_p fweights,
                            double app_var_mult);
 
-WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb, ProofState_p
-                                   state);
-WFCB_p ConjectureSimplifiedSymbolWeightParse(Scanner_p in, OCB_p ocb,
-                                             ProofState_p state);
+WFCB_p ConjectureSymbolWeightParse(Scanner_p in, OCB_p ocb,
+                                   ProofState_p state);
+WFCB_p ConjectureGeneralSymbolWeightParse(Scanner_p in, OCB_p ocb,
+                                          ProofState_p state);
 
 WFCB_p ConjectureRelativeSymbolWeightParse(Scanner_p in, OCB_p ocb,
                                            ProofState_p state);
