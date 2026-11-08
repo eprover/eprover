@@ -21,14 +21,10 @@
 
 #include <cio_commandline.h>
 #include <cio_output.h>
-#include <ccl_unfold_defs.h>
 #include <ccl_formulafunc.h>
 #include <cle_patterns.h>
 #include <cle_clauseenc.h>
-#include <che_clausesetfeatures.h>
 #include <che_hcb.h>
-#include <che_specsigfeatures.h>
-#include <che_rawspecfeatures.h>
 #include <cco_sine.h>
 #include <e_version.h>
 
@@ -45,7 +41,6 @@ typedef enum
    OPT_VERSION,
    OPT_VERBOSE,
    OPT_OUTPUT,
-   OPT_PARSE_FEATURES,
    OPT_LOP_PARSE,
    OPT_TPTP_PARSE,
    OPT_TPTP_PRINT,
@@ -53,51 +48,11 @@ typedef enum
    OPT_TSTP_PARSE,
    OPT_TSTP_PRINT,
    OPT_TSTP_FORMAT,
-   OPT_RAW_CLASS,
-   OPT_SPECSIG_FTRS,
-   OPT_GEN_TPTP_HEADER,
-   OPT_NO_PREPROCESSING,
-   OPT_EQ_UNFOLD_LIMIT,
-   OPT_EQ_UNFOLD_MAXCLAUSES,
-   OPT_NO_EQ_UNFOLD,
    OPT_SINE,
    OPT_FREE_NUMBERS,
    OPT_FREE_OBJECTS,
-   OPT_DEF_CNF_OLD,
    OPT_DEF_CNF,
-   OPT_MINISCOPE_LIMIT,
-   OPT_MASK,
-   OPT_RAW_MASK,
-   OPT_NGU_ABSOLUTE,
-   OPT_NGU_FEW_LIMIT,
-   OPT_NGU_MANY_LIMIT,
-   OPT_NGU_FEW_COUNT,
-   OPT_NGU_MANY_COUNT,
-   OPT_GPC_ABSOLUTE,
-   OPT_GPC_FEW_LIMIT,
-   OPT_GPC_MANY_LIMIT,
-   OPT_GPC_FEW_COUNT,
-   OPT_GPC_MANY_COUNT,
-   OPT_AXIOM_MANY_LIMIT,
-   OPT_AXIOM_SOME_LIMIT,
-   OPT_LIT_MANY_LIMIT,
-   OPT_LIT_SOME_LIMIT,
-   OPT_TERM_MEDIUM_LIMIT,
-   OPT_TERM_LARGE_LIMIT,
-   OPT_FAR_SUM_MEDIUM_LIMIT,
-   OPT_FAR_SUM_LARGE_LIMIT,
-   OPT_MAX_DEPTH_MEDIUM_LIMIT,
-   OPT_MAX_DEPTH_DEEP_LIMIT,
-   OPT_SIG_MEDIUM_LIMIT,
-   OPT_SIG_LARGE_LIMIT,
-   OPT_PREDC_MEDIUM_LIMIT,
-   OPT_PREDC_LARGE_LIMIT,
-   OPT_PRED_MEDIUM_LIMIT,
-   OPT_PRED_LARGE_LIMIT,
-   OPT_FUNC_MEDIUM_LIMIT,
-   OPT_FUNC_LARGE_LIMIT,
-   OPT_FUN_MEDIUM_LIMIT,
-   OPT_FUN_LARGE_LIMIT
+   OPT_MINISCOPE_LIMIT
 }OptionCodes;
 
 
@@ -121,22 +76,13 @@ OptCell opts[] =
    {OPT_VERBOSE,
     'v', "verbose",
     OptArg, "1",
-    "Verbose comments on the progress of the program. This differs "
-    "from the output level (below) in that technical information is "
-    "printed to stderr, while the output level determines which "
-    "logical manipulations of the clauses are printed to stdout."},
+    "Verbose comments on the progress of the program, printed to "
+    "stderr."},
 
    {OPT_OUTPUT,
     'o', "output-file",
     ReqArg, NULL,
    "Redirect output into the named file."},
-
-   {OPT_PARSE_FEATURES,
-    'p', "parse-features",
-    NoArg, NULL,
-    "Parse precomputed feature lines, not real formulae. This "
-    "conflicts with the '--generate-tptp-header' option, as not "
-    "all information needed for this is stored in feature lines."},
 
    {OPT_LOP_PARSE,
     '\0', "lop-in",
@@ -157,7 +103,7 @@ OptCell opts[] =
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
     NoArg, NULL,
-    "No effect (since not clauses/formulas are printed)."},
+    "No effect (only patterns are printed)."},
 
    {OPT_TPTP_FORMAT,
     '\0', "tptp-format",
@@ -173,7 +119,7 @@ OptCell opts[] =
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
-    "No effect (since not clauses/formulas are printed)."},
+    "No effect (only patterns are printed)."},
 
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",
@@ -194,55 +140,6 @@ OptCell opts[] =
     '\0', "tptp3-format",
     NoArg, NULL,
     "Equivalent to --tstp-format."},
-
-   {OPT_RAW_CLASS,
-    'r', "raw-class",
-    NoArg, NULL,
-    "Perform a raw and rough classification on the unclausified and "
-    "unpreprocessed problem. This is a largely independent feature "
-    "put here to reduce the proliferation of partially redundant "
-    "programs. Note that many of the limits do not apply here."},
-
-   {OPT_SPECSIG_FTRS,
-    '\0', "specsig",
-    NoArg, NULL,
-    "Compute and print new-style features based on the distribution "
-    "of symbols of differnt arities."},
-
-   {OPT_GEN_TPTP_HEADER,
-    'H', "generate-tptp-header",
-    NoArg, NULL,
-    "Generate the statistics (\"Syntax\") part of a TPTP header for "
-    "the problem."},
-
-   {OPT_NO_PREPROCESSING,
-    '\0', "no-preprocessing",
-    NoArg, NULL,
-    "Do not perform preprocessing on the initial clause set. "
-    "Preprocessing currently removes tautologies and orders terms, "
-    "literals and clauses in a certain (\"canonical\") way before "
-    "anything else happens. It also unfolds equational definitons (and "
-    "removes them)."},
-
-   {OPT_EQ_UNFOLD_LIMIT,
-    '\0', "eq-unfold-limit",
-    ReqArg, NULL,
-    "During preprocessing, limit unfolding (and removing) of "
-    "equational definitions to those where the expanded definiton "
-    "is at most the given limit bigger (in terms of standard "
-    "weight) than the defined term.."},
-
-   {OPT_EQ_UNFOLD_MAXCLAUSES,
-    '\0', "eq-unfold-maxclauses",
-    ReqArg, NULL,
-    "During preprocessing, don't try unfolding of equational "
-    "definitions if the problem has more than this limit of clauses."},
-
-   {OPT_NO_EQ_UNFOLD,
-    '\0', "no-eq-unfolding",
-    NoArg, NULL,
-    "During preprocessing, abstain from unfolding (and removing) "
-    "equational definitions."},
 
    {OPT_SINE,
     '\0', "sine",
@@ -276,181 +173,7 @@ OptCell opts[] =
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
     OptArg, TFORM_MINISCOPE_LIMIT_STR,
-    "Set the limit of variables to miniscope per input formula. The build-in "
-    "default is 1000. Only applies to the new (default) clausification "
-    "algorithm"},
-
-   {OPT_MASK,
-    'c', "class-mask",
-    ReqArg, NULL,
-    "Provide a mask for the class description. A mask is a 13 letter "
-    "string, with positions corresponding to the class "
-    "descriptors. Any dash ('-') in the string masks out the "
-    "corresponding position in the class descriptor."},
-
-   {OPT_RAW_MASK,
-    '\0', "raw-mask",
-    ReqArg, NULL,
-    "Provide a mask for the rawclass description. A mask is a 7 letter "
-    "string, with positions corresponding to the class "
-    "descriptors. Any dash ('-') in the string masks out the "
-    "corresponding position in the class descriptor."},
-
-   {OPT_NGU_ABSOLUTE,
-    'a', "ngu-absolute",
-    OptArg, "true",
-    "Use absolute values (not percentages) to determine if there are few, "
-    "some, or many non-ground unit clauses."},
-
-   {OPT_NGU_FEW_LIMIT,
-    'f', "ngu-few-limit",
-    ReqArg, NULL,
-    "Set the limit (either an absolute integer value or a fraction "
-    "between 0 and 1) for the size of the set of non-ground units "
-    "to consist of 'few' clauses."},
-
-   {OPT_NGU_MANY_LIMIT,
-    'm', "ngu-many-limit",
-    ReqArg, NULL,
-    "Set the limit (either an absolute integer value or a fraction "
-    "between 0 and 1) for the size of the set of non-ground units "
-    "to consist of 'many' clauses."},
-
-   {OPT_GPC_ABSOLUTE,
-    '\0', "gpc-absolute",
-    OptArg, "true",
-    "Use absolute values (not percentages) to determine if there are few, "
-    "some, or many non-ground unit clauses."},
-
-   {OPT_GPC_FEW_LIMIT,
-    '\0', "gpc-few-limit",
-    ReqArg, NULL,
-    "Set the limit (either an absolute integer value or a fraction "
-    "between 0 and 1) for the size of the set of ground positive clauses "
-    "to consist of 'few' clauses."},
-
-   {OPT_GPC_MANY_LIMIT,
-    '\0', "gpc-many-limit",
-    ReqArg, NULL,
-    "Set the limit (either an absolute integer value or a fraction "
-    "between 0 and 1) for the size of the set of ground positive clauses "
-    "to consist of 'many' clauses."},
-
-   {OPT_AXIOM_SOME_LIMIT,
-    '\0', "ax-some-limit",
-    ReqArg, NULL,
-    "Set the minimum number of clauses for a specification to be "
-    "considered to be medium size with respect to this measure."},
-
-   {OPT_AXIOM_MANY_LIMIT,
-    '\0', "ax-many-limit",
-    ReqArg, NULL,
-    "Set the minimum number of clauses for a specification to be "
-    "considered to be large size with respect to this measure."},
-
-   {OPT_LIT_SOME_LIMIT,
-    '\0', "lit-some-limit",
-    ReqArg, NULL,
-    "Set the mimumum number of literals for a specification to be "
-    "considered to be medium size with respect to this measure."},
-
-   {OPT_LIT_MANY_LIMIT,
-    '\0', "lit-many-limit",
-    ReqArg, NULL,
-    "Set the minimum number of literals for a specification to be "
-    "considered to be large size with respect to this measure."},
-
-   {OPT_TERM_MEDIUM_LIMIT,
-    '\0', "term-medium-limit",
-    ReqArg, NULL,
-    "Set the minimum number of subterms for a specification to be "
-    "considered to be medium size with respect to this measure."},
-
-   {OPT_TERM_LARGE_LIMIT,
-    '\0', "term-large-limit",
-    ReqArg, NULL,
-    "Set the minimum number of subterms for a specification to be "
-    "considered to be large size with respect to this measure."},
-
-    {OPT_FAR_SUM_MEDIUM_LIMIT,
-    '\0', "farity-medium-limit",
-    ReqArg, NULL,
-    "Set the minimum sum of function symbol arities for a specification to be "
-    "considered to be medium size with respect to this measure."},
-
-   {OPT_FAR_SUM_LARGE_LIMIT,
-    '\0', "farity-large-limit",
-    ReqArg, NULL,
-    "Set the minimum sum of function symbol arities for a specification to be "
-    "considered to be large size with respect to this measure."},
-
-   {OPT_MAX_DEPTH_MEDIUM_LIMIT,
-    '\0', "max-depth-medium-limit",
-    ReqArg, NULL,
-    "Set the minimum maximal clause depth for medium depth specifications."},
-
-   {OPT_MAX_DEPTH_DEEP_LIMIT,
-    '\0', "max-depth-deep-limit",
-    ReqArg, NULL,
-    "Set the minimum maximal clause depth for deep depth specifications."},
-
-   {OPT_SIG_MEDIUM_LIMIT,
-    '\0', "sig-medium-limit",
-    ReqArg, NULL,
-    "Set the minimum signature size for medium sized signatures."},
-
-   {OPT_SIG_LARGE_LIMIT,
-    '\0', "sig-large-limit",
-    ReqArg, NULL,
-    "Set the minimum signature size for large signatures."},
-
-   {OPT_PREDC_MEDIUM_LIMIT,
-    '\0', "pred-const-medium-limit",
-    ReqArg, NULL,
-    "Set the minimum number of constant predicate symbols for medium size "
-    "by this measure."},
-
-   {OPT_PREDC_LARGE_LIMIT,
-    '\0', "pred-const-large-limit",
-    ReqArg, NULL,
-    "Set the minimum number of constant predicate symbols for large size "
-    "by this measure."},
-
-   {OPT_PRED_MEDIUM_LIMIT,
-    '\0', "pred-medium-limit",
-    ReqArg, NULL,
-    "Set the minimum number of non-constant predicate symbols for medium size "
-    "by this measure."},
-
-   {OPT_PRED_LARGE_LIMIT,
-    '\0', "pred-large-limit",
-    ReqArg, NULL,
-    "Set the minimum number of non-constant predicate symbols for large size "
-    "by this measure."},
-
-   {OPT_FUNC_MEDIUM_LIMIT,
-    '\0', "fun-const-medium-limit",
-    ReqArg, NULL,
-    "Set the minimum number of constant function symbols for medium size "
-    "by this measure."},
-
-   {OPT_FUNC_LARGE_LIMIT,
-    '\0', "fun-const-large-limit",
-    ReqArg, NULL,
-    "Set the minimum number of constant function symbols for large size "
-    "by this measure."},
-
-   {OPT_FUN_MEDIUM_LIMIT,
-    '\0', "fun-medium-limit",
-    ReqArg, NULL,
-    "Set the minimum number of non-constant function symbols for medium size "
-    "by this measure."},
-
-   {OPT_FUN_LARGE_LIMIT,
-    '\0', "fun-large-limit",
-    ReqArg, NULL,
-    "Set the minimum number of non-constant function symbols for large size "
-    "by this measure."},
+    "Set the limit of variables to miniscope per input formula."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -459,28 +182,19 @@ OptCell opts[] =
 };
 
 char *outname = NULL,
-     *mask = "aaaaa----aaaa",
-     *raw_mask = "aaaaaaa";
+     *sine    = NULL;
 
-IOFormat parse_format     = AutoFormat;
-bool tptp_header      = false,
-   raw_classify     = false,
-   specsig_classify = false,
-   no_preproc       = false,
-   parse_features   = false,
-   app_encode       = false;
-long eqdef_maxclauses = DEFAULT_EQDEF_MAXCLAUSES,
-   miniscope_limit  = DEFAULT_MINISCOPE_LIMIT,
-   FormulaDefLimit = 24;
-long eqdef_incrlimit  = DEFAULT_EQDEF_INCRLIMIT;
-FunctionProperties free_symb_prop = FPIgnoreProps;char *sine = NULL;
+IOFormat parse_format = AutoFormat;
+long     miniscope_limit = DEFAULT_MINISCOPE_LIMIT,
+         FormulaDefLimit = 24;
+FunctionProperties free_symb_prop = FPIgnoreProps;
+bool     app_encode = false; /* Required by TypeInferSort() */
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
 
-CLState_p process_options(int argc, char* argv[], SpecLimits_p limits);
-char*     parse_feature_line(Scanner_p in, SpecFeature_p features);
+CLState_p process_options(int argc, char* argv[]);
 void print_help(FILE* out);
 
 /*---------------------------------------------------------------------*/
@@ -507,7 +221,6 @@ int main(int argc, char* argv[])
    Scanner_p       in;
    int             i;
    CLState_p       state;
-   SpecLimits_p    limits;
    StrTree_p       skip_includes = NULL;
    PatternSubst_p  pat_subst;
    Clause_p        clause;
@@ -522,8 +235,7 @@ int main(int argc, char* argv[])
 
    InitIO(NAME);
 
-   limits = SpecLimitsAlloc();
-   state = process_options(argc, argv, limits);
+   state = process_options(argc, argv);
 
    OpenGlobalOut(outname);
 
@@ -577,7 +289,6 @@ int main(int argc, char* argv[])
       }
    }
    CLStateFree(state);
-   SpecLimitsCellFree(limits);
 
    fflush(GlobalOut);
    OutClose(GlobalOut);
@@ -599,15 +310,16 @@ int main(int argc, char* argv[])
 //   Read and process the command line option, return (the pointer to)
 //   a CLState object containing the remaining arguments.
 //
-// Global Variables: Verbose, TermPrologArgs,
+// Global Variables: The option variables above, Verbose,
+//                   OutputFormat, EqnFullEquationalRep, EqnUseInfix
 //
-// Side Effects    : Sets variables in limits, may terminate with
+// Side Effects    : Sets the option variables, may terminate with
 //                   program description if option -h or --help was
 //                   present
 //
 /----------------------------------------------------------------------*/
 
-CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
+CLState_p process_options(int argc, char* argv[])
 {
    Opt_p handle;
    CLState_p state;
@@ -628,9 +340,6 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
       case OPT_VERSION:
             printf(NAME" " VERSION "\n");
             exit(NO_ERROR);
-      case OPT_PARSE_FEATURES:
-            parse_features = true;
-            break;
       case OPT_OUTPUT:
             outname = arg;
             break;
@@ -663,27 +372,6 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             OutputFormat = TSTPFormat;
             EqnFullEquationalRep = false;
             break;
-      case OPT_RAW_CLASS:
-            raw_classify = true;
-            break;
-      case OPT_SPECSIG_FTRS:
-            specsig_classify = true;
-            break;
-      case OPT_GEN_TPTP_HEADER:
-            tptp_header = true;
-            break;
-      case OPT_NO_PREPROCESSING:
-            no_preproc = true;
-            break;
-      case OPT_EQ_UNFOLD_MAXCLAUSES:
-            eqdef_maxclauses = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_EQ_UNFOLD_LIMIT:
-            eqdef_incrlimit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_NO_EQ_UNFOLD:
-            eqdef_incrlimit = LONG_MIN;
-            break;
       case OPT_SINE:
             sine = arg;
             break;
@@ -698,100 +386,6 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
             break;
       case OPT_MINISCOPE_LIMIT:
             miniscope_limit =  CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_MASK:
-       mask = arg;
-       if(strlen(mask)!=13)
-       {
-          Error("Option -c (--class-mask) requires 13-letter "
-                "string as an argument", USAGE_ERROR);
-       }
-       break;
-      case OPT_RAW_MASK:
-            raw_mask = arg;
-            if(strlen(raw_mask)!=7)
-            {
-               Error("Option -c (--class-mask) requires 7-letter "
-                     "string as an argument", USAGE_ERROR);
-            }
-            break;
-      case OPT_NGU_ABSOLUTE:
-            limits->ngu_absolute = CLStateGetBoolArg(handle, arg);
-            break;
-      case OPT_NGU_FEW_LIMIT:
-            limits->ngu_few_limit = CLStateGetFloatArg(handle, arg);
-            break;
-      case OPT_NGU_MANY_LIMIT:
-            limits->ngu_many_limit = CLStateGetFloatArg(handle, arg);
-            break;
-      case OPT_GPC_ABSOLUTE:
-            limits->gpc_absolute = CLStateGetBoolArg(handle, arg);
-            break;
-      case OPT_GPC_FEW_LIMIT:
-            limits->gpc_few_limit = CLStateGetFloatArg(handle, arg);
-            break;
-      case OPT_GPC_MANY_LIMIT:
-            limits->gpc_many_limit = CLStateGetFloatArg(handle, arg);
-            break;
-      case OPT_AXIOM_SOME_LIMIT:
-            limits->ax_some_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_AXIOM_MANY_LIMIT:
-            limits->ax_many_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_LIT_SOME_LIMIT:
-            limits->lit_some_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_LIT_MANY_LIMIT:
-            limits->lit_many_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_TERM_MEDIUM_LIMIT:
-            limits->term_medium_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_TERM_LARGE_LIMIT:
-            limits->term_large_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_FAR_SUM_MEDIUM_LIMIT:
-            limits->far_sum_medium_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_FAR_SUM_LARGE_LIMIT:
-            limits->far_sum_large_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_MAX_DEPTH_MEDIUM_LIMIT:
-            limits->depth_medium_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_MAX_DEPTH_DEEP_LIMIT:
-            limits->depth_deep_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_SIG_MEDIUM_LIMIT:
-            limits->symbols_medium_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_SIG_LARGE_LIMIT:
-            limits->symbols_large_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_PREDC_MEDIUM_LIMIT:
-            limits->predc_medium_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_PREDC_LARGE_LIMIT:
-            limits->predc_large_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_PRED_MEDIUM_LIMIT:
-            limits->pred_medium_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_PRED_LARGE_LIMIT:
-            limits->pred_large_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_FUNC_MEDIUM_LIMIT:
-            limits->func_medium_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_FUNC_LARGE_LIMIT:
-            limits->func_large_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_FUN_MEDIUM_LIMIT:
-            limits->fun_medium_limit = CLStateGetIntArg(handle, arg);
-            break;
-      case OPT_FUN_LARGE_LIMIT:
-            limits->fun_large_limit = CLStateGetIntArg(handle, arg);
             break;
       default:
             assert(false);
@@ -820,14 +414,14 @@ void print_help(FILE* out)
 \n\
 " NAME " " VERSION "\n\
 \n\
-Usage: classify_problem [options] [files]\n\
+Usage: " NAME " [options] [files]\n\
 \n\
 Read sets of clauses/formulas, perform cnfization, then convert \n\
 the clauses to patterns and print them.\n\
 \n");
-   PrintOptions(stdout, opts, "Options:\n\n");
+   PrintOptions(out, opts, "Options:\n\n");
    fprintf(out, "\n\
-Copyright (C) 1998-2009 by Stephan Schulz, " STS_MAIL "\n\
+Copyright (C) 2020-2026 by Stephan Schulz, " STS_MAIL "\n\
 \n\
 This program is a part of the support structure for the E equational\n\
 theorem prover. You can find the latest version of the E distribution\n\
