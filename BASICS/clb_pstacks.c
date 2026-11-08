@@ -200,7 +200,8 @@ void PStackSort(PStack_p stack, ComparisonFunctionType cmpfun)
 //
 //   Perform a binar search on the (ordered) stack between indices
 //   lower (inclusive) and upper (exclusive). Return index of key,
-//   when found, or index of the next bigger element if not.
+//   when found, or index of the next bigger element if not (upper
+//   if there is none).
 //
 // Global Variables: -
 //
@@ -223,7 +224,7 @@ PStackPointer PStackBinSearch(PStack_p stack, void* key, PStackPointer lower,
       //printf("Pup %d\n",cmpres);
       if(cmpres < 0)
       {
-         upper = i-1;
+         upper = i; /* upper is exclusive */
       }
       else if(cmpres > 0)
       {
@@ -235,7 +236,8 @@ PStackPointer PStackBinSearch(PStack_p stack, void* key, PStackPointer lower,
       }
    }
    //printf("Regular exit\n");
-   return lower+1;
+   return lower; /* All elements in [old lower, lower) are smaller
+                    than key, all in [lower, old upper) bigger */
 }
 
 
