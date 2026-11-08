@@ -158,60 +158,12 @@ static void termweight_init(TermWeightParam_p data)
    data->eval_freqs = TBCountTermFreqs(data->eval_bank);
 }
 
-static void termweight_update_conjecture_freqs(
-   TB_p bank, NumTree_p* freqs, Term_p term, VarNormStyle var_norm)
-{
-   int i;
-   PStack_p stack;
-   Term_p subterm;
-   Term_p subnorm;
-   Term_p subrepr;
-   NumTree_p cell;
-
-   stack = PStackAlloc();
-
-   PStackPushP(stack, term);
-   while (!PStackEmpty(stack))
-   {
-      subterm = PStackPopP(stack);
-      if (TermIsAnyVar(subterm))
-      {
-         continue;
-      }
-      subnorm = TermCopyNormalizeVars(bank->vars, subterm, var_norm);
-      subrepr = TBFindRepr(bank, subnorm);
-      if (subrepr)
-      {
-         cell = NumTreeFind(freqs, subrepr->entry_no);
-         if (cell && cell->val1.i_val > 0)
-         {
-            NumTreeStore(freqs, subterm->entry_no, cell->val1, cell->val2);
-         }
-      }
-
-      //if (subrepr && (subrepr->freq>0))
-      //{
-      //   subterm->freq = subrepr->freq;
-      //}
-      TermFree(subnorm);
-
-      for (i=0; i<subterm->arity; i++)
-      {
-         PStackPushP(stack, subterm->args[i]);
-      }
-   }
-
-   PStackFree(stack);
-}
-
 static double termweight_term_weight(Term_p term, TermWeightParam_p data)
 {
    Term_p repr;
    long freq;
 
    repr = termweight_insert(data->eval_bank, term, data->var_norm);
-   termweight_update_conjecture_freqs(data->eval_bank, &data->eval_freqs,
-      repr, data->var_norm);
 
    if (TermIsFreeVar(repr))
    {

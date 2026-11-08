@@ -214,23 +214,18 @@ static void ted_forest_distance(
    FunCode* code2,
    int len2,
    long td[][len2],
-   int ins_cost, 
-   int del_cost, 
+   long fd[][len2],
+   int ins_cost,
+   int del_cost,
    int ch_cost)
 {
-   /* (i+1)x(j+1) array on the heap (the terms can be large) */
-   size_t fd_size = (i+1)*(j+1)*sizeof(long);
-   long (*fd)[j+1] = SizeMalloc(fd_size);
    long di, dj;
 
-   for (di=0; di<=i; di++) 
-   {
-      for (dj=0; dj<=j; dj++) 
-      {
-         fd[di][dj] = 0L;
-      }
-   }
-
+   /* fd is scratch space shared by all calls. Only rows l1[i]-1..i
+      and columns l2[j]-1..j are used, and every cell read below has
+      been written before in this call (l1[i] <= l1[di] <= di for all
+      di in the subtree of i, the same for j), so fd needs no
+      initialization. */
    fd[l1[i]-1][l2[j]-1] = 0;
    for (di=l1[i]; di<=i; di++) 
    {
@@ -261,7 +256,6 @@ static void ted_forest_distance(
          }
       }
    }
-   SizeFree(fd, fd_size);
 }
 
 /*-----------------------------------------------------------------------
@@ -346,9 +340,12 @@ static double ted_term_distance(
    long l2[len2+1];
    FunCode code1[len1+1];
    FunCode code2[len2+1];
-   /* (len1+1)x(len2+1) array on the heap (the terms can be large) */
+   /* (len1+1)x(len2+1) arrays on the heap (the terms can be large):
+      the tree distances td, and the forest distances fd, which are
+      scratch space for ted_forest_distance(). */
    size_t td_size = (len1+1)*(len2+1)*sizeof(long);
    long (*td)[len2+1] = SizeMalloc(td_size);
+   long (*fd)[len2+1] = SizeMalloc(td_size);
    long res;
    PStack_p kr1, kr2;
    long fresh;
@@ -374,7 +371,7 @@ static double ted_term_distance(
       {
          ted_forest_distance( 
             kr1->stack[x].i_val, kr2->stack[y].i_val,
-            l1, l2, code1, code2, len2+1, td,
+            l1, l2, code1, code2, len2+1, td, fd,
             ins_cost, del_cost, ch_cost);      
       }
    }
@@ -389,6 +386,7 @@ static double ted_term_distance(
    //printf(" = %ld\n",td[len1][len2]);
 
    res = td[len1][len2];
+   SizeFree(fd, td_size);
    SizeFree(td, td_size);
 
    return res;

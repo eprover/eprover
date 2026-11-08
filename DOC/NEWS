@@ -95,6 +95,9 @@ Version 3.2.5 -> 3.5.X Countess Grey
   clashed with those of terms. Counting the conjecture term
   frequencies no longer skips terms depending on the term store
   layout (i.e. on memory addresses).
+- ConjectureRelativeTermWeight is much faster: it no longer copies
+  conjecture frequencies to the subterms of every evaluated term
+  (these were never looked up). Results are unchanged.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 
