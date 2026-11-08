@@ -102,7 +102,9 @@ void EGPCtrlFree(EGPCtrl_p junk)
 //
 // Function: EGPCtrlCleanup()
 //
-//   Clean up: Kill process, close pipe,
+//   Clean up: Close pipe, kill process. The pipe is closed first, so
+//   that a child blocked writing its output into the full pipe gets
+//   an error instead of blocking forever while we wait for it.
 //
 // Global Variables:
 //
@@ -115,6 +117,11 @@ void EGPCtrlCleanup(EGPCtrl_p ctrl)
    int raw_status;
    int respid = -1;
 
+   if(ctrl->fileno != -1)
+   {
+      close(ctrl->fileno);
+      ctrl->fileno = -1;
+   }
    if(ctrl->pid)
    {
       if(kill(ctrl->pid, SIGTERM) == 0)
@@ -125,10 +132,6 @@ void EGPCtrlCleanup(EGPCtrl_p ctrl)
          }
       }
       ctrl->pid = 0;
-   }
-   if(ctrl->fileno != -1)
-   {
-      close(ctrl->fileno);
    }
 }
 
@@ -172,6 +175,10 @@ EGPCtrl_p EGPCtrlCreate(char *name, int cores, rlim_t cpu_limit)
    if(childpid == 0)
    {  // child process
       signal(SIGTERM, SIG_DFL);
+      /* If the parent closes the pipe (see EGPCtrlCleanup()), writes
+         fail with EPIPE, and the child can still terminate its own
+         subprocesses before it exits. */
+      signal(SIGPIPE, SIG_IGN);
       dup2(pipefd[1], STDOUT_FILENO);
       close(pipefd[0]);
       close(pipefd[1]);
@@ -375,24 +382,35 @@ EGPCtrl_p EGPCtrlSetFindProc(EGPCtrlSet_p set, int fd)
 //
 // Function: EGPCtrlSetDeleteProc()
 //
-//   Delete a process from the set.
+//   Delete a process from the set. If kill_proc is true, terminate
+//   it. In any case, close the pipe from it. A forked child calls
+//   this (via EGPCtrlSetFree()) with kill_proc false to drop the
+//   pipes of its siblings. If it kept them open, the parent closing a
+//   pipe would not make a sibling's blocked write fail.
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Closes file descriptor, may kill process
 //
 /----------------------------------------------------------------------*/
 
 void EGPCtrlSetDeleteProc(EGPCtrlSet_p set, EGPCtrl_p proc, bool kill_proc)
 {
    NumTree_p cell;
+   EGPCtrl_p handle;
 
    cell = NumTreeExtractEntry(&(set->procs), proc->fileno);
    if(cell)
    {
+      handle = cell->val1.p_val;
       if(kill_proc)
       {
-         EGPCtrlCleanup(cell->val1.p_val);
+         EGPCtrlCleanup(handle);
+      }
+      else if(handle->fileno != -1)
+      {
+         close(handle->fileno);
+         handle->fileno = -1;
       }
       set->cores_reserved -= proc->cores;
       EGPCtrlFree(cell->val1.p_val);

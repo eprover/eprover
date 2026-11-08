@@ -77,6 +77,10 @@ Version 3.2.5 -> 3.5.X Countess Grey
   preprocessing class) when its output goes to a file or pipe. The
   forked strategy processes printed their copy of the parent's
   buffered output again.
+- Fixed a hang in scheduling mode: after a result was found, eprover
+  could wait forever for a strategy process that was blocked writing
+  its (large) output into the pipe to the parent. The parent now
+  closes the pipe before it terminates the process.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 
