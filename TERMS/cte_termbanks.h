@@ -159,6 +159,8 @@ Term_p  TBTermParseReal(Scanner_p in, TB_p bank, bool check_symb_prop);
 Term_p  TBTermParseSimple(Scanner_p in, TB_p bank);
 Term_p  ParseLet(Scanner_p in, TB_p bank);
 Term_p  ParseIte(Scanner_p in, TB_p bank);
+Term_p  TBIteTermAlloc(TB_p bank, Term_p cond, Term_p if_true,
+                       Term_p if_false);
 
 
 void    TBRefSetProp(TB_p bank, TermRef ref, TermProperties prop);

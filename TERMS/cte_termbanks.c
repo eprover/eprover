@@ -139,7 +139,8 @@ static Term_p tb_termtop_insert(TB_p bank, Term_p t)
           (t->arity == 2 && TermIsFreeVar(t->args[0])));
    assert(t->f_code != SIG_DB_LAMBDA_CODE ||
           (t->arity == 2 && TermIsDBVar(t->args[0])));
-   assert(!TermIsPhonyApp(t) || TermIsAnyVar(t->args[0]) || TermIsLambda(t->args[0]));
+   /* Applied ite and let terms are phony applications, too */
+   assert(!TermIsPhonyApp(t) || TermIsPhonyAppTarget(t->args[0]));
    assert(!TermIsPhonyApp(t) || t->arity > 1);
 
 #ifndef NDEBUG
@@ -2538,6 +2539,26 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
    Term_p if_false = TFormulaTSTPParse(in, bank);
    AcceptInpTok(in, CloseBracket);
 
+   return TBIteTermAlloc(bank, cond, if_true, if_false);
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: TBIteTermAlloc()
+//
+//   Return the shared ite term $ite(cond, if_true, if_false). cond
+//   must be Boolean, and if_true and if_false must have the same
+//   type, which is the type of the result.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, exits on type errors
+//
+/----------------------------------------------------------------------*/
+
+Term_p TBIteTermAlloc(TB_p bank, Term_p cond, Term_p if_true,
+                      Term_p if_false)
+{
    Term_p res = TermTopAlloc(SIG_ITE_CODE, 3);
    res->args[0] = cond;
    res->args[1] = if_true;

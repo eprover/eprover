@@ -142,6 +142,13 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
 
    if(TestInpTok(in, IteToken))
    {
+      if(!TestTok(LookToken(in, 1), OpenBracket))
+      {
+         /* $ite in application syntax that does not start an
+            application (e.g. an argument), see parse_ho_ite() */
+         AktTokenError(in, "$ite must be applied to exactly three "
+                       "arguments", false);
+      }
       head = ParseIte(in, bank);
    }
    else if(TestInpTok(in, LetToken))
@@ -186,6 +193,44 @@ static Term_p __inline__ parse_ho_atom(Scanner_p in, TB_p bank)
    assert(TermIsShared(head));
    assert(head->type);
    return head;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_ho_ite()
+//
+//   Parse $ite in HO application syntax, $ite @ cond @ if_true @
+//   if_false, and return the ite term. Only full applications are
+//   supported (E represents ite as a special term with three
+//   arguments), so exactly three arguments are parsed. Any further
+//   arguments (for function-typed branches) are parsed by the caller
+//   as for any other head.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Term_p parse_ho_ite(Scanner_p in, TB_p bank)
+{
+   Term_p args[3];
+   int    i;
+
+   assert(problemType == PROBLEM_HO);
+
+   AcceptInpTok(in, IteToken);
+   for(i=0; i<3; i++)
+   {
+      if(!TestInpTok(in, Application))
+      {
+         AktTokenError(in, "$ite must be applied to exactly three "
+                       "arguments", false);
+      }
+      AcceptInpTok(in, Application);
+      args[i] = literal_tform_tstp_parse(in, bank);
+   }
+   return TBIteTermAlloc(bank, args[0], args[1], args[2]);
 }
 
 /*-----------------------------------------------------------------------
@@ -2030,7 +2075,16 @@ TFormula_p TFormulaTSTPParse(Scanner_p in, TB_p terms)
    FunCode op;
    Sig_p   sig = terms->sig;
 
-   f1 = literal_tform_tstp_parse(in, terms);
+   if(problemType == PROBLEM_HO && TestInpTok(in, IteToken) &&
+      TestTok(LookToken(in, 1), Application))
+   {
+      /* $ite @ c @ t @ e starts an application */
+      f1 = parse_ho_ite(in, terms);
+   }
+   else
+   {
+      f1 = literal_tform_tstp_parse(in, terms);
+   }
    if(TestInpTok(in, FOFAssocOp))
    {
       res = assoc_tform_tstp_parse(in, terms, f1);

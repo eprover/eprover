@@ -98,6 +98,10 @@ Version 3.2.5 -> 3.5.X Countess Grey
 - ConjectureRelativeTermWeight is much faster: it no longer copies
   conjecture frequencies to the subterms of every evaluated term
   (these were never looked up). Results are unchanged.
+- THF: $ite is now also accepted in application syntax,
+  $ite @ c @ t @ e (as used by TPTP since v8.1.1), optionally applied
+  to further arguments. Partial applications of $ite are rejected
+  with a syntax error.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 
