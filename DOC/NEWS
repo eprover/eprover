@@ -59,6 +59,10 @@ Version 3.2.5 -> 3.5.X Countess Grey
   literals are now marked and compared like equational literals.
   As a side effect, SelectNewComplexAHPNS now really avoids selecting
   split literals.
+- Fixed a crash with --pm-from-index=NoIndex (pm_from_index_type
+  NoIndex) and an indexed --pm-into-index. As documented, "NoIndex"
+  for either paramodulation index now disables paramodulation
+  indexing altogether.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol

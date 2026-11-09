@@ -76,6 +76,10 @@ void GlobalIndicesNull(GlobalIndices_p indices)
 // Function: GlobalIndicesInit()
 //
 //   Initialize the global indices as required by the parameters.
+//   Indexed paramodulation needs both the from and the into index
+//   (the latter also determines the negative-literal index). If
+//   either of them is "NoIndex", paramodulation indexing is
+//   disabled altogether and none of the three is created.
 //
 // Global Variables: -
 //
@@ -90,7 +94,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
                        char* pm_into_index_type,
                        int   ext_rules_max_depth)
 {
-   FPIndexFunction indexfun;
+   FPIndexFunction indexfun, from_indexfun, into_indexfun;
 
    // fprintf(GlobalOut, COMCHAR" GlobalIndicesInit(%p, <>, %s, %s, %s)\n", indices, rw_bw_index_type, pm_from_index_type, pm_into_index_type);
 
@@ -101,23 +105,16 @@ void GlobalIndicesInit(GlobalIndices_p indices,
    {
       indices->bw_rw_index = FPIndexAlloc(indexfun, sig, SubtermBWTreeFreeWrapper);
    }
-   indexfun = GetFPIndexFunction(pm_from_index_type);
+   from_indexfun = GetFPIndexFunction(pm_from_index_type);
+   into_indexfun = GetFPIndexFunction(pm_into_index_type);
    strcpy(indices->pm_from_index_type, pm_from_index_type);
-   if(indexfun)
-   {
-      indices->pm_from_index = FPIndexAlloc(indexfun, sig, SubtermOLTreeFreeWrapper);
-   }
-   indexfun = GetFPIndexFunction(pm_into_index_type);
    strcpy(indices->pm_into_index_type, pm_into_index_type);
-   if(indexfun)
-   {
-      indices->pm_into_index = FPIndexAlloc(indexfun, sig, SubtermOLTreeFreeWrapper);
-   }
-   indexfun = GetFPIndexFunction(pm_into_index_type);
    strcpy(indices->pm_negp_index_type, pm_into_index_type);
-   if(indexfun)
+   if(from_indexfun && into_indexfun)
    {
-      indices->pm_negp_index = FPIndexAlloc(indexfun, sig, SubtermOLTreeFreeWrapper);
+      indices->pm_from_index = FPIndexAlloc(from_indexfun, sig, SubtermOLTreeFreeWrapper);
+      indices->pm_into_index = FPIndexAlloc(into_indexfun, sig, SubtermOLTreeFreeWrapper);
+      indices->pm_negp_index = FPIndexAlloc(into_indexfun, sig, SubtermOLTreeFreeWrapper);
    }
 
    assert(problemType != PROBLEM_NOT_INIT);

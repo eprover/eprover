@@ -1425,7 +1425,7 @@ OptCell opts[] =
     '\0', "rw-bw-index",
     OptArg, "FP7",
     "Select fingerprint function for backwards rewrite index. "
-    "\"NoIndex\" will disable paramodulation indexing. For a list "
+    "\"NoIndex\" will disable backward rewriting indexing. For a list "
     "of the other values run '" NAME " --pm-index=none'. FPX functions "
     "will use a fingerprint of X positions, the letters disambiguate "
     "between different fingerprints with the same sample size."},
