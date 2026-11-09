@@ -1199,8 +1199,9 @@ OptCell opts[] =
     "previous option, 'Normal' uses the normal lifting of the term ordering, "
     "'TFOEqMax' uses the equivalent of a transfinite ordering deciding on the "
     "predicate symbol and making equational literals maximal (note that this "
-    "setting makes the prover incomplere), and 'TFOEqMin' "
-    "modifies this by making equational symbols minimal."},
+    "setting makes the prover incomplete), and 'TFOEqMin' "
+    "modifies this by making equational literals minimal (which also makes "
+    "the prover incomplete)."},
 
    {OPT_TPTP_SOS,
     '\0', "sos-uses-input-types",
