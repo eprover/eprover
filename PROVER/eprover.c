@@ -31,6 +31,7 @@
 #include <cte_simpletypes.h>
 #include <cco_scheduling.h>
 #include <e_version.h>
+#include "e_gitcommit.h"  /* Generated, only used here */
 #include <cte_lambda.h>
 #include <cco_ho_inferences.h>
 #include <che_new_autoschedule.h>

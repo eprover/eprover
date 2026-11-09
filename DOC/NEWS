@@ -42,6 +42,8 @@ Version 3.2.5 -> 3.5.X Countess Grey
   (PROVER/e_gitcommit.h is generated and no longer under version
   control), so it is always that of the commit the binary was built
   from, with "-dirty" appended for builds from a modified tree.
+  Changes to Makefile.vars (which ./configure always makes) do not
+  count as modifications, and a new id only recompiles eprover.o.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol

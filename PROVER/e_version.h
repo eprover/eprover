@@ -35,8 +35,6 @@ Contents
 
 #define PVERSION      "3.5.6"
 
-#include "e_gitcommit.h"
-
 #ifdef ENABLE_LFHO
 #define LFH "-ho"
 #else

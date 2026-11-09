@@ -21,9 +21,18 @@ PROJECT = $(EPROVER_BIN) e_ltb_runner e_stratpar e_deduction_server e_axfilter \
           enormalizer edpll epcllemma \
           ekb_create ekb_insert ekb_ginsert ekb_delete $(EHOH)
 LIB     = $(PROJECT)
-# e_gitcommit.h first, so that it is current before the objects
-# (which depend on it as ../include/e_gitcommit.h) are checked
-all: e_gitcommit.h $(LIB)
+
+# Update e_gitcommit.h first, then build the programs in a separate
+# make run. The objects depend on it as ../include/e_gitcommit.h,
+# which make does not know to be the same file, so a single run
+# could (in particular with -j) compile them against the old id.
+
+.PHONY: all programs
+
+all: e_gitcommit.h
+	@$(MAKE) programs
+
+programs: $(LIB)
 
 depend: *.c e_gitcommit.h
 	$(MAKEDEPEND)
