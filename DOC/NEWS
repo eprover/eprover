@@ -44,6 +44,12 @@ Version 3.2.5 -> 3.5.X Countess Grey
   from, with "-dirty" appended for builds from a modified tree.
   Changes to Makefile.vars (which ./configure always makes) do not
   count as modifications, and a new id only recompiles eprover.o.
+- Fixed an unsoundness in clause splitting: split literals were not
+  reliably recognized (wrong value of the EPIsSplitLit flag), so
+  definition clauses could be split again. With split_fresh_defs
+  false, the split-off part reused its own definition, which lost the
+  definition and could give a wrong "Satisfiable" (e.g. SET825-2).
+  With fresh definitions, definition clauses were split repeatedly.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol
