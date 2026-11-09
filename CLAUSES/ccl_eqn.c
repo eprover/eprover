@@ -2482,17 +2482,29 @@ bool EqnGreater(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 
 /*-----------------------------------------------------------------------
 //
-// Function:
+// Function: tfo_literal_compare()
 //
+//   Compare two literals according to the "fake transfinite" literal
+//   orderings selected by ocb->lit_cmp: For LCTFOEqMax, equational
+//   literals are bigger than non-equational ones, for LCTFOEqMin they
+//   are smaller. Non-equational literals with different predicate
+//   symbols are compared by the precedence. Return to_unknown if this
+//   does not decide the comparison, i.e. the literals have to be
+//   compared normally.
 //
+//   For LCTFOEqMin, split literals count as equational. Splitting is
+//   only a simplification if the split literals are smaller than the
+//   literals of the split clause. This corresponds to a transfinite
+//   KBO in which only the other predicate symbols get an infinite
+//   weight.
 //
-// Global Variables:
+// Global Variables: -
 //
-// Side Effects    :
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-CompareResult tfo_literal_compare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
+static CompareResult tfo_literal_compare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
 {
    if(ocb->lit_cmp==LCTFOEqMax)
    {
@@ -2512,16 +2524,19 @@ CompareResult tfo_literal_compare(OCB_p ocb, Eqn_p eq1, Eqn_p eq2)
    }
    else if(ocb->lit_cmp==LCTFOEqMin)
    {
-      if(EqnIsEquLit(eq1) && !EqnIsEquLit(eq2))
+      bool heavy1 = !EqnIsEquLit(eq1) && !EqnIsSplitLit(eq1);
+      bool heavy2 = !EqnIsEquLit(eq2) && !EqnIsSplitLit(eq2);
+
+      if(!heavy1 && heavy2)
       {
          return to_lesser;
       }
-      if(!EqnIsEquLit(eq1) && EqnIsEquLit(eq2))
+      if(heavy1 && !heavy2)
       {
          return to_greater;
       }
-      if(!EqnIsEquLit(eq1) && !TermIsTopLevelFreeVar(eq1->lterm)
-                           && !TermIsTopLevelFreeVar(eq2->lterm)) /* both non-equational! */
+      if(heavy1 && !TermIsTopLevelFreeVar(eq1->lterm)
+                && !TermIsTopLevelFreeVar(eq2->lterm)) /* both non-equational! */
       {
          return OCBFunCompare(ocb, eq1->lterm->f_code, eq2->lterm->f_code);
       }

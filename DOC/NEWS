@@ -50,6 +50,15 @@ Version 3.2.5 -> 3.5.X Countess Grey
   false, the split-off part reused its own definition, which lost the
   definition and could give a wrong "Satisfiable" (e.g. SET825-2).
   With fresh definitions, definition clauses were split repeatedly.
+- Fixed incompleteness of clause splitting with the literal comparison
+  LCTFOEqMin (lit_cmp 3). Split predicates (other than those of the
+  eground variant) were not marked as such, and EqMin ranked split
+  literals above equational literals, so the split clauses were
+  bigger than the original clause and could block inferences. This
+  could give a wrong "Satisfiable" (e.g. SET825-2, SWV296-2). Split
+  literals are now marked and compared like equational literals.
+  As a side effect, SelectNewComplexAHPNS now really avoids selecting
+  split literals.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol

@@ -401,6 +401,7 @@ int clause_split_general(DefStore_p store, Clause_p clause,
 
             new_pred = GetDefinitions(store, handle,
                                       &new_form, &new_clause, fresh_defs);
+            SigSetFuncProp(bank->sig, new_pred, FPClSplitDef);
             def_id = 0;
             if(new_form)
             {
