@@ -37,10 +37,10 @@ char* GeneralityMeasureNames[] =
    "CountTerms",
    "CountLiterals",
    "CountFormulas",
-   "CoutPosFormulas",
+   "CountPosFormulas",
    "CountPosLiterals",
    "CountPosTerms",
-   "CoutNegFormulas",
+   "CountNegFormulas",
    "CountNegLiterals",
    "CountNegTerms",
    NULL
