@@ -1200,8 +1200,8 @@ OptCell opts[] =
     "'TFOEqMax' uses the equivalent of a transfinite ordering deciding on the "
     "predicate symbol and making equational literals maximal (note that this "
     "setting makes the prover incomplete), and 'TFOEqMin' "
-    "modifies this by making equational literals minimal (which also makes "
-    "the prover incomplete)."},
+    "modifies this by making equational literals minimal (which should "
+    "maintain completeness)."},
 
    {OPT_TPTP_SOS,
     '\0', "sos-uses-input-types",
