@@ -1311,7 +1311,7 @@ TOWeightGenMethod TOTranslateWeightGenMethod(char* name)
 //
 //   Given a pre-initialized OCB, assign weights to the function
 //   symbols. Some methods require a precedence, some require the
-//   axioms.
+//   axioms. Constants always get a weight of at least 1.
 //
 // Global Variables: -
 //
@@ -1452,6 +1452,12 @@ void TOGenerateWeights(OCB_p ocb, ClauseSet_p axioms, char *pre_weights,
          if(oparms->to_const_weight != WConstNoSpecialWeight)
          {
             *OCBFunWeightPos(ocb, i) = MAX(oparms->to_const_weight,1); // at least 1
+         }
+         else if(OCBFunWeight(ocb,i) < 1)
+         {  /* Some generators give weight 0 to symbols that do not
+               occur (e.g. $false), but KBO needs constants of positive
+               weight. */
+            *OCBFunWeightPos(ocb, i) = 1;
          }
          assert(OCBFunWeight(ocb,i)>0);
          if(oparms->force_kbo_var_weight)
