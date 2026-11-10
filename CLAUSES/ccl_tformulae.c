@@ -419,6 +419,47 @@ static FunCode tptp_quantor_parse(Sig_p sig, Scanner_p in)
 
 /*-----------------------------------------------------------------------
 //
+// Function: parse_bound_var()
+//
+//   Parse the variable bound by a quantifier, optionally annotated
+//   with a type ("X" or "X:type"), and bind its name to a variable of
+//   that type. An unannotated variable has the default type ($i),
+//   independent of any earlier use of the name (in TFF, the same
+//   name may be used with different types in different
+//   formulas). Return NULL if the next token is not a variable.
+//
+// Global Variables: -
+//
+// Side Effects    : Input, binds the name in terms->vars
+//
+/----------------------------------------------------------------------*/
+
+static Term_p parse_bound_var(Scanner_p in, TB_p terms)
+{
+   DStr_p id = DStrAlloc();
+   Type_p type;
+   Term_p var = NULL;
+
+   if(TermParseOperator(in, id) == FSIdentVar)
+   {
+      if(TestInpTok(in, Colon))
+      {
+         AcceptInpTok(in, Colon);
+         type = TypeBankParseType(in, terms->sig->type_bank);
+      }
+      else
+      {
+         type = terms->vars->sort_table->default_type;
+      }
+      var = VarBankExtNameAssertAllocSort(terms->vars, DStrView(id), type);
+   }
+   DStrFree(id);
+   return var;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: quantified_tform_tptp_parse()
 //
 //   Parse a quantified TPTP/TSTP formula. At this point, the quantor
@@ -449,8 +490,8 @@ static TFormula_p quantified_tform_tptp_parse(Scanner_p in,
    /* Enter a new scope for variables (exit scope before exiting function) */
    VarBankPushEnv(terms->vars);
 
-   var = TBTermParse(in, terms);
-   if(!TermIsFreeVar(var))
+   var = parse_bound_var(in, terms);
+   if(!var)
    {
       Error("%s Variable expected, non-variable term found",
             SYNTAX_ERROR,
@@ -677,8 +718,8 @@ static TFormula_p quantified_tform_tstp_parse(Scanner_p in,
    /* Enter a new scope for variables (exit scope before exiting function) */
    VarBankPushEnv(terms->vars);
 
-   var = TBTermParse(in, terms);
-   if(!TermIsFreeVar(var))
+   var = parse_bound_var(in, terms);
+   if(!var)
    {
       Error("%s Variable expected, non-variable term found",
             SYNTAX_ERROR,
