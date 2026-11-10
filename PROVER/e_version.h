@@ -31,9 +31,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-3.5.7 */
+/* git tag E-3.5.8 */
 
-#define PVERSION      "3.5.7"
+#define PVERSION      "3.5.8"
 
 #ifdef ENABLE_LFHO
 #define LFH "-ho"
