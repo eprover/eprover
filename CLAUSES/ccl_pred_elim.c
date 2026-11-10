@@ -802,16 +802,21 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
 
 /*-----------------------------------------------------------------------
 //
-// Function: check_unsat_and_tauto()
+// Function: check_tautologies()
 //
-//   Checks condition (4) and (5) from Definition 13. in SAT techniques
-//   paper (https://matryoshka-project.github.io/pubs/satelimsup_paper.pdf)
+//   Given the clauses of an unsatisfiable core of potential gate
+//   clauses for task->sym (emptied by this function), check if all
+//   resolvents between the positive and the negative core clauses on
+//   task->sym are tautologies. If yes, the core clauses become the
+//   gate clauses of task, otherwise task is declared not to be a
+//   gate.
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Changes the gate status and clause sets of task
 //
 /----------------------------------------------------------------------*/
+
 void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
 {
    PStack_p pos = PStackAlloc();
@@ -826,15 +831,18 @@ void check_tautologies(PETask_p task, PStack_p unsat_core, TB_p tmp_terms)
    }
 
    bool all_tautologies = true;
-   for(PStackPointer i = 0; i < PStackGetSP(pos); i++)
+   for(PStackPointer i = 0; all_tautologies && i < PStackGetSP(pos); i++)
    {
       Clause_p pos_cl = PStackElementP(pos, i);
-      for(PStackPointer j = 0; all_tautologies && i < PStackGetSP(neg); i++)
+      for(PStackPointer j = 0; all_tautologies && j < PStackGetSP(neg); j++)
       {
          Clause_p neg_cl = PStackElementP(neg, j);
          Clause_p res = build_neq_resolvent(pos_cl, neg_cl, task->sym);
-         // NB: freshly built resolvent is freed here!
-         all_tautologies = ClauseIsTautologyReal(tmp_terms, res, false);
+         if(res)
+         {  /* No resolvent (not unifiable) is fine. NB: The tautology
+               check frees the freshly built resolvent! */
+            all_tautologies = ClauseIsTautologyReal(tmp_terms, res, false);
+         }
       }
    }
 
