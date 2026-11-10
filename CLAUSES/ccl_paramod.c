@@ -979,7 +979,10 @@ Clause_p ClauseOrderedSuperSimParamod(TB_p bank, OCB_p ocb, ClausePos_p
 
       tmp_copy = EqnListCopy(into->clause->literals, bank);
 
-      into_copy = EqnListCopyRepl(tmp_copy, bank, tmp_lhs, rhs_instance);
+      /* tmp_copy is already instantiated, and its (fresh) variables
+         may still be bound by subst, so copy it without
+         dereferencing (as in ClauseSuperSimParamodConstruct()). */
+      into_copy = EqnListCopyReplPlain(tmp_copy, bank, tmp_lhs, rhs_instance);
 
       EqnListFree(tmp_copy);
 
