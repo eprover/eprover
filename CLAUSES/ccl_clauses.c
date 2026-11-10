@@ -1359,11 +1359,6 @@ void ClausePrintLOPFormat(FILE* out, Clause_p clause, bool fullterms)
 
 void ClausePrint(FILE* out, Clause_p clause, bool fullterms)
 {
-   if(out == stderr)
-   {
-      fprintf(stderr, "ClausePrint(stderr,...)\n");
-   }
-
    /* fprintf(out, "(%ld, %ld)", clause->proof_depth,
       clause->proof_size); */
 
