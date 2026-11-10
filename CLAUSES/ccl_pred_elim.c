@@ -795,6 +795,8 @@ Clause_p build_eq_resolvent(Clause_p p_cl, Clause_p n_cl, FunCode f)
    update_proof_object(res, p_cl, n_cl, DCPEResolve);
    EqnFree(p_lit);
    EqnFree(n_lit);
+   OrdSetFree(p_vars);
+   OrdSetFree(n_vars);
 
    return res;
 }

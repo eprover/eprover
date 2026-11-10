@@ -67,7 +67,8 @@ Version 3.2.5 -> 3.5.X Countess Grey
   (--pred-elim-recognize-gates): the check that all resolvents between
   gate clauses are tautologies only tested the first pair, so a
   predicate could wrongly be treated as a gate and needed resolvents
-  were dropped. This could give a wrong "Satisfiable".
+  were dropped. This could give a wrong "Satisfiable". Also fixed
+  memory leaks in predicate elimination and in the tautology check.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol

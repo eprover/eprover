@@ -341,11 +341,14 @@ static void ground_complete_neg_eqns(EqnRef list)
 // Function: ClauseIsTautologyReal()
 //
 //   Return true if clause certainly is a tautology, false if this
-//   cannot be shown at the accepted expense.
+//   cannot be shown at the accepted expense. If copy_cl is true, the
+//   check works on a copy of clause in work_bank. Otherwise it works
+//   on clause itself and always consumes (frees) it.
 //
 // Global Variables: -
 //
-// Side Effects    : Possibly memory operations
+// Side Effects    : Possibly memory operations, frees clause if
+//                   !copy_cl
 //
 //----------------------------------------------------------------------*/
 
@@ -357,44 +360,51 @@ bool ClauseIsTautologyReal(TB_p work_bank, Clause_p clause, bool copy_cl)
 
    if(EqnListFindTrue(clause->literals))
    {
-      return true;
+      res = true;
    }
-   if((clause->pos_lit_no==0) || (clause->neg_lit_no==0))
+   else if((clause->pos_lit_no==0) || (clause->neg_lit_no==0))
    {
-      return false;
+      res = false;
    }
-   if(clause->neg_lit_no > MAX_EQ_TAUTOLOGY_CHECK_LITNO)
+   else if(clause->neg_lit_no > MAX_EQ_TAUTOLOGY_CHECK_LITNO)
    { /* Emergency exit for large clauses! */
       //printf(COMCHAR" ClauseIsTautology() - neg_lit_no: %d\n", clause->neg_lit_no);
-      return ClauseIsTrivial(clause);
-   }
-   work_copy = copy_cl ? ClauseCopy(clause, work_bank) : clause;
-   rw_system = EqnListExtractByProps(&(work_copy->literals),
-                                     EPIsPositive, true);
-   assert(rw_system);
-   if(clause->neg_lit_no > 1)
-   {
-      ground_complete_neg_eqns(&rw_system);
+      res = ClauseIsTrivial(clause);
    }
    else
    {
-      ground_orient_eqn(rw_system);
-   }
-
-   for(handle = work_copy->literals; handle; handle = handle->next)
-   {
-      assert(EqnIsPositive(handle));
-
-      ground_normalize_eqn(handle, rw_system);
-      if(handle->lterm == handle->rterm)
+      work_copy = copy_cl ? ClauseCopy(clause, work_bank) : clause;
+      rw_system = EqnListExtractByProps(&(work_copy->literals),
+                                        EPIsPositive, true);
+      assert(rw_system);
+      if(clause->neg_lit_no > 1)
       {
-         res = true;
-         break;
+         ground_complete_neg_eqns(&rw_system);
       }
-   }
-   EqnListFree(rw_system);
-   ClauseFree(work_copy);
+      else
+      {
+         ground_orient_eqn(rw_system);
+      }
 
+      for(handle = work_copy->literals; handle; handle = handle->next)
+      {
+         assert(EqnIsPositive(handle));
+
+         ground_normalize_eqn(handle, rw_system);
+         if(handle->lterm == handle->rterm)
+         {
+            res = true;
+            break;
+         }
+      }
+      EqnListFree(rw_system);
+      ClauseFree(work_copy);
+      return res; /* clause has been freed if !copy_cl */
+   }
+   if(!copy_cl)
+   {
+      ClauseFree(clause);
+   }
    return res;
 }
 
