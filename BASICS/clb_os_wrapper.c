@@ -117,7 +117,13 @@ void SetSoftRlimitErr(int resource, rlim_t limit, char* desc)
    switch(res)
    {
    case RLimFailed:
-         if(resource != RLIMIT_DATA) // Mask MacOS bug on ARM
+         /* setrlimit() fails with EINVAL for the memory limits on
+            MacOS/ARM - do not warn about that on every run */
+         if(resource != RLIMIT_DATA
+#ifdef RLIMIT_AS
+            && resource != RLIMIT_AS
+#endif
+            )
          {
             snprintf(message, 300, "Could not set limit %s to %lld (%s)",
                      ldesc, (long long)limit, strerror(TmpErrno));
@@ -142,12 +148,13 @@ void SetSoftRlimitErr(int resource, rlim_t limit, char* desc)
 //
 // Function: SetMemoryLimit()
 //
-//   Set memory limit to the given limit (if any), or the largest
-//   possible.
+//   Set the soft limits for data segment size and (if available)
+//   address space to mem_limit (or as close as the hard limits
+//   allow). A mem_limit of 0 leaves the limits unchanged.
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Changes the limits, may print warnings
 //
 /----------------------------------------------------------------------*/
 
@@ -159,7 +166,7 @@ void SetMemoryLimit(rlim_t mem_limit)
    }
    SetSoftRlimitErr(RLIMIT_DATA, mem_limit, "RLIMIT_DATA");
 #ifdef RLIMIT_AS
-   SetSoftRlimitErr(RLIMIT_DATA, mem_limit, "RLIMIT_AS");
+   SetSoftRlimitErr(RLIMIT_AS, mem_limit, "RLIMIT_AS");
 #endif /* RLIMIT_AS */
 }
 

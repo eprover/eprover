@@ -74,6 +74,8 @@ Version 3.2.5 -> 3.5.X Countess Grey
   untyped quantified variable no longer inherits the type of an
   earlier variable with the same name (type errors on e.g. SWX216+1).
   --lpo-recursion-limit no longer also disables literal comparisons.
+  --memory-limit now also limits the address space (RLIMIT_AS), as
+  originally intended.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol
