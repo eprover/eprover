@@ -467,9 +467,11 @@ void FVIndexInsert(FVIAnchor_p index, Clause_p clause)
 //
 //   Delete a clause from a FVIndex. At the moment, just removes the
 //   clause from the final cell (I expect removals to be rare enough
-//   that it pays to leave the structure intact). The clause loses
-//   access to the feature vector of its leaf. Returns true if the
-//   clause was in the index, false otherwise.
+//   that it pays to leave the structure intact). The clause counts
+//   along the path are only decreased if the clause was found. In
+//   any case, the clause loses access to the feature vector of its
+//   leaf. Returns true if the clause was in the index, false
+//   otherwise.
 //
 // Global Variables: -
 //
@@ -489,22 +491,27 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
 
    vec = clause->feature_vec;
    PERF_CTR_ENTRY(FVIndexTimer);
-   handle = index->index;
-   handle->clause_count--;
 
-   for(i=0; i<vec->size; i++)
+   handle = index->index;
+   for(i=0; handle && (i<vec->size); i++)
    {
       assert(!handle->final);
       handle = IntMapGetVal(handle->u1.successors, vec->array[i]);
-      if(!handle)
-      {
-         break;
-      }
-      handle->clause_count--;
    }
-   assert(!handle || handle->vec == clause->feature_vec);
+   res = handle && OrdSetDeleteEntry(&(handle->u1.clauses), clause);
+   if(res)
+   {
+      assert(handle->vec == vec);
+      handle = index->index;
+      handle->clause_count--;
+      for(i=0; i<vec->size; i++)
+      {
+         handle = IntMapGetVal(handle->u1.successors, vec->array[i]);
+         handle->clause_count--;
+         assert(handle->clause_count >= 0);
+      }
+   }
    clause->feature_vec = NULL;
-   res = handle?OrdSetDeleteEntry(&(handle->u1.clauses), clause):false;
    PERF_CTR_EXIT(FVIndexTimer);
    return res;
 }

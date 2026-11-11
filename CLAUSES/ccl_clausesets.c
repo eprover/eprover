@@ -674,7 +674,9 @@ Clause_p ClauseSetExtractEntry(Clause_p clause)
    }
    if(ClauseQueryProp(clause, CPIsSIndexed))
    {
-      FVIndexDelete(clause->set->fvindex, clause);
+      bool found = FVIndexDelete(clause->set->fvindex, clause);
+
+      UNUSED(found); assert(found);
       ClauseDelProp(clause, CPIsSIndexed);
    }
    clause_set_extract_entry(clause);
