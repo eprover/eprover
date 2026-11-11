@@ -687,7 +687,8 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
 // Function: clause_set_subsumes_clause()
 //
 //   Return subsuming clause if the set subsumes sub_candidate, NULL
-//   otherwise. All clauses need correct weights!
+//   otherwise. sub_candidate may be a unit clause. All clauses need
+//   correct weights!
 //
 // Global Variables: -
 //
@@ -700,7 +701,6 @@ Clause_p clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate)
 {
    Clause_p handle;
 
-   assert(ClauseLiteralNumber(sub_candidate)>1);
    assert(sub_candidate->weight ==
           ClauseStandardWeight(sub_candidate));
 
@@ -1397,8 +1397,8 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 //
 // Function: ClauseSetSubsumesFVPackedClause()
 //
-//   Return true if the set subsumes sub_candidate->clause. All
-//   clauses need correct weights!
+//   Return a clause from set that subsumes sub_candidate->clause,
+//   NULL if there is none. All clauses need correct weights!
 //
 // Global Variables: -
 //
@@ -1430,8 +1430,8 @@ Clause_p ClauseSetSubsumesFVPackedClause(ClauseSet_p set,
 //
 // Function: ClauseSetSubsumesClause()
 //
-//   Return true if the set subsumes sub_candidate. All clauses need
-//   correct weights!
+//   Return a clause from set that subsumes sub_candidate, NULL if
+//   there is none. All clauses need correct weights!
 //
 // Global Variables: -
 //
