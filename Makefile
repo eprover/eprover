@@ -402,10 +402,12 @@ clean_programs:
 clean_extras:
 	rm -f $(EXTRAS_OBJ) $(EXTRAS)
 
-# Also remove the configuration, editor backups, and the generated
-# files of the old (recursive) build system.
+# Also remove editor backups and the generated files of the old
+# (recursive) build system. The configuration (config.mk, deps.mk) is
+# kept, so make still works afterwards. distrib leaves it out of the
+# archive.
 cleandist: clean
-	rm -f config.mk deps.mk deps.mk.tmp *~ */*~
+	rm -f deps.mk.tmp *~ */*~
 	rm -rf include lib
 	rm -f */Makefile.dependencies
 	rm -f $(PICOSAT)/makefile $(PICOSAT)/config.h $(PICOSAT)/*.o \
@@ -475,6 +477,8 @@ distrib: default_config commit_id man documentation cleandist
 	@echo "    ??? "
 	@p=`basename "$$PWD"`; echo "" > etc/NO_DISTRIB; \
 	cd ..; find $$p -name ".git" -print >> $$p/etc/NO_DISTRIB; \
+	echo "$$p/config.mk" >> $$p/etc/NO_DISTRIB; \
+	echo "$$p/deps.mk" >> $$p/etc/NO_DISTRIB; \
 	$(TAR) cfX - $$p/etc/NO_DISTRIB $$p | $(GZIP) - -c > $$p.tgz
 
 # Include the GIT subdirectories (and non-GPL files, of which there
