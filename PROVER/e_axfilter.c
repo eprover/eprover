@@ -386,6 +386,115 @@ void find_seed_symbols(Sig_p sig, PStack_p result)
       }
    }
 }
+/*-----------------------------------------------------------------------
+//
+// Function: seed_formula()
+//
+//   Make form a hypothesis (so that the hypothesis-based filters
+//   use it as a seed), unless it already is a hypothesis or a
+//   conjecture. Push form and its old type onto changed, so that
+//   unseed_formulas() can restore it.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes the type of form
+//
+/----------------------------------------------------------------------*/
+
+static void seed_formula(WFormula_p form, PStack_p changed)
+{
+   if(!FormulaIsHypothesis(form) && !FormulaIsConjecture(form))
+   {
+      PStackPushP(changed, form);
+      PStackPushInt(changed, FormulaQueryType(form));
+      FormulaSetType(form, CPTypeHypothesis);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: unseed_formulas()
+//
+//   Restore the original types of all formulas changed by
+//   seed_formula() and recorded on changed.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes formula types, empties changed
+//
+/----------------------------------------------------------------------*/
+
+static void unseed_formulas(PStack_p changed)
+{
+   FormulaProperties type;
+   WFormula_p        form;
+
+   while(!PStackEmpty(changed))
+   {
+      type = PStackPopInt(changed);
+      form = PStackPopP(changed);
+      FormulaSetType(form, type);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: seeded_filter_run()
+//
+//   Run all hypothesis-based filters for seed_symbol, with the
+//   seeds already marked as hypotheses. seeds_label describes the
+//   seeding method in the output header, name_tag is used in the
+//   file name.
+//
+// Global Variables: -
+//
+// Side Effects    : Output, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void seeded_filter_run(StructFOFSpec_p ctrl,
+                              AxFilterSet_p filters,
+                              char* corename,
+                              FunCode seed_symbol,
+                              char* seeds_label,
+                              char* name_tag)
+{
+   Sig_p  sig  = ctrl->terms->sig;
+   DStr_p desc = DStrAlloc();
+   DStr_p name = DStrAlloc();
+   bool   pred = SigIsPredicate(sig, seed_symbol);
+
+   DStrAppendStr(desc, "% Seed symbol: ");
+   DStrAppendStr(desc, SigFindName(sig, seed_symbol));
+   DStrAppendStr(desc, " = ");
+   DStrAppendInt(desc, seed_symbol);
+   DStrAppendStr(desc, "\n% Seeds      : ");
+   DStrAppendStr(desc, seeds_label);
+   DStrAppendStr(desc, "\n% Arity      : ");
+   DStrAppendInt(desc, SigFindArity(sig, seed_symbol));
+   DStrAppendStr(desc, "\n% Type       : ");
+   DStrAppendStr(desc, pred?"Predicate\n":"Function\n");
+
+   DStrAppendStr(name, corename);
+   DStrAppendStr(name, name_tag);
+   DStrAppendStr(name, pred?"P":"F");
+   DStrAppendInt(name, SigFindArity(sig, seed_symbol));
+   DStrAppendStr(name, "_");
+   DStrAppendInt(name, seed_symbol);
+
+   printf("Name: %s\n", DStrView(name));
+
+   all_filters_problem(ctrl,
+                       filters,
+                       DStrView(name),
+                       true,
+                       DStrView(desc));
+   DStrFree(name);
+   DStrFree(desc);
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -407,42 +516,83 @@ void seeded_filter_all(StructFOFSpec_p ctrl,
                        FunCode seed_symbol,
                        PStack_p symb_formulas)
 {
-   DStr_p desc = DStrAlloc();
-   DStr_p name = DStrAlloc();
+   PStack_p      changed = PStackAlloc();
+   PStackPointer i;
 
-   FormulaStackCondSetType(symb_formulas, CPTypeHypothesis);
-
-   DStrAppendStr(desc, "% Seed symbol: ");
-   DStrAppendStr(desc, SigFindName(ctrl->terms->sig, seed_symbol));
-   DStrAppendStr(desc, " = ");
-   DStrAppendInt(desc, seed_symbol);
-   DStrAppendStr(desc, "\n% Seeds      : All\n");
-   DStrAppendStr(desc, "% Arity      : ");
-   DStrAppendInt(desc, SigFindArity(ctrl->terms->sig, seed_symbol));
-   DStrAppendStr(desc, "\n% Type       : ");
-   DStrAppendStr(desc, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
-                 "Predicate\n":"Function\n");
-
-   DStrAppendStr(name, corename);
-   DStrAppendStr(name, "_SA_");
-   DStrAppendStr(name, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
-                 "P":"F");
-   DStrAppendInt(name, SigFindArity(ctrl->terms->sig, seed_symbol));
-   DStrAppendStr(name, "_");
-   DStrAppendInt(name, seed_symbol);
-
-   printf("Name: %s\n", DStrView(name));
-
-   all_filters_problem(ctrl,
-                       filters,
-                       DStrView(name),
-                       true,
-                       DStrView(desc));
-   FormulaStackCondSetType(symb_formulas, CPTypeAxiom);
-   DStrFree(name);
-   DStrFree(desc);
+   for(i=0; i<PStackGetSP(symb_formulas); i++)
+   {
+      seed_formula(PStackElementP(symb_formulas, i), changed);
+   }
+   seeded_filter_run(ctrl, filters, corename, seed_symbol, "All", "_SA_");
+   unseed_formulas(changed);
+   PStackFree(changed);
 }
 
+
+/*-----------------------------------------------------------------------
+//
+// Function: seeded_filter_best()
+//
+//    Generate seeded axiom selections based on the (first) formula
+//    in symb_formulas with the largest positive value of measure.
+//
+// Global Variables: -
+//
+// Side Effects    : Output, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void seeded_filter_best(StructFOFSpec_p ctrl,
+                               AxFilterSet_p filters,
+                               char* corename,
+                               FunCode seed_symbol,
+                               PStack_p symb_formulas,
+                               long (*measure)(WFormula_p),
+                               char* seeds_label,
+                               char* name_tag)
+{
+   PStack_p      changed = PStackAlloc();
+   long          max_val = 0, val;
+   WFormula_p    best = NULL, handle;
+   PStackPointer i;
+
+   for(i=0; i<PStackGetSP(symb_formulas); i++)
+   {
+      handle = PStackElementP(symb_formulas, i);
+      val = measure(handle);
+      if(val > max_val)
+      {
+         best = handle;
+         max_val = val;
+      }
+   }
+   if(best)
+   {
+      seed_formula(best, changed);
+   }
+   seeded_filter_run(ctrl, filters, corename, seed_symbol,
+                     seeds_label, name_tag);
+   unseed_formulas(changed);
+   PStackFree(changed);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: formula_size()
+//
+//   Return the size (symbol count) of form.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static long formula_size(WFormula_p form)
+{
+   return TermWeight(form->tformula, 1, 1);
+}
 
 
 /*-----------------------------------------------------------------------
@@ -465,59 +615,8 @@ void seeded_filter_largest(StructFOFSpec_p ctrl,
                            FunCode seed_symbol,
                            PStack_p symb_formulas)
 {
-   DStr_p desc = DStrAlloc();
-   DStr_p name = DStrAlloc();
-   long max_size = 0, size;
-   WFormula_p largest=NULL, handle=NULL;
-   PStackPointer i;
-
-   for(i=0; i<PStackGetSP(symb_formulas); i++)
-   {
-      handle = PStackElementP(symb_formulas, i);
-      size = TermWeight(handle->tformula, 1, 1);
-      if(size > max_size)
-      {
-         largest = handle;
-         max_size = size;
-      }
-   }
-   if(largest && FormulaQueryType(largest)==CPTypeAxiom)
-   {
-      FormulaSetType(largest, CPTypeHypothesis);
-   }
-
-   DStrAppendStr(desc, "% Seed symbol: ");
-   DStrAppendStr(desc, SigFindName(ctrl->terms->sig, seed_symbol));
-   DStrAppendStr(desc, " = ");
-   DStrAppendInt(desc, seed_symbol);
-   DStrAppendStr(desc, "\n% Seeds      : Largest\n");
-   DStrAppendStr(desc, "% Arity      : ");
-   DStrAppendInt(desc, SigFindArity(ctrl->terms->sig, seed_symbol));
-   DStrAppendStr(desc, "\n% Type       : ");
-   DStrAppendStr(desc, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
-                 "Predicate\n":"Function\n");
-
-   DStrAppendStr(name, corename);
-   DStrAppendStr(name, "_SL_");
-   DStrAppendStr(name, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
-                 "P":"F");
-   DStrAppendInt(name, SigFindArity(ctrl->terms->sig, seed_symbol));
-   DStrAppendStr(name, "_");
-   DStrAppendInt(name, seed_symbol);
-
-   printf("Name: %s\n", DStrView(name));
-
-   all_filters_problem(ctrl,
-                       filters,
-                       DStrView(name),
-                       true,
-                       DStrView(desc));
-   if(largest && FormulaQueryType(largest)==CPTypeHypothesis)
-   {
-      FormulaSetType(handle, CPTypeAxiom);
-   }
-   DStrFree(name);
-   DStrFree(desc);
+   seeded_filter_best(ctrl, filters, corename, seed_symbol, symb_formulas,
+                      formula_size, "Largest", "_SL_");
 }
 
 
@@ -541,59 +640,8 @@ void seeded_filter_diverse(StructFOFSpec_p ctrl,
                            FunCode seed_symbol,
                            PStack_p symb_formulas)
 {
-   DStr_p desc = DStrAlloc();
-   DStr_p name = DStrAlloc();
-   long max_size = 0, size;
-   WFormula_p largest=NULL, handle = NULL;
-   PStackPointer i;
-
-   for(i=0; i<PStackGetSP(symb_formulas); i++)
-   {
-      handle = PStackElementP(symb_formulas, i);
-      size = WFormulaSymbolDiversity(handle);
-      if(size > max_size)
-      {
-         largest = handle;
-         max_size = size;
-      }
-   }
-   if(largest && FormulaQueryType(largest)==CPTypeAxiom)
-   {
-      FormulaSetType(handle, CPTypeHypothesis);
-   }
-
-   DStrAppendStr(desc, "% Seed symbol: ");
-   DStrAppendStr(desc, SigFindName(ctrl->terms->sig, seed_symbol));
-   DStrAppendStr(desc, " = ");
-   DStrAppendInt(desc, seed_symbol);
-   DStrAppendStr(desc, "\n% Seeds      : Diverse\n");
-   DStrAppendStr(desc, "% Arity      : ");
-   DStrAppendInt(desc, SigFindArity(ctrl->terms->sig, seed_symbol));
-   DStrAppendStr(desc, "\n% Type       : ");
-   DStrAppendStr(desc, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
-                 "Predicate\n":"Function\n");
-
-   DStrAppendStr(name, corename);
-   DStrAppendStr(name, "_SD_");
-   DStrAppendStr(name, SigIsPredicate(ctrl->terms->sig, seed_symbol)?
-                 "P":"F");
-   DStrAppendInt(name, SigFindArity(ctrl->terms->sig, seed_symbol));
-   DStrAppendStr(name, "_");
-   DStrAppendInt(name, seed_symbol);
-
-   printf("Name: %s\n", DStrView(name));
-
-   all_filters_problem(ctrl,
-                       filters,
-                       DStrView(name),
-                       true,
-                       DStrView(desc));
-   if(largest && FormulaQueryType(largest)==CPTypeHypothesis)
-   {
-      FormulaSetType(largest, CPTypeAxiom);
-   }
-   DStrFree(name);
-   DStrFree(desc);
+   seeded_filter_best(ctrl, filters, corename, seed_symbol, symb_formulas,
+                      WFormulaSymbolDiversity, "Diverse", "_SD_");
 }
 
 /*-----------------------------------------------------------------------
