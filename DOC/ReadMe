@@ -15,49 +15,52 @@ THF:           starexec_run_E---_THF
 FOF UEQ:       starexec_run_E---_FOF_UEQ
 FNT:           starexec_run_E---_FNT
 
-Distinguished strings for the results:
+Distinguished strings for the results (the comment character is
+"%", or "#" if E was configured with --unix-comments):
 
 Problem is CNF and unsatisfiable:
 
-# SZS status Unsatisfiable
+% SZS status Unsatisfiable
 
 Problem is CNF and satisfiable:
 
-# SZS status Satisfiable
+% SZS status Satisfiable
 
 Problem is FOF/THF and a theorem:
 
-# SZS status Theorem
+% SZS status Theorem
 or
-# SZS status ContradictoryAxioms
+% SZS status ContradictoryAxioms
 
 Problem is FOF and not a theorem:
 
-# SZS status CounterSatisfiable
+% SZS status CounterSatisfiable
 
 System gave up (usually resource limit)
 
-# Failure:
+% SZS status ResourceOut
+or
+% SZS status GaveUp
 
 
 The start of solution output for proofs:
 
-# SZS output start CNFRefutation.
+% SZS output start CNFRefutation
 
 The end of solution output for proofs:
 
-# SZS output end CNFRefutation.
+% SZS output end CNFRefutation
 
 
 The start of solution output for models/saturations:
 
-# SZS output start Saturation.
+% SZS output start Saturation
 
 The end of solution output for models/saturations:
 
-# SZS output end Saturation.
+% SZS output end Saturation
 
 
 LTB Problem processing:
-# SZS status Started for <name>
-# SZS status Ended for <name>
+% SZS status Started for <name>
+% SZS status Ended for <name>

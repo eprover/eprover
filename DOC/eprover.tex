@@ -22,7 +22,7 @@
 \renewcommand{\topfraction}{.9}
 
 \author{Stephan Schulz}
-\title{\includegraphics[width=4cm]{eicon333.png}\\[5ex]E 3.3\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
+\title{\includegraphics[width=4cm]{eicon333.png}\\[5ex]E 3.5\\[1.5ex]User Manual\\[1.5ex]{\normalsize --preliminary
     version--}}
 
 \makeindex{}
@@ -1966,7 +1966,14 @@ objects can typically be processed with the same tools as full
 inference protocols.
 
 Proof-object generation and output are activated by
-\texttt{--proof-object}.
+\texttt{--proof-object}. The optional argument selects the level of
+detail. Level 1 (used if no argument is given) gives a compact proof
+object that lists each inference rule with its premises. At level 3,
+the clause after each simplification step (rewriting, unfolding,
+simplify-reflect, condensation, normalization, destructive equality
+resolution and clause splitting) is printed as well, so that every
+step is a separate inference. These additional clauses take no part
+in the proof search. Level 0 suppresses the proof object.
 
 
 \section{Answers}

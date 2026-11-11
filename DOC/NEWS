@@ -1,7 +1,7 @@
 This history describes the major differences between versions of the E
 equational theorem prover.
 
-Version 3.2.5 -> 3.5.X Countess Grey
+Version 3.2.5 -> 3.5 Countess Grey
 
 - Some beautification
 - Debugged problems with axiom filtering
@@ -42,8 +42,8 @@ Version 3.2.5 -> 3.5.X Countess Grey
   (PROVER/e_gitcommit.h is generated and no longer under version
   control), so it is always that of the commit the binary was built
   from, with "-dirty" appended for builds from a modified tree.
-  Changes to Makefile.vars (which ./configure always makes) do not
-  count as modifications, and a new id only recompiles eprover.o.
+  Local changes to Makefile.vars do not count as modifications, and
+  a new id only recompiles eprover.o.
 - Fixed an unsoundness in clause splitting: split literals were not
   reliably recognized (wrong value of the EPIsSplitLit flag), so
   definition clauses could be split again. With split_fresh_defs

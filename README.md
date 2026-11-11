@@ -37,8 +37,9 @@ Read the rest of this file and the fine (if incomplete) manual if
 anything fails. There should be a copy of the manual in
 `DOC/eprover.pdf`.
 
-E 3.2 supports (monomorphic) higher-order logic. To build a binary
-that supports higher-order reasoning, use the following:
+Since version 3.0, E supports (monomorphic) higher-order logic. To
+build a binary that supports higher-order reasoning, use the
+following:
 
 
 ```sh
@@ -92,8 +93,8 @@ What is E?
 
 E is an equational theorem prover. That means it is a program that you
 can stuff a mathematical specification (in many-sorted first-order
-logic with equality or in polymorphic higher-order logic) and a
-hypothesisconjecture into, and which will then run forever, using up
+logic with equality or in monomorphic higher-order logic) and a
+conjecture into, and which will then run forever, using up
 all of your machines resources. Very occasionally it will find a proof
 for the conjecture and tell you so ;-).
 
