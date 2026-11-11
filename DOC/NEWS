@@ -76,6 +76,7 @@ Version 3.2.5 -> 3.5.X Countess Grey
   --lpo-recursion-limit no longer also disables literal comparisons.
   --memory-limit now also limits the address space (RLIMIT_AS), as
   originally intended.
+  The seeds of RandomWeight now take effect.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol

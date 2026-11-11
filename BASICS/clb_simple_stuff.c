@@ -28,13 +28,14 @@
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-static unsigned int xstate = 123456789,
-   ystate = 987654321,
-   zstate = 43219876,
-   cstate = 6543217; /* State for KISS RNG*/
+/* Default state for the JKISS RNG (used if no state is passed) */
+#define JKISS_DEFAULT_X 123456789
+#define JKISS_DEFAULT_Y 987654321
+#define JKISS_DEFAULT_Z 43219876
+#define JKISS_DEFAULT_C 6543217
 
-
-static RandStateCell rand_state = {123456789,987654321,43219876,6543217};
+static RandStateCell rand_state = {JKISS_DEFAULT_X, JKISS_DEFAULT_Y,
+                                   JKISS_DEFAULT_Z, JKISS_DEFAULT_C};
 
 ProblemType problemType = PROBLEM_NOT_INIT;
 
@@ -123,11 +124,16 @@ int WeightedObjectCompareFun(WeightedObject_p o1, WeightedObject_p o2)
 //
 // Function: JKISSSeed()
 //
-//   Initialize the portable KISS random number generator.
+//   Initialize the portable KISS random number generator state (or
+//   the default state if state is NULL). The carry is reset, so the
+//   resulting sequence only depends on the seeds. Since the
+//   xorshift part must not start from 0, and the multiply-with-carry
+//   part not from z=c=0, a 0 seed2 or seed3 is replaced by the
+//   default value.
 //
-// Global Variables: xstate, ystate, zstate, cstate
+// Global Variables: rand_state (if state is NULL)
 //
-// Side Effects    : Sets xstate, ystate, zstate
+// Side Effects    : Sets the state
 //
 /----------------------------------------------------------------------*/
 
@@ -138,8 +144,9 @@ void JKISSSeed(RandState_p state, int seed1, int seed2, int seed3)
       state = &rand_state;
    }
    state->xstate = seed1;
-   state->ystate = seed2;
-   state->zstate = seed3;
+   state->ystate = seed2?seed2:JKISS_DEFAULT_Y;
+   state->zstate = seed3?seed3:JKISS_DEFAULT_Z;
+   state->cstate = JKISS_DEFAULT_C;
 }
 
 
@@ -148,9 +155,10 @@ void JKISSSeed(RandState_p state, int seed1, int seed2, int seed3)
 // Function: JKISSRand()
 //
 //   Improved "Keep It Simple, Stupid" RNG generator, adapted from the
-//   public domain version by Davida Jones (d.jones@cs.ucl.ac.uk).
+//   public domain version by David Jones (d.jones@cs.ucl.ac.uk). Uses
+//   and advances state (or the default state if state is NULL).
 //
-// Global Variables: xstate, ystate, zstate, cstate
+// Global Variables: rand_state (if state is NULL)
 //
 // Side Effects    : Permutes state
 //
@@ -164,14 +172,14 @@ unsigned JKISSRand(RandState_p state)
    {
       state = &rand_state;
    }
-   xstate = 314527869 * xstate + 1234567;
-   ystate ^= ystate << 5;
-   ystate ^= ystate >> 7;
-   ystate ^= ystate << 22;
-   t = 4294584393ULL * zstate + cstate;
-   cstate = t >> 32;
-   zstate = t;
-   return xstate + ystate + zstate;
+   state->xstate = 314527869 * state->xstate + 1234567;
+   state->ystate ^= state->ystate << 5;
+   state->ystate ^= state->ystate >> 7;
+   state->ystate ^= state->ystate << 22;
+   t = 4294584393ULL * state->zstate + state->cstate;
+   state->cstate = t >> 32;
+   state->zstate = t;
+   return state->xstate + state->ystate + state->zstate;
 }
 
 /*-----------------------------------------------------------------------
