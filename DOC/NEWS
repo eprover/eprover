@@ -87,6 +87,7 @@ Version 3.2.5 -> 3.5 Countess Grey
   The size limit for miniscoping is now computed correctly.
   e_ltb_runner and e_deduction_server can run eprover again.
   $ite and $let are now also supported in TFF terms.
+  Clearer error messages for unsupported polymorphism and datatypes.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol

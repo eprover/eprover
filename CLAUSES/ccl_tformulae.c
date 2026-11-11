@@ -398,6 +398,19 @@ static FunCode tptp_quantor_parse(Sig_p sig, Scanner_p in)
    FunCode res;
 
    CheckInpTok(in, UnivQuantor|ExistQuantor|LambdaQuantor);
+   if(TestInpTok(in, UnivQuantor|ExistQuantor))
+   {
+      if(TestTok(LookToken(in, 1), GreaterSign))
+      {
+         AktTokenError(in, "Quantification over types (!>, TF1/TH1 "
+                       "polymorphism) is not supported", false);
+      }
+      if(TestTok(LookToken(in, 1), UnivQuantor|ExistQuantor))
+      {
+         AktTokenError(in, "The THF constants !! and ?? are not "
+                       "supported (use ! and ? instead)", false);
+      }
+   }
    if(TestInpTok(in, ExistQuantor))
    {
       res = sig->qex_code;

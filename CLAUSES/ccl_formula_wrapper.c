@@ -499,6 +499,11 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
       not a proper clause. However, the simplest thing to do is
       to parse "$true" and modify the signature.
       */
+   if(TestInpId(in, "type") && TestTok(LookToken(in, 1), Hyphen))
+   {
+      AktTokenError(in, "Datatype declarations (roles type-datatype "
+                    "and similar) are not supported", false);
+   }
    if(TestInpId(in, "type"))
    {
       NextToken(in);

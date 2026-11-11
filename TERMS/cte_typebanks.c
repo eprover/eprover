@@ -30,6 +30,10 @@ Created: ?
 /*---------------------------------------------------------------------*/
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
+
+/* Error message for types applied in THF syntax (list @ nat). */
+#define APPLIED_TYPE_ERROR "Application in types (TH1 type constructors " \
+   "or dependent types) is not supported"
 #define REALLOC_STEP       16
 
 
@@ -199,6 +203,12 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
    Type_p*        typeArgs = NULL;
    int            arity = 0;
 
+   if(TestInpTok(in, UnivQuantor) && TestTok(LookToken(in, 1), GreaterSign))
+   {
+      AktTokenError(in, "Polymorphic types (!>, TF1/TH1 polymorphism) "
+                    "are not supported", false);
+   }
+
    id = DStrAlloc();
 
    id_type = TermParseOperator(in, id);
@@ -266,8 +276,16 @@ Type_p parse_single_type(Scanner_p in, TypeBank_p bank)
          DStr_p msg = DStrAlloc();
          DStrAppendStr(msg, "Type constructor ");
          DStrAppendStr(msg, (char*)TypeBankFindTCName(bank, tc_code));
-         DStrAppendStr(msg, "has not been declared as simple sort.");
-         AktTokenError(in, DStrView(msg), true);
+         if(TestInpTok(in, Application))
+         {
+            DStrReset(msg);
+            DStrAppendStr(msg, APPLIED_TYPE_ERROR);
+         }
+         else
+         {
+            DStrAppendStr(msg, " has not been declared as simple sort.");
+         }
+         AktTokenError(in, DStrView(msg), false);
       }
       type = AllocSimpleSort(tc_code);
    }
@@ -700,6 +718,10 @@ Type_p TypeBankParseType(Scanner_p in, TypeBank_p bank)
             {
                AktTokenError(in,"Mixing of first order and higher "
                                 "order syntax is forbidden", true);
+            }
+            if(TestInpTok(in, Application))
+            {
+               AktTokenError(in, APPLIED_TYPE_ERROR, false);
             }
             AcceptInpTok(in, GreaterSign);
             if(TestInpTok(in, OpenBracket))
