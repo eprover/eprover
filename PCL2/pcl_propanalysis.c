@@ -295,6 +295,85 @@ static void pcl_prot_global_count(PCLProt_p prot, PCLPropData_p data)
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: find_max_clause_step()
+//
+//   Return the first clause step of prot that is maximal with respect
+//   to cmp (which ranks FOF steps below all clause steps), NULL if
+//   prot has no clause steps.
+//
+// Global Variables: -
+//
+// Side Effects    : Only temporary memory operations.
+//
+/----------------------------------------------------------------------*/
+
+static PCLStep_p find_max_clause_step(PCLProt_p prot, PCLCmpFunType cmp)
+{
+   PCLStep_p res = PCLProtFindMaxStep(prot, cmp);
+
+   if(res && PCLStepIsFOF(res))
+   {
+      res = NULL;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: average()
+//
+//   Return num/denom, or 0.0 if denom is 0.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static double average(long num, long denom)
+{
+   return denom ? (double)num/denom : 0.0;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: print_extreme_step()
+//
+//   Print a comment headline and the step (or "None" if step is
+//   NULL). If prop_info is set, also print the properties of the
+//   step's clause.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+static void print_extreme_step(FILE* out, char* headline, PCLStep_p step,
+                               bool prop_info)
+{
+   fprintf(out, COMCHAR" %s (if any): \n", headline);
+   if(step)
+   {
+      if(prop_info)
+      {
+         ClausePropInfoPrint(out, step->logic.clause);
+      }
+      PCLStepPrint(out, step);
+      fputc('\n', out);
+   }
+   else
+   {
+      fprintf(out, COMCHAR" None\n");
+   }
+}
+
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -359,13 +438,13 @@ PCLStep_p PCLProtFindMaxStep(PCLProt_p prot, PCLCmpFunType cmp)
 void PCLProtPropAnalyse(PCLProt_p prot, PCLPropData_p data)
 {
    data->max_standard_weight_clause =
-      PCLProtFindMaxStep(prot, pcl_weight_compare);
+      find_max_clause_step(prot, pcl_weight_compare);
    data->longest_clause =
-      PCLProtFindMaxStep(prot, pcl_litno_compare);
+      find_max_clause_step(prot, pcl_litno_compare);
    data->max_symbol_clause =
-      PCLProtFindMaxStep(prot, pcl_sc_compare);
+      find_max_clause_step(prot, pcl_sc_compare);
    data->max_depth_clause =
-      PCLProtFindMaxStep(prot, pcl_depth_compare);
+      find_max_clause_step(prot, pcl_depth_compare);
 
    pcl_prot_global_count(prot, data);
 }
@@ -409,26 +488,21 @@ void PCLProtPropDataPrint(FILE* out, PCLPropData_p data)
       data->pos_clauses,
       data->neg_clauses,
       data->mix_clauses,
-      (double)(data->pos_literals+data->neg_literals)/clauses,
-      (double)(data->pos_clause_literals)/data->pos_clauses,
-      (double)(data->neg_clause_literals)/data->neg_clauses,
-      (double)(data->mix_clause_literals)/data->mix_clauses,
-      (double)(data->pos_literals)/clauses,
-      (double)(data->neg_literals)/clauses,
-      (double)(data->func_count)/clauses,
-      (double)(data->var_count)/clauses,
-      (double)(data->const_count)/clauses,
-      (double)(data->pred_count)/clauses);
-   CommentPrint(out, " Longest Clause (if any): \n");
-   PCLStepPrint(out, data->longest_clause);
-   fprintf(out, "\n"COMCHAR" Largest Clause (if any): \n");
-   PCLStepPrint(out, data->max_symbol_clause);
-   fprintf(out, "\n"COMCHAR" Heaviest Clause (if any): \n");
-   ClausePropInfoPrint(out, data->max_standard_weight_clause->logic.clause);
-   PCLStepPrint(out, data->max_standard_weight_clause);
-   fprintf(out, "\n"COMCHAR" Deepest Clause (if any): \n");
-   PCLStepPrint(out, data->max_depth_clause);
-   fprintf(out, "\n");
+      average(data->pos_literals+data->neg_literals, clauses),
+      average(data->pos_clause_literals, data->pos_clauses),
+      average(data->neg_clause_literals, data->neg_clauses),
+      average(data->mix_clause_literals, data->mix_clauses),
+      average(data->pos_literals, clauses),
+      average(data->neg_literals, clauses),
+      average(data->func_count, clauses),
+      average(data->var_count, clauses),
+      average(data->const_count, clauses),
+      average(data->pred_count, clauses));
+   print_extreme_step(out, "Longest Clause", data->longest_clause, false);
+   print_extreme_step(out, "Largest Clause", data->max_symbol_clause, false);
+   print_extreme_step(out, "Heaviest Clause",
+                      data->max_standard_weight_clause, true);
+   print_extreme_step(out, "Deepest Clause", data->max_depth_clause, false);
 }
 
 
