@@ -87,6 +87,11 @@ equational theorem prover. This version of E is free software, see the
 file COPYING for details about the license and the fact that THERE IS
 NO WARRANTY!
 
+E is released with a 2-component version number, the third number is
+for internal development and bug-fix releases. Only the then-current
+version is archived on the website when a new version is released, but
+all versions are available via the GitHub repository.
+
 
 What is E?
 ----------
