@@ -1530,9 +1530,9 @@ OptCell opts[] =
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
     OptArg, TFORM_MINISCOPE_LIMIT_STR,
-    "Set the limit of sub-formula-size to miniscope. The build-in"
-    "default is 256. Only applies to the new (default) clausification "
-    "algorithm"},
+    "Set the maximal size (in subformulas) of a universally quantified "
+    "subformula that is miniscoped to move existential quantifiers out "
+    "of its scope. The built-in default is 1048576."},
 
    {OPT_PRINT_TYPES,
     '\0', "print-types",

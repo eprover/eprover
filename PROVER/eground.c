@@ -229,9 +229,9 @@ OptCell opts[] =
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
     OptArg, TFORM_MINISCOPE_LIMIT_STR,
-    "Set the limit of variables to miniscope per input formula. The build-in "
-    "default is 1000. Only applies to the new (default) clausification "
-    "algorithm"},
+    "Set the maximal size (in subformulas) of a universally quantified "
+    "subformula that is miniscoped to move existential quantifiers out "
+    "of its scope. The built-in default is 1048576."},
 
 
    {OPT_SPLIT_TRIES,
@@ -439,7 +439,7 @@ int main(int argc, char* argv[])
    }
    freshvars = VarBankAlloc(type_bank);
    if(FormulaSetCNF2(formulas, f_ax_archive, clauses, terms, freshvars,
-                     1048576, FormulaDefLimit,
+                     miniscope_limit, FormulaDefLimit,
                      true, true, true, true, NULL))
    {
       VERBOUT("CNFization done\n");

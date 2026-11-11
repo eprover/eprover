@@ -280,7 +280,9 @@ OptCell opts[] =
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
     OptArg, TFORM_MINISCOPE_LIMIT_STR,
-    "Set the limit of variables to miniscope per input formula."},
+    "Set the maximal size (in subformulas) of a universally quantified "
+    "subformula that is miniscoped to move existential quantifiers out "
+    "of its scope. The built-in default is 1048576."},
 
    {OPT_MASK,
     'c', "class-mask",
