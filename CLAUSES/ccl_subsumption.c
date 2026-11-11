@@ -684,6 +684,106 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
 
 /*-----------------------------------------------------------------------
 //
+// Function: plain_lit_matches()
+//
+//   Try to extend subst to a match from pattern onto target (with
+//   the sides of target swapped if swap is true). Return true on
+//   success. On failure, subst is unchanged.
+//
+// Global Variables: -
+//
+// Side Effects    : Extends subst
+//
+/----------------------------------------------------------------------*/
+
+static bool plain_lit_matches(Eqn_p pattern, Eqn_p target, bool swap,
+                              Subst_p subst)
+{
+   PStackPointer state = PStackGetSP(subst);
+   Term_p lterm = swap? target->rterm : target->lterm;
+   Term_p rterm = swap? target->lterm : target->rterm;
+
+   if(SubstMatchComplete(pattern->lterm, lterm, subst) &&
+      SubstMatchComplete(pattern->rterm, rterm, subst))
+   {
+      return true;
+   }
+   SubstBacktrackToPos(subst, state);
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: eqn_list_rec_plain_subsume()
+//
+//   Return true if subst can be extended to a substitution that maps
+//   every literal of patterns onto some literal of targets other than
+//   except (which may be NULL). Several patterns may be mapped onto
+//   the same target (plain (set) subsumption, not multiset
+//   subsumption). Equations are matched in both orientations. On
+//   failure, subst is unchanged. On success, the caller has to
+//   backtrack subst.
+//
+// Global Variables: -
+//
+// Side Effects    : Extends subst
+//
+/----------------------------------------------------------------------*/
+
+static bool eqn_list_rec_plain_subsume(Eqn_p patterns, Eqn_p targets,
+                                       Eqn_p except, Subst_p subst)
+{
+   Eqn_p         target;
+   PStackPointer state = PStackGetSP(subst);
+
+   if(!patterns)
+   {
+      return true;
+   }
+   for(target = targets; target; target = target->next)
+   {
+      if((target == except) ||
+         !PropsAreEquiv(patterns, target, EPIsPositive|EPIsEquLiteral))
+      {
+         continue;
+      }
+      if(plain_lit_matches(patterns, target, false, subst))
+      {
+         if(eqn_list_rec_plain_subsume(patterns->next, targets, except,
+                                       subst))
+         {
+            return true;
+         }
+         SubstBacktrackToPos(subst, state);
+      }
+      if(EqnIsEquLit(patterns) &&
+         plain_lit_matches(patterns, target, true, subst))
+      {
+         if(eqn_list_rec_plain_subsume(patterns->next, targets, except,
+                                       subst))
+         {
+            return true;
+         }
+         SubstBacktrackToPos(subst, state);
+      }
+   }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// The following functions search clause sets and FV indices for
+// subsuming or subsumed clauses. The subsumption test is passed in
+// as subsumes (multiset or plain subsumption). Note that the FV
+// index filters candidates under the assumption of multiset
+// subsumption, so with plain subsumption it may miss some.
+//
+/----------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
 // Function: clause_set_subsumes_clause()
 //
 //   Return subsuming clause if the set subsumes sub_candidate, NULL
@@ -697,7 +797,8 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
 /----------------------------------------------------------------------*/
 
 static
-Clause_p clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate)
+Clause_p clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate,
+                                    ClauseSubsumesFun subsumes)
 {
    Clause_p handle;
 
@@ -707,7 +808,7 @@ Clause_p clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate)
    for(handle = set->anchor->succ; handle != set->anchor;
        handle = handle->succ)
    {
-      if(clause_subsumes_clause(handle, sub_candidate))
+      if(subsumes(handle, sub_candidate))
       {
          // ClauseSetProp(handle, ClauseQueryProp(sub_candidate,CPIsSOS));
          // Not a SOS clause!
@@ -732,7 +833,8 @@ Clause_p clause_set_subsumes_clause(ClauseSet_p set, Clause_p sub_candidate)
 /----------------------------------------------------------------------*/
 
 static
-Clause_p clause_tree_find_subsuming_clause(OrdSet_p tree, Clause_p sub_candidate)
+Clause_p clause_tree_find_subsuming_clause(OrdSet_p tree, Clause_p sub_candidate,
+                                           ClauseSubsumesFun subsumes)
 {
    OrdSet_p handle;
    Clause_p clause;
@@ -742,7 +844,7 @@ Clause_p clause_tree_find_subsuming_clause(OrdSet_p tree, Clause_p sub_candidate
    for(handle = OrdSetFirst(tree); handle; handle = OrdSetNext(tree, handle))
    {
       clause = handle->key;
-      if(clause_subsumes_clause(clause,sub_candidate))
+      if(subsumes(clause,sub_candidate))
       {
          /* DocClauseQuote(GlobalOut, OutputLevel, 6, sub_candidate,
             "subsumed", clause); */
@@ -773,7 +875,8 @@ static
 Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
                                             Clause_p sub_candidate,
                                             FreqVector_p vec,
-                                            long feature)
+                                            long feature,
+                                            ClauseSubsumesFun subsumes)
 {
 
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
@@ -781,7 +884,7 @@ Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
    if(feature == vec->size)
    {
       return clause_tree_find_subsuming_clause(index->u1.clauses,
-                                               sub_candidate);
+                                               sub_candidate, subsumes);
    }
    else if(index->u1.successors)
    {
@@ -795,7 +898,7 @@ Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
       {
          if(next->clause_count &&
             (res = clause_set_subsumes_clause_indexed(next, sub_candidate,
-                                                      vec, feature+1)))
+                                                      vec, feature+1, subsumes)))
          {
             break;
          }
@@ -821,7 +924,8 @@ Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
 
 static
 void clause_tree_find_subsumed_clauses(OrdSet_p tree, Clause_p subsumer,
-                                       PStack_p res)
+                                       PStack_p res,
+                                       ClauseSubsumesFun subsumes)
 {
    OrdSet_p handle;
    Clause_p clause;
@@ -831,7 +935,7 @@ void clause_tree_find_subsumed_clauses(OrdSet_p tree, Clause_p subsumer,
    for(handle = OrdSetFirst(tree); handle; handle = OrdSetNext(tree, handle))
    {
       clause = handle->key;
-      if(clause_subsumes_clause(subsumer, clause))
+      if(subsumes(subsumer, clause))
       {
          /* DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
             "subsumed", subsumer);*/
@@ -857,7 +961,8 @@ void clause_tree_find_subsumed_clauses(OrdSet_p tree, Clause_p subsumer,
 
 static
 Clause_p clause_tree_find_first_subsumed_clause(OrdSet_p tree,
-                                            Clause_p subsumer)
+                                            Clause_p subsumer,
+                                                ClauseSubsumesFun subsumes)
 {
    OrdSet_p handle;
    Clause_p clause;
@@ -867,7 +972,7 @@ Clause_p clause_tree_find_first_subsumed_clause(OrdSet_p tree,
    for(handle = OrdSetFirst(tree); handle; handle = OrdSetNext(tree, handle))
    {
       clause = handle->key;
-      if(clause_subsumes_clause(subsumer, clause))
+      if(subsumes(subsumer, clause))
       {
          /* DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
             "subsumed", subsumer);*/
@@ -883,7 +988,7 @@ Clause_p clause_tree_find_first_subsumed_clause(OrdSet_p tree,
 
 /*-----------------------------------------------------------------------
 //
-// Function: clauseset_find_subsumed_clauses();
+// Function: clauseset_find_subsumed_clauses()
 //
 //   Find all clauses subsumed by subsumer and push them onto
 //   stack. Also write PCL statements to that effect (if required by
@@ -898,7 +1003,8 @@ Clause_p clause_tree_find_first_subsumed_clause(OrdSet_p tree,
 static
 void clauseset_find_subsumed_clauses(ClauseSet_p set,
                                      Clause_p subsumer,
-                                     PStack_p res)
+                                     PStack_p res,
+                                     ClauseSubsumesFun subsumes)
 {
    Clause_p handle;
 
@@ -906,7 +1012,7 @@ void clauseset_find_subsumed_clauses(ClauseSet_p set,
        handle!= set->anchor;
        handle = handle->succ)
    {
-      if(clause_subsumes_clause(subsumer, handle))
+      if(subsumes(subsumer, handle))
       {
          /* DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
             "subsumed", subsumer); */
@@ -918,7 +1024,7 @@ void clauseset_find_subsumed_clauses(ClauseSet_p set,
 
 /*-----------------------------------------------------------------------
 //
-// Function: clauseset_find_first_subsumed_clause();
+// Function: clauseset_find_first_subsumed_clause()
 //
 //   Find first subsumed clause in set and return it (or NULL, if no
 //   such clause exists).
@@ -931,7 +1037,8 @@ void clauseset_find_subsumed_clauses(ClauseSet_p set,
 
 static
 Clause_p clauseset_find_first_subsumed_clause(ClauseSet_p set,
-                                              Clause_p subsumer)
+                                              Clause_p subsumer,
+                                              ClauseSubsumesFun subsumes)
 {
    Clause_p handle;
 
@@ -939,7 +1046,7 @@ Clause_p clauseset_find_first_subsumed_clause(ClauseSet_p set,
        handle!= set->anchor;
        handle = handle->succ)
    {
-      if(clause_subsumes_clause(subsumer, handle))
+      if(subsumes(subsumer, handle))
       {
          return handle;
       }
@@ -967,11 +1074,12 @@ void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
                                              Clause_p subsumer,
                                              FreqVector_p vec,
                                              long feature,
-                                             PStack_p res)
+                                             PStack_p res,
+                                             ClauseSubsumesFun subsumes)
 {
    if(feature == vec->size)
    {
-      clause_tree_find_subsumed_clauses(index->u1.clauses, subsumer, res);
+      clause_tree_find_subsumed_clauses(index->u1.clauses, subsumer, res, subsumes);
    }
    else if(index->u1.successors)
    {
@@ -986,7 +1094,7 @@ void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
          if(next->clause_count)
          {
             clauseset_find_subsumed_clauses_indexed(next, subsumer, vec,
-                                                    feature+1, res);
+                                                    feature+1, res, subsumes);
          }
       }
       IntMapIterFree(iter);
@@ -1011,14 +1119,15 @@ static
 Clause_p clauseset_find_first_subsumed_clause_indexed(FVIndex_p index,
                                                       Clause_p subsumer,
                                                       FreqVector_p vec,
-                                                      long feature)
+                                                      long feature,
+                                                      ClauseSubsumesFun subsumes)
 {
    Clause_p res = NULL;
 
    if(feature == vec->size)
    {
       res = clause_tree_find_first_subsumed_clause(index->u1.clauses,
-                                                   subsumer);
+                                                   subsumer, subsumes);
    }
    else if(index->u1.successors)
    {
@@ -1035,7 +1144,7 @@ Clause_p clauseset_find_first_subsumed_clause_indexed(FVIndex_p index,
             res = clauseset_find_first_subsumed_clause_indexed(next,
                                                                subsumer,
                                                                vec,
-                                                               feature+1);
+                                                               feature+1, subsumes);
          }
       }
       IntMapIterFree(iter);
@@ -1378,10 +1487,12 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause,
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSubsumesClause()
+// Function: ClauseMultiSetSubsumesClause()
 //
-//   Return true if subsumer subsumes sub_candidate. Requires that
-//   both clauses have correct weight information.
+//   Return true if subsumer subsumes sub_candidate, where each
+//   literal of sub_candidate can be the image of at most one literal
+//   of subsumer (multiset subsumption). Requires that both clauses
+//   have correct weight information.
 //
 // Global Variables: -
 //
@@ -1389,7 +1500,7 @@ bool ClauseNegativeSimplifyReflect(ClauseSet_p set, Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
+bool ClauseMultiSetSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 {
    bool res;
 
@@ -1403,12 +1514,14 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetSubsumesClause()
+// Function: ClausePlainSubsumesClauseExcept()
 //
-//   Return a clause from set that subsumes sub_candidate, NULL if
-//   there is none. If the set is FV-indexed, the feature vector of
-//   sub_candidate is used (or a temporary one computed if it has
-//   none). All clauses need correct weights!
+//   Return true if there is a substitution that maps every literal of
+//   subsumer onto a literal of sub_candidate other than except (which
+//   may be NULL). Several literals of subsumer may be mapped onto the
+//   same literal (plain or set subsumption, as opposed to multiset
+//   subsumption). Without except, a unit subsumer is tested with
+//   UnitClauseSubsumesClause(), as in multiset subsumption.
 //
 // Global Variables: -
 //
@@ -1416,7 +1529,69 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
+bool ClausePlainSubsumesClauseExcept(Clause_p subsumer,
+                                     Clause_p sub_candidate,
+                                     Eqn_p except)
+{
+   Subst_p subst;
+   bool    res;
+
+   if(ClauseLiteralNumber(subsumer)==0)
+   {
+      return true;
+   }
+   if(!except && ClauseLiteralNumber(subsumer)==1)
+   {
+      return UnitClauseSubsumesClause(subsumer, sub_candidate);
+   }
+   subst = SubstAlloc();
+   res = eqn_list_rec_plain_subsume(subsumer->literals,
+                                    sub_candidate->literals,
+                                    except, subst);
+   SubstDelete(subst);
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClausePlainSubsumesClause()
+//
+//   Return true if subsumer subsumes sub_candidate, where several
+//   literals of subsumer may be mapped onto the same literal of
+//   sub_candidate (plain or set subsumption).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool ClausePlainSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
+{
+   return ClausePlainSubsumesClauseExcept(subsumer, sub_candidate, NULL);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_set_subsumes_clause_gen()
+//
+//   Return a clause from set that subsumes sub_candidate according
+//   to subsumes, NULL if there is none. If the set is FV-indexed, the
+//   feature vector of sub_candidate is used (or a temporary one
+//   computed if it has none). All clauses need correct weights!
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Clause_p clause_set_subsumes_clause_gen(ClauseSet_p set,
+                                               Clause_p sub_candidate,
+                                               ClauseSubsumesFun subsumes)
 {
    Clause_p res;
 
@@ -1429,7 +1604,8 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
                                                 set->fvindex, &is_temp);
 
       res = clause_set_subsumes_clause_indexed(set->fvindex->index,
-                                               sub_candidate, vec, 0);
+                                               sub_candidate, vec, 0,
+                                               subsumes);
       if(is_temp)
       {
          FreqVectorFree(vec);
@@ -1437,7 +1613,7 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
    }
    else
    {
-      res = clause_set_subsumes_clause(set, sub_candidate);
+      res = clause_set_subsumes_clause(set, sub_candidate, subsumes);
    }
    PERF_CTR_EXIT(SetSubsumeTimer);
    return res;
@@ -1446,11 +1622,54 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetFindSubsumedClause()
+// Function: ClauseSetMultiSetSubsumesClause()
+//
+//   Return a clause from set that (multiset-)subsumes sub_candidate,
+//   NULL if there is none. All clauses need correct weights!
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseSetMultiSetSubsumesClause(ClauseSet_p set,
+                                         Clause_p sub_candidate)
+{
+   return clause_set_subsumes_clause_gen(set, sub_candidate,
+                                         clause_subsumes_clause);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetPlainSubsumesClause()
+//
+//   Return a clause from set that plain-subsumes sub_candidate, NULL
+//   if there is none. With an FV-indexed set, some subsuming clauses
+//   may be missed (see above). All clauses need correct weights!
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseSetPlainSubsumesClause(ClauseSet_p set,
+                                      Clause_p sub_candidate)
+{
+   return clause_set_subsumes_clause_gen(set, sub_candidate,
+                                         ClausePlainSubsumesClause);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFindMultiSetSubsumedClause()
 //
 //   Return a pointer to the first clause in the list at or after
-//   set_position that is subsumed by the (non-unit)clause
-//   subsumer. Return NULL, if no such clause exists.
+//   set_position that is (multiset-)subsumed by the (non-unit)
+//   clause subsumer. Return NULL, if no such clause exists.
 //
 // Global Variables: -
 //
@@ -1458,9 +1677,9 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
 //
 /----------------------------------------------------------------------*/
 
-Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
-                                     set_position, Clause_p
-                                     subsumer)
+Clause_p ClauseSetFindMultiSetSubsumedClause(ClauseSet_p set,
+                                             Clause_p set_position,
+                                             Clause_p subsumer)
 {
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
@@ -1482,12 +1701,12 @@ Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetFindSubsumedClauses()
+// Function: clauseset_find_subsumed_clauses_gen()
 //
-//   Find all clauses in set that are subsumed by subsumer, and push
-//   them onto stack. Return number of clauses found. If the set is
-//   FV-indexed, the feature vector of subsumer is used (or a
-//   temporary one computed if it has none).
+//   Find all clauses in set that are subsumed by subsumer according
+//   to subsumes, and push them onto stack. Return number of clauses
+//   found. If the set is FV-indexed, the feature vector of subsumer
+//   is used (or a temporary one computed if it has none).
 //
 // Global Variables: -
 //
@@ -1495,9 +1714,10 @@ Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
 //
 /----------------------------------------------------------------------*/
 
-long ClauseSetFindSubsumedClauses(ClauseSet_p set,
-                                  Clause_p subsumer,
-                                  PStack_p res)
+static long clauseset_find_subsumed_clauses_gen(ClauseSet_p set,
+                                                Clause_p subsumer,
+                                                PStack_p res,
+                                                ClauseSubsumesFun subsumes)
 {
    long old_sp = PStackGetSP(res);
 
@@ -1511,7 +1731,8 @@ long ClauseSetFindSubsumedClauses(ClauseSet_p set,
                                                 &is_temp);
 
       clauseset_find_subsumed_clauses_indexed(set->fvindex->index,
-                                              subsumer, vec, 0, res);
+                                              subsumer, vec, 0, res,
+                                              subsumes);
       if(is_temp)
       {
          FreqVectorFree(vec);
@@ -1519,7 +1740,7 @@ long ClauseSetFindSubsumedClauses(ClauseSet_p set,
    }
    else
    {
-      clauseset_find_subsumed_clauses(set, subsumer, res);
+      clauseset_find_subsumed_clauses(set, subsumer, res, subsumes);
    }
    PERF_CTR_EXIT(SetSubsumeTimer);
    return PStackGetSP(res)-old_sp;
@@ -1528,11 +1749,10 @@ long ClauseSetFindSubsumedClauses(ClauseSet_p set,
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetFindFirstSubsumedClause()
+// Function: ClauseSetFindMultiSetSubsumedClauses()
 //
-//   Find and return first clause in set subsumed by subsumer (or
-//   NULL). If the set is FV-indexed, the feature vector of subsumer is
-//   used (or a temporary one computed if it has none).
+//   Find all clauses in set that are (multiset-)subsumed by subsumer,
+//   and push them onto stack. Return number of clauses found.
 //
 // Global Variables: -
 //
@@ -1540,8 +1760,56 @@ long ClauseSetFindSubsumedClauses(ClauseSet_p set,
 //
 /----------------------------------------------------------------------*/
 
-Clause_p ClauseSetFindFirstSubsumedClause(ClauseSet_p set,
-                                          Clause_p subsumer)
+long ClauseSetFindMultiSetSubsumedClauses(ClauseSet_p set,
+                                          Clause_p subsumer,
+                                          PStack_p res)
+{
+   return clauseset_find_subsumed_clauses_gen(set, subsumer, res,
+                                              clause_subsumes_clause);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFindPlainSubsumedClauses()
+//
+//   Find all clauses in set that are plain-subsumed by subsumer, and
+//   push them onto stack. Return number of clauses found. With an
+//   FV-indexed set, some subsumed clauses may be missed (see above).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+long ClauseSetFindPlainSubsumedClauses(ClauseSet_p set,
+                                       Clause_p subsumer,
+                                       PStack_p res)
+{
+   return clauseset_find_subsumed_clauses_gen(set, subsumer, res,
+                                              ClausePlainSubsumesClause);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clauseset_find_first_subsumed_clause_gen()
+//
+//   Find and return the first clause in set subsumed by subsumer
+//   according to subsumes (or NULL). If the set is FV-indexed, the
+//   feature vector of subsumer is used (or a temporary one computed
+//   if it has none).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Clause_p clauseset_find_first_subsumed_clause_gen(ClauseSet_p set,
+                                                        Clause_p subsumer,
+                                                        ClauseSubsumesFun subsumes)
 {
    Clause_p res;
 
@@ -1555,7 +1823,8 @@ Clause_p ClauseSetFindFirstSubsumedClause(ClauseSet_p set,
                                                 &is_temp);
 
       res = clauseset_find_first_subsumed_clause_indexed(set->fvindex->index,
-                                                         subsumer, vec, 0);
+                                                         subsumer, vec, 0,
+                                                         subsumes);
       if(is_temp)
       {
          FreqVectorFree(vec);
@@ -1563,10 +1832,53 @@ Clause_p ClauseSetFindFirstSubsumedClause(ClauseSet_p set,
    }
    else
    {
-      res = clauseset_find_first_subsumed_clause(set, subsumer);
+      res = clauseset_find_first_subsumed_clause(set, subsumer, subsumes);
    }
    PERF_CTR_EXIT(SetSubsumeTimer);
    return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFindFirstMultiSetSubsumedClause()
+//
+//   Find and return the first clause in set (multiset-)subsumed by
+//   subsumer (or NULL).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseSetFindFirstMultiSetSubsumedClause(ClauseSet_p set,
+                                                  Clause_p subsumer)
+{
+   return clauseset_find_first_subsumed_clause_gen(set, subsumer,
+                                                   clause_subsumes_clause);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseSetFindFirstPlainSubsumedClause()
+//
+//   Find and return the first clause in set plain-subsumed by
+//   subsumer (or NULL). With an FV-indexed set, some subsumed clauses
+//   may be missed (see above).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+Clause_p ClauseSetFindFirstPlainSubsumedClause(ClauseSet_p set,
+                                               Clause_p subsumer)
+{
+   return clauseset_find_first_subsumed_clause_gen(set, subsumer,
+                                                   ClausePlainSubsumesClause);
 }
 
 

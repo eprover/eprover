@@ -126,7 +126,7 @@ static long remove_subsumed(GlobalIndices_p indices,
    long     res;
    PStack_p stack = PStackAlloc();
 
-   res = ClauseSetFindSubsumedClauses(set, subsumer, stack);
+   res = ClauseSetFindMultiSetSubsumedClauses(set, subsumer, stack);
 
    while(!PStackEmpty(stack))
    {
@@ -404,7 +404,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
       {
          Clause_p subsumed;
 
-         subsumed = ClauseSetFindFirstSubsumedClause(watchlist, clause);
+         subsumed = ClauseSetFindFirstMultiSetSubsumedClause(watchlist, clause);
          if(subsumed)
          {
             ClauseSetProp(clause, CPSubsumesWatch);

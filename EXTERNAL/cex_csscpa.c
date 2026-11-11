@@ -130,7 +130,7 @@ static long collect_subsumed(Clause_p clause, ClauseSet_p set,
    }
    else
    {
-      while((handle = ClauseSetFindSubsumedClause(set, position,
+      while((handle = ClauseSetFindMultiSetSubsumedClause(set, position,
                     clause)))
       {
     PStackPushP(subsumed, handle);
@@ -305,7 +305,7 @@ bool CSSCPAProcessClause(CSSCPAState_p state, Clause_p clause,
           (handle=UnitClauseSetSubsumesClause(state->neg_units,
                   clause))) ||
          ((ClauseLiteralNumber(clause)>1) &&
-          (handle=ClauseSetSubsumesClause(state->non_units, clause))))
+          (handle=ClauseSetMultiSetSubsumesClause(state->non_units, clause))))
       {
          if(OutputLevel)
          {

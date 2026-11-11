@@ -78,7 +78,7 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause,
       ClauseFlipLiteralSign(clause, handle);
       ClauseSubsumeOrderSortLits(clause);
 
-      subsumer = ClauseSetSubsumesClause(set, clause);
+      subsumer = ClauseSetPlainSubsumesClause(set, clause);
 
       if(subsumer)
       {
@@ -145,7 +145,7 @@ long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause,
       handle = PStackPopP(lit_stack);
       ClauseFlipLiteralSign(clause, handle);
       ClauseSubsumeOrderSortLits(clause);
-      ClauseSetFindSubsumedClauses(set, clause, res);
+      ClauseSetFindPlainSubsumedClauses(set, clause, res);
       ClauseFlipLiteralSign(clause, handle);
    }
    clause->feature_vec = feature_vec;

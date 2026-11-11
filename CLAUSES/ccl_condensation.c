@@ -107,61 +107,6 @@ static bool lit_matches_some(Eqn_p pattern, Eqn_p targets, Eqn_p except)
 
 /*-----------------------------------------------------------------------
 //
-// Function: lit_list_set_subsumes()
-//
-//   Return true if subst can be extended to a substitution that maps
-//   every literal of patterns onto some literal of targets other than
-//   except. Several patterns may be mapped onto the same target (set
-//   subsumption, not multiset subsumption). Equations are matched in
-//   both orientations. On failure, subst is unchanged. On success,
-//   the caller has to backtrack subst.
-//
-// Global Variables: -
-//
-// Side Effects    : Extends subst
-//
-/----------------------------------------------------------------------*/
-
-static bool lit_list_set_subsumes(Eqn_p patterns, Eqn_p targets,
-                                  Eqn_p except, Subst_p subst)
-{
-   Eqn_p         target;
-   PStackPointer state = PStackGetSP(subst);
-
-   if(!patterns)
-   {
-      return true;
-   }
-   for(target = targets; target; target = target->next)
-   {
-      if((target == except) ||
-         !PropsAreEquiv(patterns, target, EPIsPositive|EPIsEquLiteral))
-      {
-         continue;
-      }
-      if(lit_matches(patterns, target, false, subst))
-      {
-         if(lit_list_set_subsumes(patterns->next, targets, except, subst))
-         {
-            return true;
-         }
-         SubstBacktrackToPos(subst, state);
-      }
-      if(EqnIsEquLit(patterns) && lit_matches(patterns, target, true, subst))
-      {
-         if(lit_list_set_subsumes(patterns->next, targets, except, subst))
-         {
-            return true;
-         }
-         SubstBacktrackToPos(subst, state);
-      }
-   }
-   return false;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: lit_is_condensable()
 //
 //   Return true if lit can be deleted from clause by condensation,
@@ -177,18 +122,11 @@ static bool lit_list_set_subsumes(Eqn_p patterns, Eqn_p targets,
 
 static bool lit_is_condensable(Clause_p clause, Eqn_p lit)
 {
-   Subst_p subst;
-   bool    res;
-
    if(!lit_matches_some(lit, clause->literals, lit))
    {
       return false;
    }
-   subst = SubstAlloc();
-   res = lit_list_set_subsumes(clause->literals, clause->literals, lit, subst);
-   SubstDelete(subst);
-
-   return res;
+   return ClausePlainSubsumesClauseExcept(clause, clause, lit);
 }
 
 

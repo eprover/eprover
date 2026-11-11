@@ -212,7 +212,7 @@ bool ForwardSubsumption(ProofState_p state,
    if(!subsumer && (ClauseLiteralNumber(clause)>1) && non_unit_subsumption)
    {
       ClauseSubsumeOrderSortLits(clause);
-      subsumer = ClauseSetSubsumesClause(state->processed_non_units, clause);
+      subsumer = ClauseSetMultiSetSubsumesClause(state->processed_non_units, clause);
    }
    if(subsumer)
    {

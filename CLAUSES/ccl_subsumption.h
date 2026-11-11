@@ -42,6 +42,9 @@
 PERF_CTR_DECL(SetSubsumeTimer);
 PERF_CTR_DECL(SubsumeTimer);
 
+/* A subsumption test (multiset or plain subsumption) */
+typedef bool (*ClauseSubsumesFun)(Clause_p subsumer, Clause_p sub_candidate);
+
 extern bool StrongUnitForwardSubsumption;
 extern long ClauseClauseSubsumptionCalls;
 extern long ClauseClauseSubsumptionCallsRec;
@@ -61,20 +64,34 @@ Clause_p ClauseSetFindUnitSubsumedClause(ClauseSet_p set, Clause_p
                                          set_position, Clause_p
                                          subsumer);
 
-bool     ClauseSubsumesClause(Clause_p subsumer, Clause_p
-                              sub_candidate);
-Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p
-                                 sub_candidate);
-Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
-                                     set_position, Clause_p
-                                     subsumer);
+bool     ClauseMultiSetSubsumesClause(Clause_p subsumer,
+                                      Clause_p sub_candidate);
+bool     ClausePlainSubsumesClause(Clause_p subsumer,
+                                   Clause_p sub_candidate);
+bool     ClausePlainSubsumesClauseExcept(Clause_p subsumer,
+                                         Clause_p sub_candidate,
+                                         Eqn_p except);
 
-long     ClauseSetFindSubsumedClauses(ClauseSet_p set,
-                                      Clause_p subsumer,
-                                      PStack_p res);
+Clause_p ClauseSetMultiSetSubsumesClause(ClauseSet_p set,
+                                         Clause_p sub_candidate);
+Clause_p ClauseSetPlainSubsumesClause(ClauseSet_p set,
+                                      Clause_p sub_candidate);
 
-Clause_p ClauseSetFindFirstSubsumedClause(ClauseSet_p set,
-                                          Clause_p subsumer);
+Clause_p ClauseSetFindMultiSetSubsumedClause(ClauseSet_p set,
+                                             Clause_p set_position,
+                                             Clause_p subsumer);
+
+long     ClauseSetFindMultiSetSubsumedClauses(ClauseSet_p set,
+                                              Clause_p subsumer,
+                                              PStack_p res);
+long     ClauseSetFindPlainSubsumedClauses(ClauseSet_p set,
+                                           Clause_p subsumer,
+                                           PStack_p res);
+
+Clause_p ClauseSetFindFirstMultiSetSubsumedClause(ClauseSet_p set,
+                                                  Clause_p subsumer);
+Clause_p ClauseSetFindFirstPlainSubsumedClause(ClauseSet_p set,
+                                               Clause_p subsumer);
 
 Clause_p ClauseSetFindVariantClause(ClauseSet_p set,
                                     Clause_p clause);
