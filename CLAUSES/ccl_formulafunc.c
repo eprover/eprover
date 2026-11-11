@@ -1468,6 +1468,7 @@ long WFormulaCNF2(WFormula_p form, ClauseSet_p set,
    if (form->is_clause)
    {
       Clause_p clause = WFormClauseToClause(form);
+      DocClauseFromClauseForm(GlobalOut, OutputLevel, clause, form);
       ClausePushDerivation(clause, DCFofQuote, form);
       if(problemType == PROBLEM_HO)
       {

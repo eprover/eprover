@@ -1328,23 +1328,24 @@ void DocClauseCreation(FILE* out, long level, Clause_p clause,
 
 /*-----------------------------------------------------------------------
 //
-// Function: DocClauseFromForm()
+// Function: doc_clause_from_form()
 //
-//   Document the creation of a clause from a conjunct of a formula.
+//   Document the creation of a clause from the formula parent, either
+//   by the inference inf (with parent as the only premise), or, if inf
+//   is NULL, as a plain quote of parent.
 //
-// Global Variables:
+// Global Variables: ClauseIdentCounter
 //
-// Side Effects    :
+// Side Effects    : Output, generates new id for clause
 //
 /----------------------------------------------------------------------*/
 
-void DocClauseFromForm(FILE* out, long level, Clause_p clause,
-                       WFormula_p parent)
+static void doc_clause_from_form(FILE* out, long level, Clause_p clause,
+                                 WFormula_p parent, char* inf)
 {
    assert(clause);
    assert(parent);
 
-   ClauseDelProp(clause, CPInputFormula);
    if(level >= 2)
    {
       switch(DocOutputFormat)
@@ -1352,14 +1353,28 @@ void DocClauseFromForm(FILE* out, long level, Clause_p clause,
       case pcl_format:
             clause->ident = ++ClauseIdentCounter;
             pcl_print_start(out, clause, PCLShellLevel<1);
-            fprintf(out, PCL_SC "(%ld)", parent->ident);
+            if(inf)
+            {
+               fprintf(out, "%s(%ld)", inf, parent->ident);
+            }
+            else
+            {
+               fprintf(out, "%ld", parent->ident);
+            }
             pcl_print_end(out, NULL, clause);
             break;
       case tstp_format:
             clause->ident = ++ClauseIdentCounter;
             ClauseTSTPPrint(out, clause, PCLFullTerms, false);
-            fprintf(out, ",inference("PCL_SC", [status(thm)],[c_0_%ld])",
-                    parent->ident);
+            if(inf)
+            {
+               fprintf(out, ",inference(%s, [status(thm)],[c_0_%ld])",
+                       inf, parent->ident);
+            }
+            else
+            {
+               fprintf(out, ", c_0_%ld", parent->ident);
+            }
             tstp_print_end(out, NULL, clause);
             break;
       default:
@@ -1367,6 +1382,47 @@ void DocClauseFromForm(FILE* out, long level, Clause_p clause,
             break;
       }
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DocClauseFromForm()
+//
+//   Document the creation of a clause from a conjunct of a formula.
+//
+// Global Variables: ClauseIdentCounter
+//
+// Side Effects    : Output, generates new id for clause
+//
+/----------------------------------------------------------------------*/
+
+void DocClauseFromForm(FILE* out, long level, Clause_p clause,
+                       WFormula_p parent)
+{
+   ClauseDelProp(clause, CPInputFormula);
+   doc_clause_from_form(out, level, clause, parent, PCL_SC);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: DocClauseFromClauseForm()
+//
+//   Document the conversion of a formula that already is a clause
+//   (e.g. from clausal input) into that clause (as a quote of the
+//   formula). The clause keeps its input status.
+//
+// Global Variables: ClauseIdentCounter
+//
+// Side Effects    : Output, generates new id for clause
+//
+/----------------------------------------------------------------------*/
+
+void DocClauseFromClauseForm(FILE* out, long level, Clause_p clause,
+                             WFormula_p parent)
+{
+   doc_clause_from_form(out, level, clause, parent, NULL);
 }
 
 

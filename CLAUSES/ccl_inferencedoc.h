@@ -156,6 +156,8 @@ void    DocClauseCreation(FILE* out, long level, Clause_p clause,
 
 void    DocClauseFromForm(FILE* out, long level, Clause_p clause,
                           WFormula_p parent);
+void    DocClauseFromClauseForm(FILE* out, long level, Clause_p clause,
+                                WFormula_p parent);
 
 void    DocClauseModification(FILE* out, long level, Clause_p clause, InfType
            op, Clause_p partner, Sig_p sig, char* comment);
