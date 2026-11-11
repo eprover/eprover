@@ -450,6 +450,7 @@ bool AxFilterPrintBuf(char* buf, int buflen, AxFilter_p filter)
          break;
    case AFLambdaDefines:
          res = snprintf(buf, buflen, "LambdaDef");
+         break;
    default:
          assert(false && "Unknown AxFilter type");
          break;

@@ -1175,7 +1175,7 @@ OptCell opts[] =
     "problems. If the limit is reached, the prover assumes that the "
     "terms are uncomparable. Smaller values make the comparison "
     "attempts faster, but less exact. Larger values have the opposite "
-    "effect. Values up to 20000 should be save on most operating "
+    "effect. Values up to 20000 should be safe on most operating "
     "systems. If you run into segmentation faults while using "
     "LPO or LPO4, first try to set this limit to a reasonable value. "
     "If the problem persists, send a bug report ;-)"

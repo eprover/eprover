@@ -522,6 +522,7 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_LOP_PRINT:
             outputformat = lop_format;
+            break;
       case OPT_ITERATIVE_LEMMAS:
             algo = LIterative;
             break;

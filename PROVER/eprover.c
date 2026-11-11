@@ -2177,6 +2177,7 @@ CLState_p process_options(int argc, char* argv[])
                        "--lpo-recursion-limit may lead to stack "
                        "overflows and segmentation faults.");
             }
+            break;
       case OPT_TO_RESTRICT_LIT_CMPS:
             h_parms->order_params.lit_cmp = LCNoCmp;
             break;
