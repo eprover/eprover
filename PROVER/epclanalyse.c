@@ -78,7 +78,8 @@ OptCell opts[] =
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
-    "Equivalent to --output-level=0."},
+    "Accepted for compatibility with the other E tools. Has no effect,"
+    " as the program has no optional output to suppress."},
 
    {OPT_NOOPT,
     '\0', NULL,

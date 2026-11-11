@@ -47,8 +47,7 @@ typedef enum
    OPT_COMPETITION,
    OPT_NO_EXTRACT,
    OPT_OUTPUT,
-   OPT_SILENT,
-   OPT_OUTPUTLEVEL
+   OPT_SILENT
 }OptionCodes;
 
 
@@ -118,7 +117,8 @@ OptCell opts[] =
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
-    "Equivalent to --output-level=0."},
+    "Accepted for compatibility with the other E tools. Has no effect,"
+    " as the program has no optional output to suppress."},
 
    {OPT_NOOPT,
     '\0', NULL,
