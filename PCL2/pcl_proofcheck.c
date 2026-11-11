@@ -121,7 +121,7 @@ static bool pcl_verify_eprover(ClauseSet_p problem,char *executable,
    DStrAppendChar(command, ' ');
    DStrAppendStr(command, name);
 
-   res = pcl_run_prover(DStrView(command),COMCHAR" Proof found!");
+   res = pcl_run_prover(DStrView(command),COMCHARRAW" Proof found!");
 
    if(!res)
    {

@@ -1363,9 +1363,11 @@ void TSMPrintRek(FILE* out, TSMAdmin_p admin, TSM_p tsm, int depth)
    TSA_p tsa;
    char pattern[70];
 
+   /* pattern is used as a format string, so it needs the escaped
+      COMCHAR */
    sprintf(pattern,
-           COMCHAR" %%%ds%%4ld: Weight = %%7.5f EvalWeight = %%7.5f\n",
-           3*depth);
+           "%s %%%ds%%4ld: Weight = %%7.5f EvalWeight = %%7.5f\n",
+           COMCHAR, 3*depth);
    TSMIndexPrint(stdout, tsm->index, depth);
    for(i=0; i<=tsm->maxindex;i++)
    {

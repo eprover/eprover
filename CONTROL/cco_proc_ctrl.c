@@ -232,7 +232,8 @@ EPCtrl_p ECtrlCreateGeneric(char* prover, char* name,
       Error("Cannot read eprover PID line", OTHER_ERROR);
    }
    // fprintf(GlobalOut, COMCHAR" Line = %s", line);
-   if(!strstr(line, COMCHAR" Pid: "))
+   /* COMCHAR is escaped for format strings, use the raw version */
+   if(!strstr(line, COMCHARRAW" Pid: "))
    {
       Error("Cannot get eprover PID", OTHER_ERROR);
    }

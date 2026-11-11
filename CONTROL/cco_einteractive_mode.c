@@ -27,20 +27,20 @@
 /*---------------------------------------------------------------------*/
 
 char* help_message = "\
-"COMCHAR" Note : Block commands that are of the form of \"COMMAND <NAME> ... GO\"\n\
-"COMCHAR" should have the \"COMMAND <NAME>\" and GO each on a separate line of\n\
-"COMCHAR" their own. The block should be in between these two.\n\
-"COMCHAR"\n\
-"COMCHAR"- ADD <NAME> ... GO : Uploads a new axiom set with the name <NAME>.\n\
-"COMCHAR"- LOAD <NAME>       : Loads a server-side axiom set with the name <NAME>. \n\
-"COMCHAR"- STAGE <NAME>      : Stages the axiom set <NAME>.\n\
-"COMCHAR"- UNSTAGE <NAME>    : Unstages the axiom set <NAME>.\n\
-"COMCHAR"- REMOVE <NAME>     : Removes the axiom set <NAME> from the memory.\n\
-"COMCHAR"- DOWNLOAD <NAME>   : Prints the axiom set <NAME>.\n\
-"COMCHAR"- RUN <NAME> ... GO : Runs a job with the name <NAME>.\n\
-"COMCHAR"- LIST              : Prints the status of the axiom sets.\n\
-"COMCHAR"- HELP              : Prints the help message.\n\
-"COMCHAR"- QUIT              : Closes the connection with the server.\n";
+"COMCHARRAW" Note : Block commands that are of the form of \"COMMAND <NAME> ... GO\"\n\
+"COMCHARRAW" should have the \"COMMAND <NAME>\" and GO each on a separate line of\n\
+"COMCHARRAW" their own. The block should be in between these two.\n\
+"COMCHARRAW"\n\
+"COMCHARRAW"- ADD <NAME> ... GO : Uploads a new axiom set with the name <NAME>.\n\
+"COMCHARRAW"- LOAD <NAME>       : Loads a server-side axiom set with the name <NAME>. \n\
+"COMCHARRAW"- STAGE <NAME>      : Stages the axiom set <NAME>.\n\
+"COMCHARRAW"- UNSTAGE <NAME>    : Unstages the axiom set <NAME>.\n\
+"COMCHARRAW"- REMOVE <NAME>     : Removes the axiom set <NAME> from the memory.\n\
+"COMCHARRAW"- DOWNLOAD <NAME>   : Prints the axiom set <NAME>.\n\
+"COMCHARRAW"- RUN <NAME> ... GO : Runs a job with the name <NAME>.\n\
+"COMCHARRAW"- LIST              : Prints the status of the axiom sets.\n\
+"COMCHARRAW"- HELP              : Prints the help message.\n\
+"COMCHARRAW"- QUIT              : Closes the connection with the server.\n";
 
 
 // Defining commands used

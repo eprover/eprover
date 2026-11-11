@@ -622,13 +622,13 @@ void ProofStateTrain(ProofState_p state, bool print_pos, bool print_neg)
    if(print_pos)
    {
       CommentPrint(GlobalOut, " Training: Positive examples begin\n");
-      PStackClausePrint(GlobalOut, pos_examples, COMCHAR" trainpos");
+      PStackClausePrint(GlobalOut, pos_examples, COMCHARRAW" trainpos");
       CommentPrint(GlobalOut, " Training: Positive examples end\n");
    }
    if(print_neg)
    {
       CommentPrint(GlobalOut, " Training: Negative examples begin\n");
-      PStackClausePrint(GlobalOut, neg_examples, COMCHAR"trainneg");
+      PStackClausePrint(GlobalOut, neg_examples, COMCHARRAW"trainneg");
       CommentPrint(GlobalOut, " Training: Negative examples end\n");
    }
 
