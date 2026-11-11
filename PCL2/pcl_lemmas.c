@@ -528,7 +528,7 @@ PCLStep_p PCLProtComputeLemmaWeights(PCLProt_p prot, LemmaParam_p params)
 //
 // Function: PCLProtSeqFindLemmas()
 //
-//   Mark all lemmas in procol which have a lemma rating of at least
+//   Mark all lemmas in protocol which have a lemma rating of at least
 //   quality_limit, but not more than max_number. Goes from first to
 //   last step, taking already marked lemmas into account. Assumes
 //   topologically ordered protocol (otherwise lemma ratings might be
@@ -553,18 +553,14 @@ long PCLProtSeqFindLemmas(PCLProt_p prot, LemmaParam_p params,
    PCLProtResetTreeData(prot, false);
    PCLProtUpdateRefs(prot);
 
-   for(i=0; i<PStackGetSP(prot->in_order); i++)
+   for(i=0; (i<PStackGetSP(prot->in_order)) && (res<max_number); i++)
    {
       step = PStackElementP(prot->in_order, i);
       PCLStepProofSize(prot, step, iw, true);
       if(PCLStepComputeLemmaWeight(prot, step, params) >= quality_limit)
       {
-    PCLStepSetProp(step, PCLIsLemma);
-    res++;
-    if(res > max_number)
-    {
-       break;
-    }
+         PCLStepSetProp(step, PCLIsLemma);
+         res++;
       }
    }
    return res;
