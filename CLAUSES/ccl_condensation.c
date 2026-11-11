@@ -44,8 +44,9 @@ long CondensationSuccesses = 0;
 //
 // Function: try_condensation()
 //
-//   Try to condense literals l1 and l2 in clause. If successful,
-//   modify clause and return true, otherwise return false.
+//   Try to condense literals l1 and l2 (with the sides of l2 swapped
+//   if swap is true) in clause. If successful, modify clause and
+//   return true, otherwise return false.
 //
 // Global Variables: -
 //
@@ -60,7 +61,7 @@ static bool try_condensation(Clause_p clause, Eqn_p l1, Eqn_p l2, bool swap)
    Clause_p cand;
    bool     res = false;
 
-   if(LiteralUnifyOneWay(l1, l2, subst, false))
+   if(LiteralUnifyOneWay(l1, l2, subst, swap))
    {
       newlits = EqnListCopyExcept(clause->literals,l2, EqnGetBank(l1));
       SubstBacktrack(subst);

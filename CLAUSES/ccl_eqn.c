@@ -2233,41 +2233,36 @@ bool  EqnUnifyP(Eqn_p eq1, Eqn_p eq2)
 // Function: LiteralUnifyOneWay()
 //
 //   Test wether two equations are unifyable, taking into account sign
-//   and direction. If yes, return true and extend subst to give the
-//   substitution, otherwise just return false and let subst
-//   unmodifies.
+//   and direction. If swapped is true, unify the left side of eq1
+//   with the right side of eq2 and vice versa. If yes, return true
+//   and extend subst to give the substitution, otherwise just return
+//   false and leave subst unmodified.
 //
-// Global Variables:
+// Global Variables: -
 //
-// Side Effects    :
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
 bool LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped)
 {
    PStackPointer backtrack = PStackGetSP(subst);
+   Term_p l2 = swapped? eq2->rterm : eq2->lterm;
+   Term_p r2 = swapped? eq2->lterm : eq2->rterm;
    bool res = false;
 
    if(!EQUIV(EqnIsPositive(eq1), EqnIsPositive(eq2)))
    {
       return res;
    }
-   if(swapped)
-   {
-      EqnSwapSides(eq2);
-   }
-   res = SubstMguComplete(eq1->lterm, eq2->lterm, subst);
+   res = SubstMguComplete(eq1->lterm, l2, subst);
    if(res)
    {
-      res = SubstMguComplete(eq1->rterm, eq2->rterm, subst);
+      res = SubstMguComplete(eq1->rterm, r2, subst);
    }
    if(!res)
    {
       SubstBacktrackToPos(subst, backtrack);
-   }
-   if(swapped)
-   {
-      EqnSwapSides(eq2);
    }
    return res;
 }
