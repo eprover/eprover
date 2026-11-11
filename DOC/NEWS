@@ -69,6 +69,11 @@ Version 3.2.5 -> 3.5.X Countess Grey
   predicate could wrongly be treated as a gate and needed resolvents
   were dropped. This could give a wrong "Satisfiable". Also fixed
   memory leaks in predicate elimination and in the tautology check.
+- Simplified the build system: a single Makefile that works with any
+  POSIX make. ./configure writes config.mk (Makefile.vars is no longer
+  modified) and has a new option --debug. After reconfiguring, make
+  rebuilds what is needed. SIMPLE_APPS and EXTERNAL are built with
+  "make extras".
 - Minor fixes: constants no longer get KBO weight 0 from some weight
   generators (changes strategies sh2 and sh2lt slightly). In TFF, an
   untyped quantified variable no longer inherits the type of an
