@@ -93,6 +93,7 @@ void FileVarsFree(FileVars_p handle)
    {
       FREE(cell->val1.p_val);
    }
+   StrTreeTraverseExit(stack);
    StrTreeFree(handle->vars);
    FileVarsCellFree(handle);
 }
@@ -103,7 +104,8 @@ void FileVarsFree(FileVars_p handle)
 // Function: FileVarsParse()
 //
 //   Parse a set of file var definitions. Return number of variables
-//   read. New definitions overwrite old ones!
+//   read. New definitions overwrite old ones! The name of the input
+//   source is recorded in vars (for error messages).
 //
 // Global Variables: -
 //
@@ -119,8 +121,7 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
    long      res = 0;
    DStr_p    value = DStrAlloc();
 
-   assert(!PStackEmpty(vars->names));
-   assert(strcmp(PStackTopP(vars->names), DStrView(Source(in))) == 0);
+   PStackPushP(vars->names, SecureStrdup(DStrView(Source(in))));
 
    while(!TestInpTok(in, NoToken))
    {
@@ -129,7 +130,9 @@ long FileVarsParse(Scanner_p in, FileVars_p vars)
       cell = StrTreeFind(&(vars->vars), name);
       if(cell)
       {
+         FREE(name);
          FREE(cell->val1.p_val);
+         cell->val2.p_val = PStackTopP(vars->names);
       }
       else
       {
@@ -205,11 +208,11 @@ bool FileVarsGetBool(FileVars_p vars, char* name, bool *value)
    {
       return false;
    }
-   if(strcmp(cell->val1.p_val, "true"))
+   if(strcmp(cell->val1.p_val, "true") == 0)
    {
       *value = true;
    }
-   else if(strcmp(cell->val1.p_val, "false"))
+   else if(strcmp(cell->val1.p_val, "false") == 0)
    {
       *value = false;
    }
@@ -248,23 +251,21 @@ bool FileVarsGetInt(FileVars_p vars, char* name,  long *value)
       return false;
    }
 
+   errno = 0;
    *value = strtol(cell->val1.p_val, &eoarg, 10);
 
-   if(errno || *eoarg)
+   if(errno)
    {
-      if(errno)
-      {
-         TmpErrno = errno;
-         SysError("Integer value requested for file variable %s read "
-                  "from \"%s\", but no Integer value present",
-                  INPUT_SEMANTIC_ERROR, name, cell->val2.p_val);
-      }
-      else if(*eoarg)
-      {
-         Error("Integer value requested for file variable %s read "
+      TmpErrno = errno;
+      SysError("Integer value requested for file variable %s read "
                "from \"%s\", but no Integer value present",
                INPUT_SEMANTIC_ERROR, name, cell->val2.p_val);
-      }
+   }
+   if(*eoarg || eoarg == cell->val1.p_val)
+   {
+      Error("Integer value requested for file variable %s read "
+            "from \"%s\", but no Integer value present",
+            INPUT_SEMANTIC_ERROR, name, cell->val2.p_val);
    }
    return true;
 }
@@ -303,8 +304,8 @@ bool FileVarsGetStr(FileVars_p vars, char* name,  char **value)
 //
 //   Try to get an Identifier value associated with a name. If it
 //   exist, set *var to the result and return true, otherwise leave
-//   *var untouched and return false. If value is not integer, exit
-//   with error. *var will only live as long as vars!
+//   *var untouched and return false. If value is not a single
+//   identifier, exit with error. *var will only live as long as vars!
 //
 // Global Variables: -
 //
@@ -316,6 +317,7 @@ bool FileVarsGetIdentifier(FileVars_p vars, char* name,  char **value)
 {
    StrTree_p cell = StrTreeFind(&(vars->vars), name);
    Scanner_p in;
+   bool      ok;
 
    if(!cell)
    {
@@ -324,7 +326,13 @@ bool FileVarsGetIdentifier(FileVars_p vars, char* name,  char **value)
 
    in = CreateScanner(StreamTypeInternalString, cell->val1.p_val,
                       true, NULL, true);
-   if(!TestInpTok(in, Identifier))
+   ok = TestInpTok(in, Identifier);
+   if(ok)
+   {
+      NextToken(in);
+      ok = TestInpTok(in, NoToken);
+   }
+   if(!ok)
    {
       Error("Identifier value requested for file variable %s read "
             "from \"%s\", but no identifier present",
