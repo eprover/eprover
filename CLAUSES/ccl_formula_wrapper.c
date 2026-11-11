@@ -268,30 +268,25 @@ void WFormulaMarkPolarity(WFormula_p form)
 
 /*-----------------------------------------------------------------------
 //
-// Function: WFormulaGetId()
+// Function: WFormulaGetNumId()
 //
-//   Return an identifier for the formula. The pointer to the
-//   identifier is good until the next call to this function or until
-//   the formula is being  destroyed, whichever comes first.
+//   Return the identifier for the formula derived from its ident
+//   (c_0_<n> or i_0_<n>), ignoring any input name. The pointer to the
+//   identifier is good until the next call to this function (or to
+//   WFormulaGetId()).
 //
 // Global Variables: -
 //
-// Side Effects    : FormulasKeepInputNames
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-char* WFormulaGetId(WFormula_p form)
+char* WFormulaGetNumId(WFormula_p form)
 {
    static char ident[32]; //big enough for 64 bit integers and then some
    char prefix;
    long id;
 
-   if(FormulasKeepInputNames
-      &&form->info
-      &&form->info->name)
-   {
-      return form->info->name;
-   }
    if(form->ident < 0)
    {
       id = form->ident - LONG_MIN;
@@ -304,6 +299,34 @@ char* WFormulaGetId(WFormula_p form)
    }
    snprintf(ident, 31, "%c_0_%ld", prefix, id);
    return ident;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaGetId()
+//
+//   Return an identifier for the formula: its input name if it has one
+//   and FormulasKeepInputNames is set, otherwise WFormulaGetNumId().
+//   The pointer to the identifier is good until the next call to this
+//   function or until the formula is being destroyed, whichever comes
+//   first.
+//
+// Global Variables: FormulasKeepInputNames
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+char* WFormulaGetId(WFormula_p form)
+{
+   if(FormulasKeepInputNames
+      &&form->info
+      &&form->info->name)
+   {
+      return form->info->name;
+   }
+   return WFormulaGetNumId(form);
 }
 
 
@@ -577,11 +600,12 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
-// Function: WFormulaTSTPPrintFlex()
+// Function: WFormulaTSTPPrintNamed()
 //
-//   Print a formula in TSTP format. If !complete, leave of the
-//   trailing ")." for adding optional stuff. If "as_formula" is true,
-//   print clauses as (universally quantified) formulas.
+//   Print a formula in TSTP format under the given name. If
+//   !complete, leave of the trailing ")." for adding optional
+//   stuff. If "as_formula" is true, print clauses as (universally
+//   quantified) formulas.
 //
 // Global Variables: -
 //
@@ -589,8 +613,8 @@ WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms)
 //
 /----------------------------------------------------------------------*/
 
-void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
-                           bool complete, bool as_formula)
+void WFormulaTSTPPrintNamed(FILE* out, WFormula_p form, char* name,
+                            bool fullterms, bool complete, bool as_formula)
 {
    char *typename = "plain", *formula_kind = "fof";
    bool is_untyped = TFormulaIsUntyped(form->tformula);
@@ -645,7 +669,7 @@ void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
    default:
     break;
    }
-   fprintf(out, "%s(%s, %s", formula_kind, WFormulaGetId(form), typename);
+   fprintf(out, "%s(%s, %s", formula_kind, name, typename);
    fprintf(out, ", ");
 
    if(form->is_clause)
@@ -671,6 +695,27 @@ void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
    {
       fprintf(out, ").");
    }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: WFormulaTSTPPrintFlex()
+//
+//   Print a formula in TSTP format under its normal name (see
+//   WFormulaGetId()), otherwise as WFormulaTSTPPrintNamed().
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
+                           bool complete, bool as_formula)
+{
+   WFormulaTSTPPrintNamed(out, form, WFormulaGetId(form), fullterms,
+                          complete, as_formula);
 }
 
 /*-----------------------------------------------------------------------

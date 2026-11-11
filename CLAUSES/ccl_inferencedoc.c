@@ -890,7 +890,10 @@ static void print_formula_initial(FILE* out, WFormula_p form, char* comment)
          pcl_formula_print_end(out, comment);
          break;
    case tstp_format:
-         WFormulaTSTPPrint(out, form, PCLFullTerms, false);
+         /* Use the numeric name, as all references in the protocol do
+            (the input name is part of the source info) */
+         WFormulaTSTPPrintNamed(out, form, WFormulaGetNumId(form),
+                                PCLFullTerms, false, true);
          fprintf(out, ", ");
          ClauseSourceInfoPrintTSTP(out, form->info);
          tstp_formula_print_end(out, comment);

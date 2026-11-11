@@ -91,6 +91,7 @@ WFormula_p WFormulaFlatCopy(WFormula_p form);
 void       WFormulaGCMarkCells(WFormula_p form);
 void       WFormulaMarkPolarity(WFormula_p form);
 
+char*      WFormulaGetNumId(WFormula_p form);
 char*      WFormulaGetId(WFormula_p form);
 
 WFormula_p WFormulaTPTPParse(Scanner_p in, TB_p terms);
@@ -99,6 +100,9 @@ void       WFormulaTPTPPrint(FILE* out, WFormula_p form, bool fullterms);
 WFormula_p WFormulaTSTPParse(Scanner_p in, TB_p terms);
 #define  WFormulaTSTPPrint(out, form, fullterms, complete)\
    WFormulaTSTPPrintFlex((out), (form), (fullterms), (complete), true)
+void       WFormulaTSTPPrintNamed(FILE* out, WFormula_p form, char* name,
+                                  bool fullterms, bool complete,
+                                  bool as_formula);
 void       WFormulaTSTPPrintFlex(FILE* out, WFormula_p form, bool fullterms,
                                  bool complete, bool as_formula);
 
