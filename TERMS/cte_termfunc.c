@@ -1463,14 +1463,21 @@ bool TermStructEqualNoDeref(Term_p t1, Term_p t2)
       // in HO case, it is posible for term
       // to have same head but different arities.
       // in that case the type must be different.
-      assert(problemType == PROBLEM_HO);
-      assert(TermIsPhonyApp(t1) || TermIsDBVar(t1) ||  TermIsLambda(t1) || t1->arity != t2->arity);
+      // $ite and $let are polymorphic also in FO.
+      assert(problemType == PROBLEM_HO || TermIsPolyFOOL(t1));
+      assert(TermIsPolyFOOL(t1) || TermIsPhonyApp(t1) || TermIsDBVar(t1) ||  TermIsLambda(t1) || t1->arity != t2->arity);
+      return false;
+   }
+   if(t1->arity != t2->arity)
+   {
+      /* $let has a variable arity */
+      assert(problemType == PROBLEM_HO || TermIsPolyFOOL(t1));
       return false;
    }
 
    //old asserts
-   assert(problemType == PROBLEM_HO || t1->type == t2->type);
-   assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
+   assert(problemType == PROBLEM_HO || TermIsPolyFOOL(t1) ||
+          t1->type == t2->type);
 
    for(int i=0; i<t1->arity; i++)
    {
@@ -1581,14 +1588,21 @@ bool TermStructEqualDeref(Term_p t1, Term_p t2, DerefType deref_1, DerefType der
       // in HO case, it is posible for term
       // to have same head but different arities.
       // in that case the type must be different.
-      assert(problemType == PROBLEM_HO);
-      assert(TermIsPhonyApp(t1) || TermIsLambda(t1) || t1->arity != t2->arity);
+      // $ite and $let are polymorphic also in FO.
+      assert(problemType == PROBLEM_HO || TermIsPolyFOOL(t1));
+      assert(TermIsPolyFOOL(t1) || TermIsPhonyApp(t1) || TermIsLambda(t1) || t1->arity != t2->arity);
+      return false;
+   }
+   if(t1->arity != t2->arity)
+   {
+      /* $let has a variable arity */
+      assert(problemType == PROBLEM_HO || TermIsPolyFOOL(t1));
       return false;
    }
 
    //old asserts
-   assert(problemType == PROBLEM_HO || t1->type == t2->type);
-   assert(problemType == PROBLEM_HO || t1->arity == t2->arity);
+   assert(problemType == PROBLEM_HO || TermIsPolyFOOL(t1) ||
+          t1->type == t2->type);
    for(int i=TermIsLambda(t1) ? 1 : 0; i<t1->arity; i++)
    {
       if(!TermStructEqualDeref(t1->args[i], t2->args[i],

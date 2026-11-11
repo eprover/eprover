@@ -285,6 +285,11 @@ typedef Term_p (*TermMapper_p)(void*, Term_p);
 #define TermIsPhonyAppTarget(term) (false)
 #endif
 
+/* $ite and $let are polymorphic (their type is that of their branches
+   or body) and $let has a variable arity, also in first-order logic */
+#define TermIsPolyFOOL(term) ((term)->f_code == SIG_ITE_CODE || \
+                              (term)->f_code == SIG_LET_CODE)
+
 #define TermIsTopLevelFreeVar(term) (TermIsFreeVar(term) || TermIsAppliedFreeVar(term))
 #define TermIsTopLevelDBVar(term) (TermIsDBVar(term) || TermIsAppliedDBVar(term))
 #define TermIsTopLevelAnyVar(term)  (TermIsAnyVar(term) || TermIsAppliedAnyVar(term))

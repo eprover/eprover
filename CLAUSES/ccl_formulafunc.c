@@ -939,6 +939,33 @@ TFormula_p do_fool_unroll(TFormula_p form, TB_p terms)
 
 /*-----------------------------------------------------------------------
 //
+// Function: formula_set_has_fcode()
+//
+//   Return true if a formula in set contains the symbol f.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool formula_set_has_fcode(FormulaSet_p set, FunCode f)
+{
+   WFormula_p form;
+
+   for(form = set->anchor->succ; form != set->anchor; form = form->succ)
+   {
+      if(TermHasFCode(form->tformula, f))
+      {
+         return true;
+      }
+   }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: do_ite_unroll()
 //
 //   If $ite(c, it, if) occurs at formula position p, replace f|_p
@@ -1636,7 +1663,21 @@ long FormulaSetCNF2(FormulaSet_p set, FormulaSet_p archive,
          TFormulaSetLambdaNormalize(set, archive, terms);
       }
    }
+   else
 #endif
+   {
+      /* $let and $ite in TFF (TFX) formulas. $let first, so that $ite
+         in let definitions is lifted, too. Formulas without them are
+         left alone. */
+      if(formula_set_has_fcode(set, SIG_LET_CODE))
+      {
+         TFormulaSetLiftLets(set, archive, terms);
+      }
+      if(formula_set_has_fcode(set, SIG_ITE_CODE))
+      {
+         TFormulaSetLiftItes(set, archive, terms);
+      }
+   }
    if(fool_unroll)
    {
       WFormulaSetUnrollFOOL(set, archive, terms);

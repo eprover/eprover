@@ -94,6 +94,7 @@ typedef Term_p (*TermMapper)(TB_p, Term_p);
 extern bool TBPrintTermsFlat;
 extern bool TBPrintInternalInfo;
 extern bool TBPrintDetails;
+extern bool TBParsingFOOLPart;
 
 #define TBCellAlloc() (TBCell*)SizeMalloc(sizeof(TBCell))
 #define TBCellFree(junk)         SizeFree(junk, sizeof(TBCell))

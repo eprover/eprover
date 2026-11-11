@@ -45,6 +45,12 @@ bool TBPrintDetails = false;      /* Collect potentially expensive
                                      number of unshared nodes, size of
                                      various sub-data structures) and
                                      print them if required */
+bool TBParsingFOOLPart = false;   /* True while parsing a part of $ite
+                                     or $let that may be a term or a
+                                     formula (a branch, a definition,
+                                     the body). There, the formula
+                                     parser accepts a bare term that
+                                     ends the part. */
 
 
 /*---------------------------------------------------------------------*/
@@ -52,6 +58,10 @@ bool TBPrintDetails = false;      /* Collect potentially expensive
 /*---------------------------------------------------------------------*/
 
 typedef Term_p (*TermParseFun)(Scanner_p in, TB_p bank);
+
+static Term_p parse_fool_part(Scanner_p in, TB_p bank);
+static Term_p parse_formula_part(Scanner_p in, TB_p bank);
+static Term_p tb_subterm_parse(Scanner_p in, TB_p bank);
 
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
@@ -438,7 +448,10 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
       AcceptInpTok(in, Colon);
       AcceptInpTok(in, EqualSign);
 
-      Term_p rhs = TFormulaTSTPParse(in, bank);
+      /* The declared type decides whether the definition is a
+         formula or a term. */
+      Term_p rhs = TypeIsBool(GetReturnSort(type)) ?
+         parse_formula_part(in, bank) : tb_subterm_parse(in, bank);
       Term_p lhs = TermTopAlloc(id, arity);
       for(int i=0; i<arity; i++)
       {
@@ -446,6 +459,7 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
          VarBankPopEnv(bank->vars);
       }
       lhs = TBTermTopInsert(bank, lhs);
+      TermAssertSameSort(bank->sig, lhs, rhs);
 
       DStrFree(name);
       return EqnTermsTBTermEncode(lhs, rhs, true, PENormal);
@@ -456,6 +470,58 @@ static Term_p parse_let_sym_def(Scanner_p in, TB_p bank, PStack_p type_decls)
       return NULL;
    }
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_fool_part()
+//
+//   Parse a part of $ite or $let that can be a formula or a term (a
+//   branch, or the body of $let).
+//
+// Global Variables: TBParsingFOOLPart
+//
+// Side Effects    : Input, memory operations, changes termbank.
+//
+/----------------------------------------------------------------------*/
+
+static Term_p parse_fool_part(Scanner_p in, TB_p bank)
+{
+   bool   old_state = TBParsingFOOLPart;
+   Term_p res;
+
+   TBParsingFOOLPart = true;
+   res = TFormulaTSTPParse(in, bank);
+   TBParsingFOOLPart = old_state;
+
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: parse_formula_part()
+//
+//   Parse a part of $ite or $let that has to be a formula (the
+//   condition of $ite, or the definition of a Boolean let symbol).
+//
+// Global Variables: TBParsingFOOLPart
+//
+// Side Effects    : Input, memory operations, changes termbank.
+//
+/----------------------------------------------------------------------*/
+
+static Term_p parse_formula_part(Scanner_p in, TB_p bank)
+{
+   bool   old_state = TBParsingFOOLPart;
+   Term_p res;
+
+   TBParsingFOOLPart = false;
+   res = TFormulaTSTPParse(in, bank);
+   TBParsingFOOLPart = old_state;
+
+   return res;
+}
+
 
 /*-----------------------------------------------------------------------
 //
@@ -2475,7 +2541,7 @@ Term_p ParseLet(Scanner_p in, TB_p bank)
    AcceptInpTok(in, Comma);
 
    SigEnterLetScope(bank->sig, type_decls);
-   Term_p body = TFormulaTSTPParse(in, bank);
+   Term_p body = parse_fool_part(in, bank);
    SigExitLetScope(bank->sig);
 
    Term_p let_term = make_let(bank, definitions, body);
@@ -2512,11 +2578,11 @@ Term_p ParseIte(Scanner_p in, TB_p bank)
 {
    AcceptInpTok(in, IteToken);
    AcceptInpTok(in, OpenBracket);
-   Term_p cond = TFormulaTSTPParse(in, bank);
+   Term_p cond = parse_formula_part(in, bank);
    AcceptInpTok(in, Comma);
-   Term_p if_true = TFormulaTSTPParse(in, bank);
+   Term_p if_true = parse_fool_part(in, bank);
    AcceptInpTok(in, Comma);
-   Term_p if_false = TFormulaTSTPParse(in, bank);
+   Term_p if_false = parse_fool_part(in, bank);
    AcceptInpTok(in, CloseBracket);
 
    return TBIteTermAlloc(bank, cond, if_true, if_false);

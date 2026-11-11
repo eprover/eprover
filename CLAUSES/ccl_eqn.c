@@ -498,18 +498,28 @@ bool EqnParseInfix(Scanner_p in, TB_p bank, Term_p *lref, Term_p *rref)
 
          if(!TestInpTok(in, NegEqualSign|EqualSign))
          {
+            if(TBParsingFOOLPart &&
+               TestInpTok(in, Comma|CloseBracket|CloseSquare))
+            {
+               /* A term that makes up a whole part of $ite or $let
+                  (e.g. a branch). The caller (parse_atom()) returns
+                  it as is. */
+               rterm = NULL;
+            }
+            else
+            {
 #ifdef ENABLE_LFHO
-            // type is known but it is inside $let
-            // or $ite and is not in an equation
-            // (StS):I would think this is an actual parse
-            // error...Petar set this to NULL, which crashes on some
-            // garbage input in LOP format.
-            rterm = bank->true_term;
+               // type is known but it is inside $let
+               // or $ite and is not in an equation
+               // (StS):I would think this is an actual parse
+               // error...Petar set this to NULL, which crashes on some
+               // garbage input in LOP format.
+               rterm = bank->true_term;
 #else
-            CheckInpTok(in, NegEqualSign|EqualSign);
-            rterm = NULL; //Stiffle warning
+               CheckInpTok(in, NegEqualSign|EqualSign);
+               rterm = NULL; //Stiffle warning
 #endif
-
+            }
          }
          else
          {

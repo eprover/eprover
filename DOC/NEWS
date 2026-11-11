@@ -86,6 +86,7 @@ Version 3.2.5 -> 3.5 Countess Grey
   eground now honours --miniscope-limit.
   The size limit for miniscoping is now computed correctly.
   e_ltb_runner and e_deduction_server can run eprover again.
+  $ite and $let are now also supported in TFF terms.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol
