@@ -52,8 +52,9 @@ Changes
 //
 // Function: create_server_sock_nofail()
 //
-//   Try to create a bound server socket. Return -1 on failure, the
-//   socket identifier on success.
+//   Try to create a bound server socket. Return -1 on failure (with
+//   errno describing the failed operation), the socket identifier on
+//   success.
 //
 // Global Variables: -
 //
@@ -61,10 +62,10 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-int create_server_sock_nofail(int port)
+static int create_server_sock_nofail(int port)
 {
    int sock = socket(PF_INET,SOCK_STREAM, IPPROTO_TCP);
-   int res;
+   int res, err;
    struct sockaddr_in addr;
 
    if(sock == -1)
@@ -78,15 +79,16 @@ int create_server_sock_nofail(int port)
    memset(&addr.sin_zero, 0, sizeof(addr.sin_zero));
 
    int yes = 1;
-   if(setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
+   res = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+   if(res != -1)
    {
-     return -1;
+      res = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
    }
-
-   res = bind(sock, (struct sockaddr *)&addr, sizeof(addr));
-
    if(res == -1)
    {
+      err = errno;
+      close(sock);
+      errno = err;
       return -1;
    }
    return sock;
@@ -98,10 +100,11 @@ int create_server_sock_nofail(int port)
 //
 // Function: create_client_sock_nofail()
 //
-//   Try to create a client socket connected to the provided
-//   host. Return negative value on failure, the socket identifier on
-//   success.  The error return is -1 for errno-errors, -2-error for
-//   gai_error-errors.
+//   Try to create a client socket connected to the provided host
+//   (trying all addresses it resolves to). Return the socket
+//   identifier on success, -1 on failure. If the host cannot be
+//   resolved, *gai_err is set to the getaddrinfo() error code,
+//   otherwise it is set to 0 and errno describes the failure.
 //
 // Global Variables: -
 //
@@ -109,36 +112,44 @@ int create_server_sock_nofail(int port)
 //
 /----------------------------------------------------------------------*/
 
-int create_client_sock_nofail(char* host, int port)
+static int create_client_sock_nofail(char* host, int port, int *gai_err)
 {
    int sock = -1;
-   int res;
+   int res, err = 0;
    struct addrinfo hints, *addr, *iter;
    char portstr[16];
 
-   sprintf(portstr, "%d", port);
+   snprintf(portstr, sizeof(portstr), "%d", port);
    memset(&hints, 0, sizeof(hints));
    hints.ai_family = PF_UNSPEC;
    hints.ai_socktype = SOCK_STREAM;
-   res = getaddrinfo(host, portstr, &hints, &addr);
-   if(res)
+   *gai_err = getaddrinfo(host, portstr, &hints, &addr);
+   if(*gai_err)
    {
-      return -2-res;
+      return -1;
    }
    for(iter=addr; iter; iter = iter->ai_next)
    {
       sock = socket(iter->ai_family, iter->ai_socktype,
                     iter->ai_protocol);
-      if (sock < 0)
+      if(sock < 0)
       {
+         err = errno;
          continue;
       }
-      if (connect(sock, iter->ai_addr, iter->ai_addrlen) < 0)
+      res = connect(sock, iter->ai_addr, iter->ai_addrlen);
+      if(res == 0)
       {
-         close(sock);
-         sock = -1;
-         continue;
+         break;
       }
+      err = errno;
+      close(sock);
+      sock = -1;
+   }
+   freeaddrinfo(addr);
+   if(sock < 0)
+   {
+      errno = err;
    }
    return sock;
 }
@@ -563,7 +574,7 @@ void Listen(int sock)
    {
       TmpErrno = errno;
       SysError("Failed to switch socket %d to listening",
-               SYS_ERROR, socket);
+               SYS_ERROR, sock);
    }
 }
 
@@ -575,25 +586,27 @@ void Listen(int sock)
 //   Create a socket connected to the given host and port. Return sock
 //   or terminate with error on fail.
 //
-// Global Variables:
+// Global Variables: TmpErrno
 //
-// Side Effects    :
+// Side Effects    : Creates and connects socket, may terminate with
+//                   error.
 //
 /----------------------------------------------------------------------*/
 
 int CreateClientSock(char* host, int port)
 {
-   int sock = create_client_sock_nofail(host, port);
+   int gai_err;
+   int sock = create_client_sock_nofail(host, port, &gai_err);
 
+   if(gai_err)
+   {
+      Error("Could not resolve address %s (%s)", SYS_ERROR,
+            host, gai_strerror(gai_err));
+   }
    if(sock == -1)
    {
       TmpErrno = errno;
-      SysError("Could not create connected socket", SYS_ERROR);
-   }
-   if(sock <= -2)
-   {
-      Error("Could not resolve address (%s)", SYS_ERROR,
-            gai_strerror(-(sock+2)));
+      SysError("Could not connect to %s, port %d", SYS_ERROR, host, port);
    }
    return sock;
 }
