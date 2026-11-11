@@ -924,19 +924,19 @@ static TFormula_p miniscope_qall(TB_p terms, TFormula_p form, Term_p var,
 //   universal quantifier, and contains an existential quantifier (we
 //   only miniscope with the goal of moving existential quantifier out
 //   of the scope of universal quantifiers - and that not at all
-//   costs ;-). Return value is the size, candidates are stored in the
-//   ptree at candidates, and the existance of an existential
-//   quantifier is returned via *exq. Sometime I'm longing for
-//   tuples...
+//   costs ;-). Return value is the size (the number of subformulas,
+//   counting literals as 1), candidates are stored in the set at
+//   candidates, and the existance of an existential quantifier is
+//   returned via *exq. Sometime I'm longing for tuples...
 //
-// Global Variables:
+// Global Variables: -
 //
-// Side Effects    :
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
-long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
-                              OrdSet_p *candidates, bool *exq)
+static long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
+                                     OrdSet_p *candidates, bool *exq)
 {
    bool lexq = false;
    long size;
@@ -944,10 +944,6 @@ long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
 
    assert(!TermIsFreeVar(form));
 
-   if(!form->v_count)
-   {
-      return LONG_MAX;
-   }
    if(TFormulaIsLiteral(sig, form) || TypeIsArrow(form->type))
    {
       return 1;
@@ -979,16 +975,16 @@ long tform_find_miniscopeable(Sig_p sig, TFormula_p form, long limit,
       size = 1;
       if(TFormulaHasSubForm1(sig, form))
       {
-         size += size+tform_find_miniscopeable(sig, form->args[0],
-                                               limit, &lcands,  &lexq);
+         size += tform_find_miniscopeable(sig, form->args[0],
+                                          limit, &lcands,  &lexq);
          OrdSetMerge(candidates, lcands);
          lcands = NULL;
          *exq |= lexq;
       }
       if(TFormulaHasSubForm2(sig, form))
       {
-         size += size+tform_find_miniscopeable(sig, form->args[1],
-                                               limit, &lcands,  &lexq);
+         size += tform_find_miniscopeable(sig, form->args[1],
+                                          limit, &lcands,  &lexq);
          OrdSetMerge(candidates, lcands);
          *exq |= lexq;
       }

@@ -79,6 +79,7 @@ Version 3.2.5 -> 3.5.X Countess Grey
   The seeds of RandomWeight now take effect.
   Condensing is now complete; it missed some condensations before.
   eground now honours --miniscope-limit.
+  The size limit for miniscoping is now computed correctly.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol
