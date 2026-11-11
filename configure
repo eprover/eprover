@@ -40,13 +40,10 @@
 #
 # Have Fun!
 #
-#
-# Copyright 2008 Stephan Schulz, schulz@eprover.org
-#
 # This code is part of the support structure for the equational
 # theorem prover E. Visit
 #
-#  http://www.eprover.org
+#  https://www.eprover.org
 #
 # for more information.
 #
@@ -67,14 +64,14 @@
 #
 # The original copyright holder can be contacted as
 #
-# Stephan Schulz (I4)
-# Technische Universitaet Muenchen
-# Institut fuer Informatik
-# Boltzmannstrasse 3
-# Garching bei Muenchen
-# Germany
+# Stephan Schulz
+# DHBW Stuttgart
+# Fakultät Technik/Informatik
+# Lerchenstraße 1
+# 70174 Stuttgart
+# GERMANY
 #
-# or via email (address above).
+# or, preferably, via email (address above).
 #
 
 EXECPATH=`pwd`/PROVER

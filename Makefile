@@ -5,7 +5,7 @@
 # Author: Stephan Schulz
 #
 # The single make file for E. It only uses POSIX make features, so it
-# works with GNU make, BSD make and other POSIX makes.
+# should work with GNU make, BSD make and other POSIX makes.
 #
 # - Makefile.vars holds tools and compile options (edit it to taste).
 # - config.mk is written by ./configure (installation paths,
