@@ -89,19 +89,15 @@ OptCell opts[] =
    {OPT_SILENT,
     's', "silent",
     NoArg, NULL,
-    "Equivalent to --output-level=0."},
+    "Accepted for compatibility with the other E tools. Has no effect,"
+    " see --output-level."},
 
    {OPT_OUTPUTLEVEL,
     'l', "output-level",
     ReqArg, NULL,
-    "Select an output level, greater values imply more verbose "
-    "output. Level 0 produces "
-    "nearly no output, level 1 will output each clause as it is "
-    "processed, level 2 will output generating inferences, "
-    "level 3 will give a full protocol including rewrite steps and "
-    "level 4 will include some internal clause renamings. Levels >= 2"
-    " also imply PCL2 or TSTP formats (which can be post-processed"
-    " with suitable tools)."},
+    "Accepted for compatibility with the other E tools. Has no effect:"
+    " the proof attempts run in separate eprover processes, which"
+    " always produce minimal output and print a proof object."},
 
    {OPT_GLOBAL_WTCLIMIT,
     'w', "wtc-limit",
