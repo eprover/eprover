@@ -295,12 +295,12 @@ MsgStatus TCPMsgWrite(int sock, TCPMsg_p msg)
 //
 // Function: TCPMsgRead()
 //
-//   Receive a (partial) TCP message. Return NWError, NWIncomplete,
-//   or NWSuccess depending on wether the transmission was partial,
-//   complete or a failure. Return NWConnClosed if the connection was
-//   closed. This assumes that the message
-//   itself is plain ASCII string (i.e. no '\0' in the message),
-//   although it probably works otherwise.
+//   Receive a (partial) TCP message, i.e. do at most one read() for
+//   the header (length field) and at most one for the payload. Return
+//   NWIncomplete if the message is not yet complete, NWSuccess if it
+//   is, NWConnClosed if the connection was closed, and NWError on
+//   read errors or a malformed length field. The payload may contain
+//   arbitrary bytes, but TCPMsgUnpack() treats it as a C string.
 //
 // Global Variables: -
 //
@@ -312,7 +312,7 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
 {
    char     buffer[TCP_BUF_SIZE];
    uint32_t len;
-   int      res;
+   ssize_t  res;
 
    /* Handle header */
    if(msg->transmission_count < (int)sizeof(uint32_t))
@@ -320,40 +320,44 @@ MsgStatus TCPMsgRead(int sock, TCPMsg_p msg)
       res = read(sock,
                  msg->len_buf+msg->transmission_count,
                  sizeof(uint32_t)-msg->transmission_count);
-      printf("read(Size)=%d\n", res);
       if(res < 0)
       {
          return NWError;
       }
-      if(res ==0)
+      if(res == 0)
       {
          return NWConnClosed;
       }
       msg->transmission_count += res;
       if(msg->transmission_count < (int)sizeof(uint32_t))
       {
-         return 0;
+         return NWIncomplete;
       }
       memcpy(&len, msg->len_buf, sizeof(uint32_t));
       len = ntohl(len);
-      printf("Message expected with %d bytes\n", len);
+      if(len < sizeof(uint32_t) || len > INT_MAX)
+      {
+         return NWError;
+      }
       msg->len = len;
       DStrAppendBuffer(msg->content, msg->len_buf, sizeof(uint32_t));
+      if(TCP_MSG_COMPLETE(msg))
+      {  /* Empty payload */
+         return NWSuccess;
+      }
    }
    /* Rest */
-   len = MIN(TCP_BUF_SIZE-1, msg->len - msg->transmission_count);
+   len = MIN(TCP_BUF_SIZE, msg->len - msg->transmission_count);
    res = read(sock, buffer, len);
-   printf("read(msg)=%d\n", res);
    if(res < 0)
    {
       return NWError;
    }
-   if(res ==0)
+   if(res == 0)
    {
       return NWConnClosed;
    }
-   buffer[len] = '\0';
-   DStrAppendStr(msg->content, buffer);
+   DStrAppendBuffer(msg->content, buffer, res);
    msg->transmission_count += res;
 
    if(!TCP_MSG_COMPLETE(msg))
