@@ -1184,7 +1184,6 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
    DStr_p        id;
    FuncSymbType id_type;
    DStr_p        source_name;
-   Type_p        type;
    long          line, column;
    StreamType    type_stream;
 
@@ -1202,18 +1201,9 @@ Term_p TermParse(Scanner_p in, Sig_p sig, VarBank_p vars)
 
       if((id_type = TermParseOperator(in, id))==FSIdentVar)
       {
-         /* A variable may be annotated with a type */
-         if(TestInpTok(in, Colon))
-         {
-            AcceptInpTok(in, Colon);
-            type = TypeBankParseType(in, vars->sort_table);
-            handle = VarBankExtNameAssertAllocSort(vars,
-                                                   DStrView(id), type);
-         }
-         else
-         {
-            handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
-         }
+         /* Variables are typed in their binders (or get the default
+            type), never inside terms (as in TPTP) */
+         handle = VarBankExtNameAssertAlloc(vars, DStrView(id));
       }
       else
       {
