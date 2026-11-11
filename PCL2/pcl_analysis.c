@@ -45,17 +45,19 @@ Changes
 //
 // Function: pcl_example_cmp()
 //
-//   Compare two PCL steps as follows: All proof steps are equal and
-//   smaller than all non-proof steps. Non-proof steps are compared by
-//   gen_ref/(sim_ref+1).
+//   Compare two PCL steps as follows: All proof steps are smaller
+//   than all non-proof steps. Non-proof steps are sorted by
+//   descending useless_gen_refs/(useless_simpl_refs+1). Ties are
+//   broken by PCL id, so that the order does not depend on the qsort()
+//   implementation.
 //
-// Global Variables:
+// Global Variables: -
 //
-// Side Effects    :
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-int pcl_example_cmp(const void* ex1, const void* ex2)
+static int pcl_example_cmp(const void* ex1, const void* ex2)
 {
    const IntOrP* e1 = (const IntOrP*) ex1;
    const IntOrP* e2 = (const IntOrP*) ex2;
@@ -69,7 +71,7 @@ int pcl_example_cmp(const void* ex1, const void* ex2)
    {
       if(PCLStepQueryProp(s2, PCLIsProofStep))
       {
-         return 0;
+         return PCLStepIdCompare(s1, s2);
       }
       return -1;
    }
@@ -89,7 +91,7 @@ int pcl_example_cmp(const void* ex1, const void* ex2)
    {
       return -1;
    }
-   return 0;
+   return PCLStepIdCompare(s1, s2);
 }
 
 
@@ -327,10 +329,10 @@ void PCLProtUpdateGRefs(PCLProt_p prot)
 // Function: PCLProtSelectExamples()
 //
 //   Select examples for pattern-based learning. Selects all proof
-//   clauses and up to neg_examples negative examples. Negative
-//   examples are selected by ratio of generating to simplifying
-//   applications (generating  bad, simplification good). Returns
-//   number of steps selected.
+//   clauses and up to neg_examples negative examples (FOF steps are
+//   ignored). Negative examples are selected by ratio of generating
+//   to simplifying applications (generating bad, simplification
+//   good). Returns number of steps selected.
 //
 // Global Variables: -
 //
@@ -343,6 +345,7 @@ long PCLProtSelectExamples(PCLProt_p prot, long neg_examples)
 {
    PCLStep_p step;
    PStackPointer i;
+   long selected = 0;
 
    PCLProtSerialize(prot); /* Ensure its all on the stack */
    prot->is_ordered = false;
@@ -350,20 +353,25 @@ long PCLProtSelectExamples(PCLProt_p prot, long neg_examples)
          PStackGetSP(prot->in_order),
          sizeof(IntOrP),
          pcl_example_cmp);
-   for(i=0; (i<PStackGetSP(prot->in_order))&&(neg_examples>0); i++)
+   for(i=0; i<PStackGetSP(prot->in_order); i++)
    {
       step = PStackElementP(prot->in_order, i);
       if(PCLStepQueryProp(step, PCLIsFOFStep))
       {
          continue; /* We only consider clauses */
       }
-      PCLStepSetProp(step, PCLIsExample);
       if(!PCLStepQueryProp(step, PCLIsProofStep))
-      {
+      {  /* Proof steps come first, so all of them are selected */
+         if(neg_examples <= 0)
+         {
+            break;
+         }
          neg_examples--;
       }
+      PCLStepSetProp(step, PCLIsExample);
+      selected++;
    }
-   return i;
+   return selected;
 }
 
 /*---------------------------------------------------------------------*/
