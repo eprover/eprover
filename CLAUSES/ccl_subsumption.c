@@ -759,8 +759,9 @@ Clause_p clause_tree_find_subsuming_clause(OrdSet_p tree, Clause_p sub_candidate
 //
 // Function: clause_set_subsumes_clause_indexed()
 //
-//   Return clause if the indexed set subsumes sub_candidate. All
-//   clauses need correct weights!
+//   Return a clause from the index that subsumes sub_candidate (with
+//   feature vector vec), NULL if there is none. All clauses need
+//   correct weights!
 //
 // Global Variables:
 //
@@ -770,15 +771,17 @@ Clause_p clause_tree_find_subsuming_clause(OrdSet_p tree, Clause_p sub_candidate
 
 static
 Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
+                                            Clause_p sub_candidate,
                                             FreqVector_p vec,
                                             long feature)
 {
 
-   assert(vec->clause->weight == ClauseStandardWeight(vec->clause));
+   assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
 
    if(feature == vec->size)
    {
-      return clause_tree_find_subsuming_clause(index->u1.clauses, vec->clause);
+      return clause_tree_find_subsuming_clause(index->u1.clauses,
+                                               sub_candidate);
    }
    else if(index->u1.successors)
    {
@@ -791,7 +794,8 @@ Clause_p clause_set_subsumes_clause_indexed(FVIndex_p index,
       while((next = IntMapIterNext(iter, &i)))
       {
          if(next->clause_count &&
-            (res = clause_set_subsumes_clause_indexed(next, vec, feature+1)))
+            (res = clause_set_subsumes_clause_indexed(next, sub_candidate,
+                                                      vec, feature+1)))
          {
             break;
          }
@@ -949,8 +953,8 @@ Clause_p clauseset_find_first_subsumed_clause(ClauseSet_p set,
 //
 // Function: clauseset_find_subsumed_clauses_indexed()
 //
-//   Find all clauses subsumed by vec->clause in index and push them
-//   onto res.
+//   Find all clauses in index subsumed by subsumer (with feature
+//   vector vec) and push them onto res.
 //
 // Global Variables: -
 //
@@ -960,13 +964,14 @@ Clause_p clauseset_find_first_subsumed_clause(ClauseSet_p set,
 
 static
 void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
+                                             Clause_p subsumer,
                                              FreqVector_p vec,
                                              long feature,
                                              PStack_p res)
 {
    if(feature == vec->size)
    {
-      clause_tree_find_subsumed_clauses(index->u1.clauses, vec->clause, res);
+      clause_tree_find_subsumed_clauses(index->u1.clauses, subsumer, res);
    }
    else if(index->u1.successors)
    {
@@ -980,7 +985,7 @@ void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
       {
          if(next->clause_count)
          {
-            clauseset_find_subsumed_clauses_indexed(next, vec,
+            clauseset_find_subsumed_clauses_indexed(next, subsumer, vec,
                                                     feature+1, res);
          }
       }
@@ -994,7 +999,7 @@ void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
 // Function: clauseset_find_first_subsumed_clause_indexed()
 //
 //   Find and return the first clause in the indexed set that is
-//   subsumed by vec.
+//   subsumed by subsumer (with feature vector vec).
 //
 // Global Variables: -
 //
@@ -1004,6 +1009,7 @@ void clauseset_find_subsumed_clauses_indexed(FVIndex_p index,
 
 static
 Clause_p clauseset_find_first_subsumed_clause_indexed(FVIndex_p index,
+                                                      Clause_p subsumer,
                                                       FreqVector_p vec,
                                                       long feature)
 {
@@ -1011,7 +1017,8 @@ Clause_p clauseset_find_first_subsumed_clause_indexed(FVIndex_p index,
 
    if(feature == vec->size)
    {
-      res = clause_tree_find_first_subsumed_clause(index->u1.clauses, vec->clause);
+      res = clause_tree_find_first_subsumed_clause(index->u1.clauses,
+                                                   subsumer);
    }
    else if(index->u1.successors)
    {
@@ -1026,6 +1033,7 @@ Clause_p clauseset_find_first_subsumed_clause_indexed(FVIndex_p index,
          if(next->clause_count)
          {
             res = clauseset_find_first_subsumed_clause_indexed(next,
+                                                               subsumer,
                                                                vec,
                                                                feature+1);
          }
@@ -1078,8 +1086,8 @@ Clause_p clause_tree_find_variant_clause(OrdSet_p tree, Clause_p cand)
 //
 // Function: clauseset_find_variant_clause_indexed()
 //
-//   Find and return a variant of the clause represented by vec in set
-//   (if any such clause exists), return NULL otherwise.
+//   Find and return a variant of clause (with feature vector vec) in
+//   the index (if any such clause exists), return NULL otherwise.
 //
 // Global Variables: -
 //
@@ -1089,6 +1097,7 @@ Clause_p clause_tree_find_variant_clause(OrdSet_p tree, Clause_p cand)
 
 static
 Clause_p clauseset_find_variant_clause_indexed(FVIndex_p index,
+                                               Clause_p clause,
                                                FreqVector_p vec,
                                                long feature)
 {
@@ -1097,15 +1106,14 @@ Clause_p clauseset_find_variant_clause_indexed(FVIndex_p index,
 
    if(feature == vec->size)
    {
-      res = clause_tree_find_variant_clause(index->u1.clauses,
-                                            vec->clause);
+      res = clause_tree_find_variant_clause(index->u1.clauses, clause);
    }
    else if(index->u1.successors)
    {
       next = IntMapGetVal(index->u1.successors, vec->array[feature]);
       if(next && next->clause_count)
       {
-         res = clauseset_find_variant_clause_indexed(next, vec,
+         res = clauseset_find_variant_clause_indexed(next, clause, vec,
                                                      feature+1);
       }
    }
@@ -1395,43 +1403,12 @@ bool ClauseSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetSubsumesFVPackedClause()
-//
-//   Return a clause from set that subsumes sub_candidate->clause,
-//   NULL if there is none. All clauses need correct weights!
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Clause_p ClauseSetSubsumesFVPackedClause(ClauseSet_p set,
-                                         FVPackedClause_p sub_candidate)
-{
-   Clause_p res;
-   PERF_CTR_ENTRY(SetSubsumeTimer);
-   assert(sub_candidate->clause->weight == ClauseStandardWeight(sub_candidate->clause));
-
-   if(set->fvindex && sub_candidate->array)
-   {
-      res = clause_set_subsumes_clause_indexed(set->fvindex->index,
-                                               sub_candidate, 0);
-      PERF_CTR_EXIT(SetSubsumeTimer);
-      return res;
-   }
-   res = clause_set_subsumes_clause(set, sub_candidate->clause);
-   PERF_CTR_EXIT(SetSubsumeTimer);
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ClauseSetSubsumesClause()
 //
 //   Return a clause from set that subsumes sub_candidate, NULL if
-//   there is none. All clauses need correct weights!
+//   there is none. If the set is FV-indexed, the feature vector of
+//   sub_candidate is used (or a temporary one computed if it has
+//   none). All clauses need correct weights!
 //
 // Global Variables: -
 //
@@ -1447,15 +1424,21 @@ Clause_p ClauseSetSubsumesClause(ClauseSet_p set, Clause_p sub_candidate)
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
    if(set->fvindex)
    {
-      FreqVector_p vec = OptimizedVarFreqVectorCompute(sub_candidate,
-                                                       set->fvindex->perm_vector,
-                                                       set->fvindex->cspec);
-      res =  clause_set_subsumes_clause_indexed(set->fvindex->index, vec, 0);
-      FreqVectorFree(vec);
-      PERF_CTR_EXIT(SetSubsumeTimer);
-      return res;
+      bool is_temp;
+      FreqVector_p vec = ClauseGetFeatureVector(sub_candidate,
+                                                set->fvindex, &is_temp);
+
+      res = clause_set_subsumes_clause_indexed(set->fvindex->index,
+                                               sub_candidate, vec, 0);
+      if(is_temp)
+      {
+         FreqVectorFree(vec);
+      }
    }
-   res = clause_set_subsumes_clause(set, sub_candidate);
+   else
+   {
+      res = clause_set_subsumes_clause(set, sub_candidate);
+   }
    PERF_CTR_EXIT(SetSubsumeTimer);
    return res;
 }
@@ -1499,87 +1482,16 @@ Clause_p ClauseSetFindSubsumedClause(ClauseSet_p set, Clause_p
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetFindFVSubsumedClauses()
-//
-//   Find all clauses in set that are subsumed by subsumer, and push
-//   them onto stack. Return number of clauses found.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-long ClauseSetFindFVSubsumedClauses(ClauseSet_p set,
-                                    FVPackedClause_p subsumer,
-                                    PStack_p res)
-{
-   long old_sp = PStackGetSP(res);
-
-   PERF_CTR_ENTRY(SetSubsumeTimer);
-   assert(subsumer->clause->weight == ClauseStandardWeight(subsumer->clause));
-
-   if(set->fvindex)
-   {
-      clauseset_find_subsumed_clauses_indexed(set->fvindex->index,
-                                              subsumer, 0, res);
-   }
-   else
-   {
-      clauseset_find_subsumed_clauses(set, subsumer->clause, res);
-   }
-   PERF_CTR_EXIT(SetSubsumeTimer);
-   return PStackGetSP(res)-old_sp;
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseSetFindFirstFVSubsumedClause()
-//
-//   Find and return first clause in set that is subsumed by subsumer
-//   (or NULL).
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Clause_p ClauseSetFindFirstFVSubsumedClause(ClauseSet_p set,
-                                            FVPackedClause_p subsumer)
-{
-   Clause_p res;
-
-   PERF_CTR_ENTRY(SetSubsumeTimer);
-   assert(subsumer->clause->weight == ClauseStandardWeight(subsumer->clause));
-
-   if(set->fvindex)
-   {
-      res = clauseset_find_first_subsumed_clause_indexed(set->fvindex->index,
-                                                   subsumer, 0);
-   }
-   else
-   {
-      res = clauseset_find_first_subsumed_clause(set, subsumer->clause);
-   }
-   PERF_CTR_EXIT(SetSubsumeTimer);
-   return res;
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ClauseSetFindSubsumedClauses()
 //
 //   Find all clauses in set that are subsumed by subsumer, and push
-//   them onto stack. Return number of clauses found.
+//   them onto stack. Return number of clauses found. If the set is
+//   FV-indexed, the feature vector of subsumer is used (or a
+//   temporary one computed if it has none).
 //
-// Global Variables:
+// Global Variables: -
 //
-// Side Effects    :
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
@@ -1587,32 +1499,44 @@ long ClauseSetFindSubsumedClauses(ClauseSet_p set,
                                   Clause_p subsumer,
                                   PStack_p res)
 {
-   long found = 0;
-   FVPackedClause_p pclause;
+   long old_sp = PStackGetSP(res);
 
+   PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   pclause = FVIndexPackClause(subsumer, set->fvindex);
+   if(set->fvindex)
+   {
+      bool is_temp;
+      FreqVector_p vec = ClauseGetFeatureVector(subsumer, set->fvindex,
+                                                &is_temp);
 
-   found = ClauseSetFindFVSubsumedClauses(set, pclause, res);
-
-   FVUnpackClause(pclause);
-   ENSURE_NULL(pclause);
-   return found;
+      clauseset_find_subsumed_clauses_indexed(set->fvindex->index,
+                                              subsumer, vec, 0, res);
+      if(is_temp)
+      {
+         FreqVectorFree(vec);
+      }
+   }
+   else
+   {
+      clauseset_find_subsumed_clauses(set, subsumer, res);
+   }
+   PERF_CTR_EXIT(SetSubsumeTimer);
+   return PStackGetSP(res)-old_sp;
 }
-
-
 
 
 /*-----------------------------------------------------------------------
 //
 // Function: ClauseSetFindFirstSubsumedClause()
 //
-//   Find and return first clause in set subsumed by subsumer.
+//   Find and return first clause in set subsumed by subsumer (or
+//   NULL). If the set is FV-indexed, the feature vector of subsumer is
+//   used (or a temporary one computed if it has none).
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
@@ -1620,42 +1544,29 @@ Clause_p ClauseSetFindFirstSubsumedClause(ClauseSet_p set,
                                           Clause_p subsumer)
 {
    Clause_p res;
-   FVPackedClause_p pclause;
 
+   PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   pclause = FVIndexPackClause(subsumer, set->fvindex);
+   if(set->fvindex)
+   {
+      bool is_temp;
+      FreqVector_p vec = ClauseGetFeatureVector(subsumer, set->fvindex,
+                                                &is_temp);
 
-   res = ClauseSetFindFirstFVSubsumedClause(set, pclause);
-
-   FVUnpackClause(pclause);
-   ENSURE_NULL(pclause);
+      res = clauseset_find_first_subsumed_clause_indexed(set->fvindex->index,
+                                                         subsumer, vec, 0);
+      if(is_temp)
+      {
+         FreqVectorFree(vec);
+      }
+   }
+   else
+   {
+      res = clauseset_find_first_subsumed_clause(set, subsumer);
+   }
+   PERF_CTR_EXIT(SetSubsumeTimer);
    return res;
-}
-
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ClauseSetFindFVVariantClause()
-//
-//   Given a (FVPacked) clause and a clause set, find variant of the
-//   clause and return it if successful. Otherwise return NULL.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-Clause_p ClauseSetFindFVVariantClause(ClauseSet_p set,
-                                      FVPackedClause_p clause)
-{
-   assert(set->fvindex);
-
-   return clauseset_find_variant_clause_indexed(set->fvindex->index,
-                                                clause, 0);
 }
 
 
@@ -1663,29 +1574,33 @@ Clause_p ClauseSetFindFVVariantClause(ClauseSet_p set,
 //
 // Function: ClauseSetFindVariantClause()
 //
-//   Find and return a variant of clause in set (or 0 if none
-//   exists).
+//   Find and return a variant of clause in the FV-indexed set (or
+//   NULL if none exists). The feature vector of clause is used (or a
+//   temporary one computed if it has none).
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
 Clause_p ClauseSetFindVariantClause(ClauseSet_p set,
                                     Clause_p clause)
 {
-   FVPackedClause_p pclause;
    Clause_p res;
+   bool is_temp;
+   FreqVector_p vec;
 
+   assert(set->fvindex);
    assert(clause->weight == ClauseStandardWeight(clause));
 
-   pclause = FVIndexPackClause(clause, set->fvindex);
-
-   res = ClauseSetFindFVVariantClause(set, pclause);
-
-   FVUnpackClause(pclause);
-   ENSURE_NULL(pclause);
+   vec = ClauseGetFeatureVector(clause, set->fvindex, &is_temp);
+   res = clauseset_find_variant_clause_indexed(set->fvindex->index,
+                                               clause, vec, 0);
+   if(is_temp)
+   {
+      FreqVectorFree(vec);
+   }
    return res;
 }
 

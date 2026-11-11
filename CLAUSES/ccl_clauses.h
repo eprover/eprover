@@ -162,7 +162,15 @@ typedef struct clause_cell
    long                  proof_size;  /* How many (generating)
                                          inferences were necessary to
                                          create this clause? */
-   FixedDArray_p         feature_vec; /* For subsumption indexing */
+   struct freq_vector_cell* feature_vec;
+                                      /* Feature vector for subsumption
+                                         indexing, or NULL. While the
+                                         clause is FV-indexed
+                                         (CPIsSIndexed), it is the
+                                         vector owned by the leaf of
+                                         the index the clause is
+                                         in. Otherwise it is owned by
+                                         the clause. */
    struct clausesetcell* set;         /* Is the clause in a set? */
    struct clause_cell*   pred;        /* For clause sets = doubly  */
    struct clause_cell*   succ;        /* linked lists */

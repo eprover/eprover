@@ -573,54 +573,41 @@ void ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause)
 
 /*-----------------------------------------------------------------------
 //
-// Function: ClauseSetIndexedInsert()
-//
-//   Insert an FVPackedClause clause into the set, taking care od of
-//   all existing indexes.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-void ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause)
-{
-   if(!set->demod_index)
-   {
-      ClauseSetInsert(set, newclause->clause);
-   }
-   else
-   {
-      ClauseSetPDTIndexedInsert(set, newclause->clause);
-   }
-   if(set->fvindex)
-   {
-      FVIndexInsert(set->fvindex, newclause);
-      ClauseSetProp(newclause->clause, CPIsSIndexed);
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ClauseSetIndexedInsertClause()
 //
-//   Insert a plain clause into the set, taking care od of
-//   all existing indexes.
+//   Insert a clause into the set, taking care of all existing
+//   indexes. In an FV-indexed set, the clause's own feature vector is
+//   used (and computed if it has none), and the clause then
+//   references the vector of its index leaf. Otherwise, any feature
+//   vector of the clause is freed.
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Changes set and clause
 //
 /----------------------------------------------------------------------*/
 
 void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
 {
-   FVPackedClause_p pclause = FVIndexPackClause(newclause, set->fvindex);
    assert(newclause->weight == ClauseStandardWeight(newclause));
-   ClauseSetIndexedInsert(set, pclause);
-   FVUnpackClause(pclause);
+
+   if(!set->demod_index)
+   {
+      ClauseSetInsert(set, newclause);
+   }
+   else
+   {
+      ClauseSetPDTIndexedInsert(set, newclause);
+   }
+   if(set->fvindex)
+   {
+      FVIndexInsert(set->fvindex, newclause);
+      ClauseSetProp(newclause, CPIsSIndexed);
+   }
+   else
+   {
+      ClauseDropFeatureVector(newclause);
+   }
 }
 
 

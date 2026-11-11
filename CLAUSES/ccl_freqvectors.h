@@ -49,8 +49,7 @@ typedef struct freq_vector_cell
 {
    long size;        /* How many fields? */
    long *array;
-   Clause_p clause; /* Just an unprotected reference */
-}FreqVectorCell, *FreqVector_p, *FVPackedClause_p;
+}FreqVectorCell, *FreqVector_p;
 
 /* Where do the symbol-specific features in classival FV-Vectors
  * begin? */
@@ -198,16 +197,7 @@ FVCollect_p BillFeaturesCollectAlloc(Sig_p sig, long len);
 FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len);
 
 
-FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm,
-                              FVCollect_p cspec);
-Clause_p         FVUnpackClause(FVPackedClause_p pack);
-
-void             FVPackedClauseFreeReal(FVPackedClause_p pack);
-#ifndef NDEBUG
-#define FVPackedClauseFree(junk) FVPackedClauseFreeReal(junk);junk=NULL
-#else
-#define FVPackedClauseFree(junk) FVPackedClauseFreeReal(junk)
-#endif
+bool FreqVectorEqual(FreqVector_p vec1, FreqVector_p vec2);
 
 
 void FreqVectorAdd(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);

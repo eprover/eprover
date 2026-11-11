@@ -81,7 +81,6 @@ void        ClauseSetGCMarkTerms(ClauseSet_p set);
 void        ClauseSetInsert(ClauseSet_p set, Clause_p newclause);
 long        ClauseSetInsertSet(ClauseSet_p set, ClauseSet_p from);
 void        ClauseSetPDTIndexedInsert(ClauseSet_p set, Clause_p newclause);
-void        ClauseSetIndexedInsert(ClauseSet_p set, FVPackedClause_p newclause);
 void        ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause);
 void        ClauseSetIndexedInsertClauseSet(ClauseSet_p set, ClauseSet_p source);
 Clause_p    ClauseSetExtractEntry(Clause_p clause);

@@ -23,6 +23,7 @@
 #include "ccl_tformulae.h"
 #include "cte_lambda.h"
 #include "ccl_clausesets.h"
+#include "ccl_freqvectors.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -742,9 +743,11 @@ void ClauseFree(Clause_p junk)
    {
       PStackFree(junk->derivation);
    }
+   /* A clause that is in no set is not FV-indexed, so it owns its
+      feature vector (if any) */
    if(junk->feature_vec)
    {
-      FixedDArrayFree(junk->feature_vec);
+      FreqVectorFree(junk->feature_vec);
    }
    ClauseCellFree(junk);
 }

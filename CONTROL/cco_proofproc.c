@@ -117,7 +117,7 @@ static void check_ac_status(ProofState_p state, ProofControl_p
 /----------------------------------------------------------------------*/
 
 static long remove_subsumed(GlobalIndices_p indices,
-                            FVPackedClause_p subsumer,
+                            Clause_p subsumer,
                             ClauseSet_p set,
                             ClauseSet_p archive,
                             bool lambda_demod)
@@ -126,7 +126,7 @@ static long remove_subsumed(GlobalIndices_p indices,
    long     res;
    PStack_p stack = PStackAlloc();
 
-   res = ClauseSetFindFVSubsumedClauses(set, subsumer, stack);
+   res = ClauseSetFindSubsumedClauses(set, subsumer, stack);
 
    while(!PStackEmpty(stack))
    {
@@ -135,13 +135,13 @@ static long remove_subsumed(GlobalIndices_p indices,
       if(ClauseQueryProp(handle, CPWatchOnly))
       {
          DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
-                        "extract_wl_subsumed", subsumer->clause);
+                        "extract_wl_subsumed", subsumer);
 
       }
       else
       {
          DocClauseQuote(GlobalOut, OutputLevel, 6, handle,
-                        "subsumed", subsumer->clause);
+                        "subsumed", subsumer);
       }
       GlobalIndicesDeleteClause(indices, handle, lambda_demod);
       ClauseSetExtractEntry(handle);
@@ -245,45 +245,45 @@ eliminate_backward_rewritten_clauses(ProofState_p
 /----------------------------------------------------------------------*/
 
 static long eliminate_backward_subsumed_clauses(ProofState_p state,
-                                                FVPackedClause_p pclause,
+                                                Clause_p clause,
                                                 bool lambda_demod)
 {
    long res = 0;
 
-   if(ClauseLiteralNumber(pclause->clause) == 1)
+   if(ClauseLiteralNumber(clause) == 1)
    {
-      if(pclause->clause->pos_lit_no)
+      if(clause->pos_lit_no)
       {
          /* A unit rewrite rule that is a variant of an old rule is
             already subsumed by the older one.
             A unit rewrite rule can never subsume an unorientable
             equation (else it would be unorientable itself). */
-         if(!ClauseIsRWRule(pclause->clause))
+         if(!ClauseIsRWRule(clause))
          {
-            res += remove_subsumed(&(state->gindices), pclause,
+            res += remove_subsumed(&(state->gindices), clause,
                                    state->processed_pos_rules,
                                    state->archive, lambda_demod);
-            res += remove_subsumed(&(state->gindices), pclause,
+            res += remove_subsumed(&(state->gindices), clause,
                                    state->processed_pos_eqns,
                                    state->archive, lambda_demod);
          }
-         res += remove_subsumed(&(state->gindices), pclause,
+         res += remove_subsumed(&(state->gindices), clause,
                                 state->processed_non_units,
                                 state->archive, lambda_demod);
       }
       else
       {
-         res += remove_subsumed(&(state->gindices), pclause,
+         res += remove_subsumed(&(state->gindices), clause,
                                 state->processed_neg_units,
                                 state->archive, lambda_demod);
-         res += remove_subsumed(&(state->gindices), pclause,
+         res += remove_subsumed(&(state->gindices), clause,
                                 state->processed_non_units,
                                 state->archive, lambda_demod);
       }
    }
    else
    {
-      res += remove_subsumed(&(state->gindices), pclause,
+      res += remove_subsumed(&(state->gindices), clause,
                              state->processed_non_units,
                              state->archive, lambda_demod);
    }
@@ -390,12 +390,10 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
                      Clause_p clause, ClauseSet_p archive,
                      bool static_watchlist, bool lambda_demod)
 {
-   FVPackedClause_p pclause;
    long removed;
 
    if(watchlist)
    {
-      pclause = FVIndexPackClause(clause, watchlist->fvindex);
       // printf(COMCHAR" check_watchlist(%p)...\n", indices);
       ClauseSubsumeOrderSortLits(clause);
       // assert(ClauseIsSubsumeOrdered(clause));
@@ -414,7 +412,7 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
       }
       else
       {
-         if((removed = remove_subsumed(indices, pclause, watchlist, archive, lambda_demod)))
+         if((removed = remove_subsumed(indices, clause, watchlist, archive, lambda_demod)))
          {
             ClauseSetProp(clause, CPSubsumesWatch);
             if(OutputLevel == 1)
@@ -426,7 +424,6 @@ void check_watchlist(GlobalIndices_p indices, ClauseSet_p watchlist,
             DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
                            "extract_subsumed_watched", NULL);   }
       }
-      FVUnpackClause(pclause);
       // printf(COMCHAR" ...check_watchlist()\n");
    }
 }
@@ -698,22 +695,17 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 
       if(control->heuristic_parms.forward_subsumption_aggressive)
       {
-         FVPackedClause_p pclause;
-
-         pclause = ForwardSubsumption(state,
-                                      handle,
-                                      &(state->aggressive_forward_subsumed_count),
-                                      true);
-         if(pclause)
-         {  // Not subsumed
-            FVUnpackClause(pclause);
-            ENSURE_NULL(pclause);
-         }
-         else
+         if(ForwardSubsumption(state,
+                               handle,
+                               &(state->aggressive_forward_subsumed_count),
+                               true))
          {
             ClauseFree(handle);
             continue;
          }
+         /* Not subsumed. The clause may still change, so it does not
+            keep the feature vector. */
+         ClauseDropFeatureVector(handle);
       }
 
       if(control->heuristic_parms.er_aggressive &&
@@ -787,24 +779,31 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
 // Global Variables: -
 //
 // Side Effects    : May insert new clauses into state. May destroy
-//                   pclause (in which case it gets rid of the container)
+//                   clause, or change it and put it into
+//                   state->tmp_store.
 //
 /----------------------------------------------------------------------*/
 
 Clause_p replacing_inferences(ProofState_p state, ProofControl_p
-                              control, FVPackedClause_p pclause)
+                              control, Clause_p clause)
 {
    long     clause_count;
-   Clause_p res = pclause->clause;
+   bool     replaced = false;
+   /* If the clause is replaced, it may be changed and end up in
+      tmp_store, so it must not keep its feature vector. Otherwise it
+      is unchanged and gets it back. */
+   FreqVector_p feature_vec = clause->feature_vec;
 
-   if(problemType == PROBLEM_HO && ImmediateClausification(res, state->tmp_store, state->archive, state->freshvars, control->heuristic_parms.fool_unroll, state->step_archive))
+   clause->feature_vec = NULL;
+
+   if(problemType == PROBLEM_HO && ImmediateClausification(clause, state->tmp_store, state->archive, state->freshvars, control->heuristic_parms.fool_unroll, state->step_archive))
    {
-      pclause->clause = NULL;
+      replaced = true;
    }
    else
    if(control->heuristic_parms.er_varlit_destructive &&
       (clause_count =
-       ClauseERNormalizeVar(pclause->clause,
+       ClauseERNormalizeVar(clause,
                             state->tmp_store,
                             state->freshvars,
                             control->heuristic_parms.er_strong_destructive,
@@ -812,26 +811,29 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    {
       state->other_redundant_count += clause_count;
       state->resolv_count += clause_count;
-      pclause->clause = NULL;
+      replaced = true;
    }
    else if(ControlledClauseSplit(state->definition_store,
-                                 pclause->clause, state->tmp_store,
+                                 clause, state->tmp_store,
                                  control->heuristic_parms.split_clauses,
                                  control->heuristic_parms.split_method,
                                  control->heuristic_parms.split_fresh_defs,
                                  state->step_archive))
    {
-      pclause->clause = NULL;
+      replaced = true;
    }
 
-   if(!pclause->clause)
-   {  /* ...then it has been destroyed by one of the above methods,
-       * which may have put some clauses into tmp_store. */
-      FVUnpackClause(pclause);
-
-      res = insert_new_clauses(state, control);
+   if(replaced)
+   {  /* ...then clause has been destroyed by one of the above
+       * methods, which may have put some clauses into tmp_store. */
+      if(feature_vec)
+      {
+         FreqVectorFree(feature_vec);
+      }
+      return insert_new_clauses(state, control);
    }
-   return res;
+   clause->feature_vec = feature_vec;
+   return clause;
 }
 
 
@@ -1561,7 +1563,6 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
                        long answer_limit)
 {
    Clause_p         clause, resclause, tmp_copy, empty, arch_copy = NULL;
-   FVPackedClause_p pclause;
    SysDate          clausedate;
 
    clause = control->hcb->hcb_select(control->hcb,
@@ -1592,11 +1593,11 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       arch_copy = ClauseArchiveCopy(state->archive, clause);
    }
 
-   if(!(pclause = ForwardContractClause(state, control,
-                                        clause, true,
-                                        control->heuristic_parms.forward_context_sr,
-                                        control->heuristic_parms.condensing,
-                                        FullRewrite)))
+   if(!ForwardContractClause(state, control,
+                             clause, true,
+                             control->heuristic_parms.forward_context_sr,
+                             control->heuristic_parms.condensing,
+                             FullRewrite))
    {
       if(arch_copy)
       {
@@ -1605,26 +1606,29 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       return NULL;
    }
 
-   if(ClauseIsSemFalse(pclause->clause))
+   /* From here on, clause has its own feature vector (if the
+      processed clauses are FV-indexed), which ends up in the index
+      when the clause is inserted below. */
+   if(ClauseIsSemFalse(clause))
    {
       state->answer_count ++;
-      ClausePrintAnswer(GlobalOut, pclause->clause, state);
-      PStackPushP(state->extract_roots, pclause->clause);
-      if(ClauseIsEmpty(pclause->clause)||
+      ClausePrintAnswer(GlobalOut, clause, state);
+      PStackPushP(state->extract_roots, clause);
+      if(ClauseIsEmpty(clause)||
          state->answer_count>=answer_limit)
       {
-         clause = FVUnpackClause(pclause);
+         ClauseDropFeatureVector(clause);
          ClauseEvaluateAnswerLits(clause, state->step_archive);
          return clause;
       }
    }
-   assert(ClauseIsSubsumeOrdered(pclause->clause));
-   check_ac_status(state, control, pclause->clause);
+   assert(ClauseIsSubsumeOrdered(clause));
+   check_ac_status(state, control, clause);
 
-   document_processing(pclause->clause);
+   document_processing(clause);
    state->proc_non_trivial_count++;
 
-   resclause = replacing_inferences(state, control, pclause);
+   resclause = replacing_inferences(state, control, clause);
    if(!resclause || ClauseIsEmpty(resclause))
    {
       if(resclause)
@@ -1635,23 +1639,21 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
    }
 
    check_watchlist(&(state->wlindices), state->watchlist,
-                      pclause->clause, state->archive,
+                      clause, state->archive,
                       control->heuristic_parms.watchlist_is_static,
                       control->heuristic_parms.lambda_demod);
 
    /* Now on to backward simplification. */
    clausedate = ClauseSetListGetMaxDate(state->demods, FullRewrite);
 
-   eliminate_backward_rewritten_clauses(state, control, pclause->clause, &clausedate);
-   eliminate_backward_subsumed_clauses(state, pclause,
+   eliminate_backward_rewritten_clauses(state, control, clause, &clausedate);
+   eliminate_backward_subsumed_clauses(state, clause,
                                        control->heuristic_parms.lambda_demod);
-   eliminate_unit_simplified_clauses(state, pclause->clause,
+   eliminate_unit_simplified_clauses(state, clause,
                                     control->heuristic_parms.lambda_demod);
-   eliminate_context_sr_clauses(state, control, pclause->clause,
+   eliminate_context_sr_clauses(state, control, clause,
                                 control->heuristic_parms.lambda_demod);
    ClauseSetSetProp(state->tmp_store, CPIsIRVictim);
-
-   clause = pclause->clause;
 
    ClauseNormalizeVars(clause, state->freshvars);
    tmp_copy = ClauseCopyDisjoint(clause);
@@ -1667,28 +1669,26 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       {
          TermCellSetProp(clause->literals->lterm, TPIsRewritable);
          state->processed_pos_rules->date = clausedate;
-         ClauseSetIndexedInsert(state->processed_pos_rules, pclause);
+         ClauseSetIndexedInsertClause(state->processed_pos_rules, clause);
       }
       else
       {
          state->processed_pos_eqns->date = clausedate;
-         ClauseSetIndexedInsert(state->processed_pos_eqns, pclause);
+         ClauseSetIndexedInsertClause(state->processed_pos_eqns, clause);
       }
    }
    else if(ClauseLiteralNumber(clause) == 1)
    {
       assert(clause->neg_lit_no == 1);
-      ClauseSetIndexedInsert(state->processed_neg_units, pclause);
+      ClauseSetIndexedInsertClause(state->processed_neg_units, clause);
    }
    else
    {
-      ClauseSetIndexedInsert(state->processed_non_units, pclause);
+      ClauseSetIndexedInsertClause(state->processed_non_units, clause);
    }
    GlobalIndicesInsertClause(&(state->gindices), clause,
                              control->heuristic_parms.lambda_demod);
 
-   FVUnpackClause(pclause);
-   ENSURE_NULL(pclause);
    if(state->watchlist && control->heuristic_parms.watchlist_simplify)
    {
       simplify_watchlist(state, control, clause);

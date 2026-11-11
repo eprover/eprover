@@ -67,6 +67,8 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause,
    Clause_p subsumer;
    PStack_p lit_stack = ClauseToStack(clause);
 
+   /* The clause changes, so it must not have a feature vector */
+   assert(!clause->feature_vec);
    clause->weight = ClauseStandardWeight(clause);
 
    while(!PStackEmpty(lit_stack))
@@ -130,10 +132,14 @@ long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause,
    Eqn_p handle;
    long old_sp = PStackGetSP(res);
    PStack_p lit_stack = ClauseToStack(clause);
+   /* The clauses with a flipped literal have different feature
+      vectors, so the clause's own one (valid again afterwards) must
+      not be used for them */
+   FreqVector_p feature_vec = clause->feature_vec;
 
    assert(clause->weight == ClauseStandardWeight(clause));
 
-
+   clause->feature_vec = NULL;
    while(!PStackEmpty(lit_stack))
    {
       handle = PStackPopP(lit_stack);
@@ -142,6 +148,7 @@ long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause,
       ClauseSetFindSubsumedClauses(set, clause, res);
       ClauseFlipLiteralSign(clause, handle);
    }
+   clause->feature_vec = feature_vec;
    PStackFree(lit_stack);
    return PStackGetSP(res) - old_sp;
 }

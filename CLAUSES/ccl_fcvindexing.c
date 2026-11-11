@@ -252,6 +252,7 @@ FVIndex_p FVIndexAlloc(void)
    FVIndex_p handle = FVIndexCellAlloc();
 
    handle->clause_count  = 0;
+   handle->vec           = NULL;
    handle->u1.clauses    = NULL;
    handle->u1.successors = NULL;
    handle->final         = false;
@@ -283,7 +284,13 @@ void FVIndexFree(FVIndex_p junk)
    {
       if(junk->final)
       {
+         /* All clauses referencing the vector are gone with the
+            clause sets */
          OrdSetFree(junk->u1.clauses);
+         if(junk->vec)
+         {
+            FreqVectorFree(junk->vec);
+         }
       }
       else if(junk->u1.successors)
       {
@@ -390,46 +397,66 @@ FVIndex_p FVIndexGetNextNonEmptyNode(FVIndex_p node, long key)
 //
 // Function: FVIndexInsert()
 //
-//   Insert a FreqVector (with associated clause) into the index.
+//   Insert clause into the index. The clause's feature vector is
+//   computed if it does not have one. If the clause ends up in a new
+//   leaf, the leaf takes over the vector, otherwise the clause's copy
+//   is freed. Afterwards, the clause references the vector of its
+//   leaf.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes the index.
+// Side Effects    : Changes the index and the clause.
 //
 /----------------------------------------------------------------------*/
 
-void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
+void FVIndexInsert(FVIAnchor_p index, Clause_p clause)
 {
    FVIndex_p handle, newnode = NULL;
+   FreqVector_p vec;
    long i;
+
+   assert(clause);
+   assert(!ClauseQueryProp(clause, CPIsSIndexed));
+   assert(ClauseFeatureVectorIsValid(clause, index));
+
+   if(!clause->feature_vec)
+   {
+      clause->feature_vec = FVIndexComputeVector(index, clause);
+   }
+   vec = clause->feature_vec;
 
    PERF_CTR_ENTRY(FVIndexTimer);
 
-   assert(vec_clause);
-   assert(vec_clause->clause);
-
-   ClauseSubsumeOrderSortLits(vec_clause->clause);
+   ClauseSubsumeOrderSortLits(clause);
 
    handle = index->index;
    handle->clause_count++;
 
-   for(i=0; i<vec_clause->size; i++)
+   for(i=0; i<vec->size; i++)
    {
       assert(!handle->final);
 
-      newnode = IntMapGetVal(handle->u1.successors, vec_clause->array[i]);
+      newnode = IntMapGetVal(handle->u1.successors, vec->array[i]);
       if(!newnode)
       {
          newnode = insert_empty_node(handle,
                                      index,
-                                     vec_clause->array[i]);
+                                     vec->array[i]);
       }
       handle = newnode;
       handle->clause_count++;
    }
    handle->final = true;
-   OrdSetStore(&(handle->u1.clauses), vec_clause->clause);
-   /* ClauseSetProp(vec_clause->clause, CPIsSIndexed); */
+   if(handle->vec)
+   {
+      FreqVectorFree(clause->feature_vec);
+      clause->feature_vec = handle->vec;
+   }
+   else
+   {
+      handle->vec = vec;
+   }
+   OrdSetStore(&(handle->u1.clauses), clause);
    PERF_CTR_EXIT(FVIndexTimer);
 }
 
@@ -440,12 +467,13 @@ void FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause)
 //
 //   Delete a clause from a FVIndex. At the moment, just removes the
 //   clause from the final cell (I expect removals to be rare enough
-//   that it pays to leave the structure intact. Returns true if the
+//   that it pays to leave the structure intact). The clause loses
+//   access to the feature vector of its leaf. Returns true if the
 //   clause was in the index, false otherwise.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes index.
+// Side Effects    : Changes index and clause.
 //
 /----------------------------------------------------------------------*/
 
@@ -456,9 +484,10 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    long i;
    bool res;
 
-   vec = OptimizedVarFreqVectorCompute(clause, index->perm_vector,
-                   index->cspec);
-   /* FreqVector-Computation is measured independently */
+   assert(clause->feature_vec);
+   assert(ClauseFeatureVectorIsValid(clause, index));
+
+   vec = clause->feature_vec;
    PERF_CTR_ENTRY(FVIndexTimer);
    handle = index->index;
    handle->clause_count--;
@@ -469,12 +498,12 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
       handle = IntMapGetVal(handle->u1.successors, vec->array[i]);
       if(!handle)
       {
-    break;
+         break;
       }
       handle->clause_count--;
    }
-   FreqVectorFree(vec);
-   /* ClauseDelProp(clause, CPIsSIndexed); */
+   assert(!handle || handle->vec == clause->feature_vec);
+   clause->feature_vec = NULL;
    res = handle?OrdSetDeleteEntry(&(handle->u1.clauses), clause):false;
    PERF_CTR_EXIT(FVIndexTimer);
    return res;
@@ -533,26 +562,131 @@ long FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FVIndexPackClause()
+// Function: FVIndexComputeVector()
 //
-//   Pack a clause into an apropriate FVPackedClauseStructure for the
-//   index.
+//   Compute and return the feature vector of clause for the index.
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
-FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor)
+FreqVector_p FVIndexComputeVector(FVIAnchor_p anchor, Clause_p clause)
 {
-   if(!anchor)
-   {
-      return FVPackClause(clause, NULL, NULL);
-   }
-   return FVPackClause(clause, anchor->perm_vector,
-             anchor->cspec);
+   return OptimizedVarFreqVectorCompute(clause, anchor->perm_vector,
+                                        anchor->cspec);
 }
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseComputeFeatureVector()
+//
+//   Give the (not indexed) clause its own feature vector for indices
+//   with anchor's features, replacing any old one. If anchor is NULL
+//   (no indexing), the clause gets no vector.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes clause.
+//
+/----------------------------------------------------------------------*/
+
+void ClauseComputeFeatureVector(Clause_p clause, FVIAnchor_p anchor)
+{
+   ClauseDropFeatureVector(clause);
+   if(anchor)
+   {
+      clause->feature_vec = FVIndexComputeVector(anchor, clause);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseDropFeatureVector()
+//
+//   Free the feature vector of a (not indexed) clause, if any.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes clause.
+//
+/----------------------------------------------------------------------*/
+
+void ClauseDropFeatureVector(Clause_p clause)
+{
+   assert(!ClauseQueryProp(clause, CPIsSIndexed));
+
+   if(clause->feature_vec)
+   {
+      FreqVectorFree(clause->feature_vec);
+      clause->feature_vec = NULL;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseGetFeatureVector()
+//
+//   Return the feature vector of clause for indices with anchor's
+//   features: the clause's own one if it has one, otherwise a newly
+//   computed one, in which case *is_temp is set and the caller has to
+//   free it.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FreqVector_p ClauseGetFeatureVector(Clause_p clause, FVIAnchor_p anchor,
+                                    bool *is_temp)
+{
+   assert(ClauseFeatureVectorIsValid(clause, anchor));
+
+   *is_temp = !clause->feature_vec;
+   if(*is_temp)
+   {
+      return FVIndexComputeVector(anchor, clause);
+   }
+   return clause->feature_vec;
+}
+
+
+#ifndef NDEBUG
+/*-----------------------------------------------------------------------
+//
+// Function: ClauseFeatureVectorIsValid()
+//
+//   Return true if clause has no feature vector or its vector is the
+//   one computed for anchor (i.e. it is not stale and was computed
+//   with the same features). Debugging only.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+bool ClauseFeatureVectorIsValid(Clause_p clause, FVIAnchor_p anchor)
+{
+   FreqVector_p fresh;
+   bool res;
+
+   if(!clause->feature_vec)
+   {
+      return true;
+   }
+   fresh = FVIndexComputeVector(anchor, clause);
+   res = FreqVectorEqual(fresh, clause->feature_vec);
+   FreqVectorFree(fresh);
+   return res;
+}
+#endif
+
 
 /*-----------------------------------------------------------------------
 //

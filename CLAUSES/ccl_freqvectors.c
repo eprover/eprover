@@ -243,7 +243,6 @@ FreqVector_p FreqVectorAlloc(long size)
    handle->size         = size;
    handle->array  = SizeMalloc(sizeof(long)*handle->size);
    FreqVectorInitialize(handle, 0);
-   handle->clause = NULL;
    return handle;
 }
 
@@ -269,7 +268,6 @@ void FreqVectorFreeReal(FreqVector_p junk)
       SizeFree(junk->array, sizeof(long)*junk->size);
 #ifndef NDEBUG
       junk->array = NULL;
-      junk->clause = NULL;
 #endif
    }
    FreqVectorCellFree(junk);
@@ -315,16 +313,6 @@ void FreqVectorPrint(FILE* out, FreqVector_p vec)
    long i;
 
    assert(vec);
-   if(vec->clause)
-   {
-      CommentPrint(out, " FV for: ");
-      ClausePrint(out, vec->clause, true);
-      fprintf(out, "\n");
-   }
-   else
-   {
-      CommentPrint(out, " FV, no clause given.\n");
-   }
    CommentPrint(out, " FV(len=%ld):", vec->size);
    for(i=0; i<vec->size; i++)
 
@@ -461,7 +449,6 @@ FreqVector_p VarFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
       size = FVSize(cspec->max_symbols, cspec->features);
 
       vec = FreqVectorAlloc(size);
-      vec->clause = clause;
       FreqVectorInitialize(vec, 0);
       VarFreqVectorAddVals(vec, cspec->max_symbols,
                            cspec->features, clause);
@@ -512,7 +499,6 @@ FreqVector_p OptimizedVarFreqVectorCompute(Clause_p clause,
          assert(perm->array[i]<vec->size);
          res->array[i] = vec->array[perm->array[i]];
       }
-      res->clause = clause;
       FreqVectorFree(vec);
       PERF_CTR_EXIT(FreqVecTimer);
       return res;
@@ -671,7 +657,6 @@ FreqVector_p FVCollectFreqVectorCompute(Clause_p clause, FVCollect_p cspec)
 
    FreqVector_p vec = FreqVectorAlloc(cspec->res_vec_len);
 
-   vec->clause = clause;
    FreqVectorInitialize(vec, 0);
 
    if(!ClauseIsEmpty(clause))
@@ -879,80 +864,32 @@ FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len)
 
 /*-----------------------------------------------------------------------
 //
-// Function: FVPackClause()
+// Function: FreqVectorEqual()
 //
-//   If index is an index, compute and return a StandardFreqVector for
-//   clause, otherwise pack clause into a dummy frequency vector cell
-//   and return than.
+//   Return true if the two vectors have the same size and values.
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-FVPackedClause_p FVPackClause(Clause_p clause, PermVector_p perm,
-                              FVCollect_p cspec)
+bool FreqVectorEqual(FreqVector_p vec1, FreqVector_p vec2)
 {
-   FVPackedClause_p res;
+   long i;
 
-   if(cspec && (cspec->features != FVINoFeatures))
+   if(vec1->size != vec2->size)
    {
-      return OptimizedVarFreqVectorCompute(clause, perm, cspec);
+      return false;
    }
-   res = FreqVectorCellAlloc();
-   res->array = NULL;
-   res->clause = clause;
-
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: FVUnpackClause()
-//
-//   Unpack a packed clause, i.e. return the clause and throw away the
-//   container.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-Clause_p FVUnpackClause(FVPackedClause_p pack)
-{
-   Clause_p res = pack->clause;
-
-#ifndef NDEBUG
-   pack->clause = NULL;
-#endif
-   FreqVectorFree(pack);
-
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: FVPackedClauseFreeReal()
-//
-//   Fully free a packed clause.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-void FVPackedClauseFreeReal(FVPackedClause_p pack)
-{
-   if(pack->clause)
+   for(i=0; i<vec1->size; i++)
    {
-      ClauseFree(pack->clause);
+      if(vec1->array[i] != vec2->array[i])
+      {
+         return false;
+      }
    }
-   FreqVectorFree(pack);
+   return true;
 }
 
 

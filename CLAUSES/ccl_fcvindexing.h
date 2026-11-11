@@ -55,10 +55,16 @@ typedef struct fvindex_parms_cell
 
 
 
+/* A node of the index. The path from the root to a leaf (final
+   node) spells out a feature vector. The leaf owns one copy of this
+   vector, and all clauses stored at the leaf reference it (as their
+   feature_vec) while they are in the index. */
+
 typedef struct fv_index_cell
 {
-   bool     final;
-   long     clause_count;
+   bool         final;
+   long         clause_count;
+   FreqVector_p vec;           /* Only for final nodes, else NULL */
    union
    {
       IntMap_p successors;
@@ -109,13 +115,21 @@ void        FVIAnchorFree(FVIAnchor_p junk);
 #define FVIndexStorage(index) ((index)?(index)->storage:0)
 
 FVIndex_p   FVIndexGetNextNonEmptyNode(FVIndex_p node, long key);
-void        FVIndexInsert(FVIAnchor_p index, FreqVector_p vec_clause);
+void        FVIndexInsert(FVIAnchor_p index, Clause_p clause);
 
 bool        FVIndexDelete(FVIAnchor_p index, Clause_p clause);
 
 long        FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty);
 
-FVPackedClause_p FVIndexPackClause(Clause_p clause, FVIAnchor_p anchor);
+FreqVector_p FVIndexComputeVector(FVIAnchor_p anchor, Clause_p clause);
+void         ClauseComputeFeatureVector(Clause_p clause, FVIAnchor_p anchor);
+void         ClauseDropFeatureVector(Clause_p clause);
+FreqVector_p ClauseGetFeatureVector(Clause_p clause, FVIAnchor_p anchor,
+                                    bool *is_temp);
+#ifndef NDEBUG
+bool         ClauseFeatureVectorIsValid(Clause_p clause,
+                                        FVIAnchor_p anchor);
+#endif
 
 void        FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms);
 #endif
