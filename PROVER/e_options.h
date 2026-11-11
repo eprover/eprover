@@ -234,7 +234,6 @@ typedef enum
    OPT_FIXPOINT_ORACLE,
    OPT_MAX_UNIFIERS,
    OPT_MAX_UNIF_STEPS,
-   OPT_CNF_TIMEOUT_PORTION,
    OPT_PREINSTANTIATE_INDUCTION,
    OPT_SERIALIZE_SCHEDULE,
    OPT_DUMMY
@@ -1705,12 +1704,6 @@ OptCell opts[] =
     ReqArg, NULL,
     "Maximal number of variable bindings that can "
     "be done in one single call to copmuting the next unifier."},
-
-    {OPT_CNF_TIMEOUT_PORTION,
-    '\0', "classification-timeout-portion",
-    ReqArg, NULL,
-    "Which percentage (from 1 to 99) of the total CPU time will be devoted to "
-    "problem classification?"},
 
     {OPT_PREINSTANTIATE_INDUCTION,
     '\0', "preinstantiate-induction",

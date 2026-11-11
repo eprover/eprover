@@ -131,7 +131,6 @@ char  *outdesc = DEFAULT_OUTPUT_DESCRIPTOR,
 PStack_p          wfcb_definitions, hcb_definitions;
 pid_t              pid = 0;
 bool               auto_conf = false;
-double             clausification_time_part=0.02;
 
 FunctionProperties free_symb_prop = FPIgnoreProps;
 
@@ -2654,9 +2653,6 @@ CLState_p process_options(int argc, char* argv[])
                      USAGE_ERROR);
             }
             break;
-      case OPT_CNF_TIMEOUT_PORTION:
-            clausification_time_part =
-               CLStateGetIntArgCheckRange(handle, arg, 1, 99) / (double) 100;
       case OPT_PREINSTANTIATE_INDUCTION:
             h_parms->preinstantiate_induction = CLStateGetBoolArg(handle, arg);
             break;
