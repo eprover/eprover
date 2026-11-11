@@ -7,7 +7,8 @@ README!
 Short Installation Instructions for the Impatient
 =================================================
 
-This assumes that you have GNU tar, sh and a POSIX awk in your search path!
+This assumes that you have tar, sh, make (any POSIX make will do) and
+a C compiler (gcc or clang) in your search path!
 
 Simple installation of the first-order version (will install
 executables):
@@ -27,7 +28,7 @@ Simplest installation (in-place):
   tar -xzf E.tgz
   cd E
   ./configure
-  make rebuild
+  make
   cd PROVER
   ./eprover -h | more
 ```
@@ -42,7 +43,7 @@ that supports higher-order reasoning, use the following:
 
 ```sh
   ./configure --enable-ho
-  make rebuild
+  make
   cd PROVER
   eprover-ho -h | more
 ```
@@ -126,9 +127,9 @@ or
 (if you have GNU tar)
 
 This should create a directory named E. After unpacking, optionally
-edit `E/Makefile.vars` to your liking. In particular, if building for
-HPUX, comment out the suitable CFLAGS definition (for most systems,
-the default definition should be ok). Then change to the E directory:
+edit `E/Makefile.vars` to your liking (compiler, compile options; for
+most systems, the defaults should be ok). Then change to the E
+directory:
 
 ```sh
    cd E
@@ -160,6 +161,10 @@ To enable higher-order-support, add the option `--enable-ho`, e.g.
    ./configure --enable-ho
 ```
 
+`./configure --help` lists all options. The configuration is stored
+in `config.mk`, and header dependencies in `deps.mk`. Both files are
+generated, do not edit them.
+
 Then type
 
 ```sh
@@ -177,14 +182,15 @@ You must have write permission in the EXECDIR, so if you install E
 outside your own home directory, you may need to become root or use
 sudo.
 
-If you have changed the configuration, you need to rebuild all object
-and binary files. Run
+If you change the configuration (by running `./configure` again or by
+editing `Makefile.vars`), `make` recompiles everything that depends on
+it. If you add or remove `#include` lines, run
 
 ```sh
-   make rebuild
+   make depend
 ```
 
-instead of plain make.
+to update the header dependencies.
 
 
 Type
@@ -198,9 +204,10 @@ and the packages theorem, amssymb and epsfig, which are included in
 most current LaTeX distributions). The manual should also be included
 as a pre-compiled PDF.
 
-For some operating systems, especially if you do not have the GNU gcc
-compiler installed, you may need to edit Makefile.vars manually to
-select tools and options. If you have any problems, look into
+For some operating systems, especially if you have neither gcc nor
+clang installed, you may need to edit Makefile.vars manually to
+select tools and options (generating the header dependencies needs a
+compiler that supports -MM and -MT). If you have any problems, look into
 E/DOC/PORTING.
 
 If you get into trouble,

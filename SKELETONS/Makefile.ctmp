@@ -1,41 +1,19 @@
 #------------------------------------------------------------------------
 #
-# File  : Makefile template
+# File  : Makefile template for a library directory
 #
-# Author: Stephan Schulz
-#
-# Changes
-#
-# <1> Sun Jul  6 22:55:11 MET DST 1997
-#     New
+# E is built by the top level Makefile, where the objects of a new
+# library XXX have to be listed (XXX_OBJ), together with a rule for
+# XXX/XXX.a and an entry in ELIBS. The directory itself only gets
+# this forwarding Makefile.
 #
 #------------------------------------------------------------------------
 
-include ../Makefile.vars
+all:
+	cd .. && $(MAKE) XXX/XXX.a
 
-# Project specific variables
-
-PROJECT = 
-LIB     = $(PROJECT).a
-
-all: $(LIB)
-
-depend: *.c *.h
-	$(MAKEDEPEND)
-
-# Remove all automatically generated files
+.DEFAULT:
+	cd .. && $(MAKE) $@
 
 clean:
-	@touch does_exist.o does_exist.a; rm *.o  *.a
-
-# Services (provided by the master Makefile)
-
-include ../Makefile.services
-
-_LIB = .o
-
-$(LIB): $(_LIB)
-	$(AR) $(LIB) $(_LIB)
-
-include Makefile.dependencies
-
+	rm -f *.o *.a

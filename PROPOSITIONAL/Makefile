@@ -1,44 +1,18 @@
 #------------------------------------------------------------------------
 #
-# File  : Makefile for the PROPOSITIONAL library
+# File  : Makefile for PROPOSITIONAL
 #
-# Author: Stephan Schulz
-#
-# Changes
-#
-# <1> Thu Apr 24 17:09:00 CEST 2003
-#     New
+# E is built by the top level Makefile. This only forwards to it:
+# "make" here builds the PROPOSITIONAL library, any other target is
+# passed on unchanged.
 #
 #------------------------------------------------------------------------
 
-include ../Makefile.vars
+all:
+	cd .. && $(MAKE) PROPOSITIONAL/PROPOSITIONAL.a
 
-# Project specific variables
-
-PROJECT = PROPOSITIONAL
-LIB     = $(PROJECT).a
-
-all: $(LIB)
-
-depend: *.c *.h
-	$(MAKEDEPEND)
-
-# Remove all automatically generated files
+.DEFAULT:
+	cd .. && $(MAKE) $@
 
 clean:
-	@touch does_exist.o does_exist.a; rm *.o  *.a
-
-# Services (provided by the master Makefile)
-
-include ../Makefile.services
-
-# Build the  library
-
-PROP_LIB = cpr_propsig.o cpr_varset.o cpr_propclauses.o cpr_dpllformula.o cpr_dpll.o
-
-
-$(LIB): $(PROP_LIB)
-	$(AR) $(LIB) $(PROP_LIB)
-
-include Makefile.dependencies
-
+	rm -f *.o *.a

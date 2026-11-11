@@ -1,48 +1,18 @@
 #------------------------------------------------------------------------
 #
-# File  : Makefile for simple applications build on top of (parts of)
-#         CLIB.
+# File  : Makefile for SIMPLE_APPS
 #
-# Author: Stephan Schulz
-#
-# Changes
-#
-# <1> Fri Nov 28 00:25:20 MET 1997
-#     New
+# E is built by the top level Makefile. This only forwards to it:
+# "make" here builds the programs in this directory, any other target is
+# passed on unchanged.
 #
 #------------------------------------------------------------------------
 
-include ../Makefile.vars
+all:
+	cd .. && $(MAKE) SIMPLE_APPS/ex_commandline SIMPLE_APPS/term2dag
 
-# Project specific variables
-
-PROJECT = ex_commandline term2dag
-LIB     = $(PROJECT)
-all: $(LIB)
-
-depend: *.c
-	$(MAKEDEPEND)
-
-# Remove all automatically generated files
+.DEFAULT:
+	cd .. && $(MAKE) $@
 
 clean:
-	@touch does_exist.o does_exist.dSYM does_exist.a $(PROJECT)
-	@rm -r *.o $(PROJECT) *.dSYM *.a
-
-# Services (provided by the master Makefile)
-
-include ../Makefile.services
-
-# Build the test programs
-
-TERM2DAG = term2dag.o ../lib/TERMS.a ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a  ../lib/INOUT.a ../lib/BASICS.a
-
-term2dag: $(TERM2DAG)
-	$(LD) -o term2dag $(TERM2DAG) $(LIBS)
-
-EX_COMMANDLINE = ex_commandline.o ../lib/INOUT.a ../lib/BASICS.a
-
-ex_commandline: $(EX_COMMANDLINE)
-	$(LD) -o ex_commandline $(EX_COMMANDLINE) $(LIBS)
-
-include Makefile.dependencies
+	cd .. && $(MAKE) clean_extras

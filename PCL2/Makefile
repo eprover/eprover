@@ -1,43 +1,18 @@
 #------------------------------------------------------------------------
 #
-# File  : Makefile for the PCL2 stuff
+# File  : Makefile for PCL2
 #
-# Author: Stephan Schulz
-#
-# Changes
-#
-# <1> Wed Mar 22 19:35:48 MET 2000
-#     New
+# E is built by the top level Makefile. This only forwards to it:
+# "make" here builds the PCL2 library, any other target is
+# passed on unchanged.
 #
 #------------------------------------------------------------------------
 
-include ../Makefile.vars
+all:
+	cd .. && $(MAKE) PCL2/PCL2.a
 
-# Project specific variables
-
-PROJECT = PCL2
-LIB     = $(PROJECT).a
-
-all: $(LIB)
-
-depend: *.c *.h
-	$(MAKEDEPEND)
-
-# Remove all automatically generated files
+.DEFAULT:
+	cd .. && $(MAKE) $@
 
 clean:
-	@touch does_exist.o does_exist.a; rm *.o  *.a
-
-# Services (provided by the master Makefile)
-
-include ../Makefile.services
-
-PCL2_LIB = pcl_idents.o pcl_positions.o pcl_expressions.o pcl_steps.o \
-	   pcl_protocol.o pcl_miniclauses.o pcl_ministeps.o pcl_miniprotocol.o\
-           pcl_lemmas.o pcl_analysis.o pcl_propanalysis.o pcl_proofcheck.o
-
-$(LIB): $(PCL2_LIB)
-	$(AR) $(LIB) $(PCL2_LIB)
-
-include Makefile.dependencies
-
+	rm -f *.o *.a

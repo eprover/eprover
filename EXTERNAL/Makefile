@@ -1,42 +1,18 @@
 #------------------------------------------------------------------------
 #
-# File  : Makefile for code outside the core E hierarchy.
+# File  : Makefile for EXTERNAL
 #
-# Author: Stephan Schulz
-#
-# Changes
-#
-# Created: Mon Apr 10 00:33:40 GMT 2000
+# E is built by the top level Makefile. This only forwards to it:
+# "make" here builds CSSCPA_filter, any other target is
+# passed on unchanged.
 #
 #------------------------------------------------------------------------
 
-include ../Makefile.vars
+all:
+	cd .. && $(MAKE) EXTERNAL/CSSCPA_filter
 
-# Project specific variables
-
-PROJECT = CSSCPA_filter
-LIB     = $(PROJECT)
-
-all: $(LIB)
-
-depend: *.c *.h
-	$(MAKEDEPEND)
-
-# Remove all automatically generated files
+.DEFAULT:
+	cd .. && $(MAKE) $@
 
 clean:
-	@touch does_exist.o does_exist.dSYM $(PROJECT)
-	@rm -r *.o $(PROJECT) *.dSYM
-
-# Services (provided by the master Makefile)
-
-include ../Makefile.services
-
-CSSCPA = CSSCPA_filter.o cex_csscpa.o \
-            ../lib/CLAUSES.a ../lib/ORDERINGS.a ../lib/TERMS.a\
-            ../lib/INOUT.a ../lib/BASICS.a ../lib/CONTRIB.a
-
-$(LIB): $(CSSCPA)
-	$(LD) -o CSSCPA_filter $(CSSCPA) $(LIBS)
-
-include Makefile.dependencies
+	cd .. && $(MAKE) clean_extras

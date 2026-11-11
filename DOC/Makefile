@@ -2,37 +2,19 @@
 #
 # File  : Makefile for the DOC directory
 #
+# Builds the E manual (eprover.pdf) with pdflatex.
+#
 # Author: Stephan Schulz
-#
-# Changes
-#
-# <1> Tue Jan 13 01:16:22 MET 1998
-#     New
 #
 #------------------------------------------------------------------------
 
 include ../Makefile.vars
 
-# Project specific variables
-
-PROJECT = DOC
-LIB     = eprover.pdf
-
-all: $(LIB)
+all: eprover.pdf
 
 clean:
-	@rm -f *.aux *.log *.dvi *.ps;
+	rm -f *.aux *.log *.dvi *.ps
 
-depend:
-	echo "No dependencies for LaTeX documentation"
-
-# Services (provided by the master Makefile)
-
-include ../Makefile.services
-
-DOC_LIB = *.tex
-
-$(LIB): $(DOC_LIB)
+eprover.pdf: eprover.tex estyle.sty
 	$(PDFLATEX) eprover.tex
-	#$(BIBTEX) eprover
 	$(PDFLATEX) eprover.tex

@@ -4,9 +4,8 @@
 #
 # Write '#define ECOMMITID "<id>"' to <file>, where <id> is the git
 # commit E is built from, with "-dirty" appended if tracked files are
-# modified. Makefile.vars is ignored for this: it holds the local build
-# configuration and is rewritten by ./configure, so it is (almost)
-# always modified. The file is only rewritten if its content changes, so
+# modified. Makefile.vars is ignored for this: it holds the local
+# compile options and is often modified locally. The file is only rewritten if its content changes, so
 # that dependent objects are only recompiled when the id changes.
 #
 # Outside a git checkout of E (e.g. in a distribution tarball) an
