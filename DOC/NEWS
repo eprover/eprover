@@ -77,7 +77,7 @@ Version 3.2.5 -> 3.5.X Countess Grey
   --memory-limit now also limits the address space (RLIMIT_AS), as
   originally intended.
   The seeds of RandomWeight now take effect.
-  Condensing now also tries unifying equations with swapped sides.
+  Condensing is now complete; it missed some condensations before.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol

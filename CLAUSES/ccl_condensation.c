@@ -42,50 +42,150 @@ long CondensationSuccesses = 0;
 
 /*-----------------------------------------------------------------------
 //
-// Function: try_condensation()
+// Function: lit_matches()
 //
-//   Try to condense literals l1 and l2 (with the sides of l2 swapped
-//   if swap is true) in clause. If successful, modify clause and
-//   return true, otherwise return false.
+//   Try to extend subst to a match from pattern onto target (with
+//   the sides of target swapped if swap is true). Return true on
+//   success. On failure, subst is unchanged.
 //
 // Global Variables: -
 //
-// Side Effects    : Modification of clause
+// Side Effects    : Extends subst
 //
 /----------------------------------------------------------------------*/
 
-static bool try_condensation(Clause_p clause, Eqn_p l1, Eqn_p l2, bool swap)
+static bool lit_matches(Eqn_p pattern, Eqn_p target, bool swap, Subst_p subst)
 {
-   Subst_p  subst = SubstAlloc();
-   Eqn_p    newlits;
-   Clause_p cand;
-   bool     res = false;
+   PStackPointer state = PStackGetSP(subst);
+   Term_p lterm = swap? target->rterm : target->lterm;
+   Term_p rterm = swap? target->lterm : target->rterm;
 
-   if(LiteralUnifyOneWay(l1, l2, subst, swap))
+   if(SubstMatchComplete(pattern->lterm, lterm, subst) &&
+      SubstMatchComplete(pattern->rterm, rterm, subst))
    {
-      newlits = EqnListCopyExcept(clause->literals,l2, EqnGetBank(l1));
-      SubstBacktrack(subst);
-      EqnListRemoveDuplicates(newlits);
-      EqnListRemoveResolved(&newlits);
-      cand = ClauseAlloc(newlits);
-      cand->weight = ClauseStandardWeight(cand);
-      ClauseSubsumeOrderSortLits(cand);
-      if(ClauseSubsumesClause(cand, clause))
-      {
-         EqnListFree(clause->literals);
-         clause->literals = cand->literals;
-         ClauseRecomputeLitCounts(clause);
-         clause->weight = ClauseStandardWeight(clause);
-         cand->literals = NULL;
-         ClauseFree(cand);
+      return true;
+   }
+   SubstBacktrackToPos(subst, state);
+   return false;
+}
 
-         res = true;
-      }
-      else
+
+/*-----------------------------------------------------------------------
+//
+// Function: lit_matches_some()
+//
+//   Return true if pattern matches some literal of targets other
+//   than except. Equations are matched in both orientations.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool lit_matches_some(Eqn_p pattern, Eqn_p targets, Eqn_p except)
+{
+   Subst_p subst = SubstAlloc();
+   bool    res = false;
+   Eqn_p   target;
+
+   for(target = targets; target && !res; target = target->next)
+   {
+      if((target == except) ||
+         !PropsAreEquiv(pattern, target, EPIsPositive|EPIsEquLiteral))
       {
-         ClauseFree(cand);
+         continue;
+      }
+      res = lit_matches(pattern, target, false, subst) ||
+         (EqnIsEquLit(pattern) && lit_matches(pattern, target, true, subst));
+      SubstBacktrack(subst);
+   }
+   SubstDelete(subst);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: lit_list_set_subsumes()
+//
+//   Return true if subst can be extended to a substitution that maps
+//   every literal of patterns onto some literal of targets other than
+//   except. Several patterns may be mapped onto the same target (set
+//   subsumption, not multiset subsumption). Equations are matched in
+//   both orientations. On failure, subst is unchanged. On success,
+//   the caller has to backtrack subst.
+//
+// Global Variables: -
+//
+// Side Effects    : Extends subst
+//
+/----------------------------------------------------------------------*/
+
+static bool lit_list_set_subsumes(Eqn_p patterns, Eqn_p targets,
+                                  Eqn_p except, Subst_p subst)
+{
+   Eqn_p         target;
+   PStackPointer state = PStackGetSP(subst);
+
+   if(!patterns)
+   {
+      return true;
+   }
+   for(target = targets; target; target = target->next)
+   {
+      if((target == except) ||
+         !PropsAreEquiv(patterns, target, EPIsPositive|EPIsEquLiteral))
+      {
+         continue;
+      }
+      if(lit_matches(patterns, target, false, subst))
+      {
+         if(lit_list_set_subsumes(patterns->next, targets, except, subst))
+         {
+            return true;
+         }
+         SubstBacktrackToPos(subst, state);
+      }
+      if(EqnIsEquLit(patterns) && lit_matches(patterns, target, true, subst))
+      {
+         if(lit_list_set_subsumes(patterns->next, targets, except, subst))
+         {
+            return true;
+         }
+         SubstBacktrackToPos(subst, state);
       }
    }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: lit_is_condensable()
+//
+//   Return true if lit can be deleted from clause by condensation,
+//   i.e. if there is a substitution sigma with clause*sigma a subset
+//   of clause\{lit}. As a cheap necessary condition, lit has to
+//   match another literal of the clause.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool lit_is_condensable(Clause_p clause, Eqn_p lit)
+{
+   Subst_p subst;
+   bool    res;
+
+   if(!lit_matches_some(lit, clause->literals, lit))
+   {
+      return false;
+   }
+   subst = SubstAlloc();
+   res = lit_list_set_subsumes(clause->literals, clause->literals, lit, subst);
    SubstDelete(subst);
 
    return res;
@@ -100,75 +200,55 @@ static bool try_condensation(Clause_p clause, Eqn_p l1, Eqn_p l2, bool swap)
 
 /*-----------------------------------------------------------------------
 //
-// Function: CondenseOnce()
-//
-//   Try to condense clause. If successful, simplify the clause, and
-//   return true. If not, the clause is unchanged and false is
-//   returned.
-//
-// Global Variables:
-//
-// Side Effects    :
-//
-/----------------------------------------------------------------------*/
-
-bool CondenseOnce(Clause_p clause)
-{
-   Eqn_p    l1, l2;
-
-   assert(ClauseIsSubsumeOrdered(clause));
-
-   for(l1=clause->literals; l1; l1=l1->next)
-   {
-      assert(l1);
-      for(l2=l1->next; l2; l2=l2->next)
-      {
-         if(try_condensation(clause, l1, l2, false))
-         {
-            return true;
-         }
-         if((!EqnIsOriented(l1))||(!EqnIsOriented(l2)))
-         {
-            if(try_condensation(clause, l1, l2, true))
-            {
-               return true;
-            }
-         }
-      }
-   }
-   return false;
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: Condense()
 //
 //   Condense a clause as much as possible. Return true if the clause
 //   was changed, false otherwise. A full proof object keeps the clause
 //   before the step in step_archive.
 //
-// Global Variables:
+//   A literal L of C can be deleted if C*sigma is a subset of C\{L}
+//   for some sigma. C is condensed if no literal can be deleted, and
+//   one pass over the literals suffices: if L cannot be deleted from
+//   C, it cannot be deleted from any C' obtained from C by deleting
+//   literals this way either (C'*sigma subset of C'\{L} implies
+//   C*rho*sigma subset of C\{L}, where C*rho is a subset of C').
+//   This follows the implementation in SPASS.
 //
-// Side Effects    : -
+// Global Variables: CondensationAttempts, CondensationSuccesses
+//
+// Side Effects    : Changes clause
 //
 /----------------------------------------------------------------------*/
 
 bool Condense(Clause_p clause, ClauseSet_p step_archive)
 {
-   bool res = false;
+   bool  res = false;
+   EqnRef lit;
 
    CondensationAttempts++;
 
    if((clause->pos_lit_no > 1) || (clause->neg_lit_no >1))
    {
       Clause_p before = ClauseArchiveStepBegin(step_archive, clause);
-      clause->weight = ClauseStandardWeight(clause);
+      /* Heavier literals first, so that failing matches fail early. */
       ClauseSubsumeOrderSortLits(clause);
-      while(CondenseOnce(clause))
+      lit = &(clause->literals);
+      while(*lit)
       {
-         res = true;
+         if(lit_is_condensable(clause, *lit))
+         {
+            EqnListDeleteElement(lit);
+            res = true;
+         }
+         else
+         {
+            lit = &((*lit)->next);
+         }
+      }
+      if(res)
+      {
+         ClauseRecomputeLitCounts(clause);
+         clause->weight = ClauseStandardWeight(clause);
       }
       ClauseArchiveStepEnd(step_archive, clause, before, res);
       if(res)

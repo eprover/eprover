@@ -310,7 +310,6 @@ bool    EqnUnifyDirected(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
 bool    EqnUnify(Eqn_p eq1, Eqn_p eq2, Subst_p subst);
 bool    EqnUnifyP(Eqn_p eq1, Eqn_p eq2);
 
-bool    LiteralUnifyOneWay(Eqn_p eq1, Eqn_p eq2, Subst_p subst, bool swapped);
 
 int     EqnSyntaxCompare(const void* l1, const void* l2);
 int     LiteralSyntaxCompare(const void* l1, const void* l2);
