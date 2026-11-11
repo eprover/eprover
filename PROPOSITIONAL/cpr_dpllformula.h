@@ -51,7 +51,7 @@ typedef struct dpllrep_cell
 }DPLLFormulaCell, *DPLLFormula_p;
 
 
-#define DEFAULT_ATOM_NUMBER 500;
+#define DEFAULT_ATOM_NUMBER 500
 #define ATOM_GROWTH_FACTOR  1.5
 
 

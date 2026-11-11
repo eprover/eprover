@@ -46,7 +46,7 @@ Changes
 //
 /----------------------------------------------------------------------*/
 
-void dpll_form_add_atom_space(DPLLFormula_p form)
+static void dpll_form_add_atom_space(DPLLFormula_p form)
 {
    long old_limit, new_limit,i;
 
@@ -120,7 +120,7 @@ DPLLFormula_p DPLLFormulaAlloc(void)
 
 void DPLLFormulaFree(DPLLFormula_p junk)
 {
-   int i;
+   long i;
 
    for(i=0; i<junk->atom_no; i++)
    {
@@ -165,7 +165,7 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
     {
        CommentPrint(out, " %4ld: %4ld %4ld\n", i,
           form->atoms[i].pos_occur,
-          form->atoms[i].pos_occur);
+          form->atoms[i].neg_occur);
     }
       }
    }
@@ -191,7 +191,8 @@ void DPLLFormulaPrint(FILE* out,DPLLFormula_p form, DPLLOutputFormat format,
 //
 // Function: DPLLRegisterClauseLiteral()
 //
-//   Register a clause at an atom.
+//   Register clause at the atom of lit (as a positive or negative
+//   occurrence), growing the atom array as needed.
 //
 // Global Variables: -
 //
@@ -206,7 +207,7 @@ void DPLLRegisterClauseLiteral(DPLLFormula_p form,
    PLiteralCode atom = ABS(lit);
    bool res;
 
-   while(form->atom_no<=lit)
+   while(form->atom_no<=atom)
    {
       dpll_form_add_atom_space(form);
    }
