@@ -390,6 +390,7 @@ long PCLProtStripFOF(PCLProt_p prot)
             step->just = PCLExprAlloc();
             step->just->arg_no = 0;
             step->just->op = PCLOpInitial;
+            PCLStepSetProp(step, PCLIsInitial);
          }
       }
    }
