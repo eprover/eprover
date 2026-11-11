@@ -99,7 +99,9 @@ void PCL2PosFree(PCL2Pos_p pos)
 // Function: PCL2PosParse()
 //
 //   Parse a PCL2 position of the format
-//   <pos-int> [. L|R [ .<pos-int> ]*].
+//   (<pos-int> [. L|R [ .<pos-int> ]*])
+//   (literal, side, term position), as it follows a step id in a PCL
+//   expression.
 //
 // Global Variables: -
 //
@@ -112,6 +114,7 @@ PCL2Pos_p PCL2PosParse(Scanner_p in)
    PCL2Pos_p handle = PCL2PosAlloc();
    long      i;
 
+   AcceptInpTok(in, OpenBracket);
    handle->literal = AktToken(in)->numval;
    AcceptInpTok(in, PosInt);
    if(TestInpTok(in, Fullstop))
@@ -141,6 +144,7 @@ PCL2Pos_p PCL2PosParse(Scanner_p in)
       }
       handle->termposlen=i;
    }
+   AcceptInpTok(in, CloseBracket);
    return handle;
 }
 
@@ -149,7 +153,7 @@ PCL2Pos_p PCL2PosParse(Scanner_p in)
 //
 // Function: PCL2PosPrint()
 //
-//   Print a PCL2 position.
+//   Print a PCL2 position in the format accepted by PCL2PosParse().
 //
 // Global Variables: -
 //
@@ -163,19 +167,19 @@ void PCL2PosPrint(FILE* out, PCL2Pos_p pos)
 
    assert(pos);
 
-   fprintf(out, "%ld", pos->literal);
+   fprintf(out, "(%ld", pos->literal);
    if(pos->side!=NoSide)
    {
       assert((pos->side==LeftSide) || (pos->side==RightSide));
       fprintf(out, ".%c", (pos->side==LeftSide)?'L':'R');
 
-      i=0;
-      while(i<pos->termposlen)
+      for(i=0; i<pos->termposlen; i++)
       {
-    assert(pos->termpos);
-    fprintf(out, "%ld", PDArrayElementInt(pos->termpos,i++));
+         assert(pos->termpos);
+         fprintf(out, ".%ld", PDArrayElementInt(pos->termpos,i));
       }
    }
+   fputc(')', out);
 }
 
 
