@@ -84,10 +84,35 @@ Term_p gd_def_nf(TB_p terms, Term_p term, NumTree_p *defs)
 
 /*-----------------------------------------------------------------------
 //
-// Function: gd_term_rek_define()
+// Function: gd_term_definable()
 //
-//   Conditionally (if it does not already exist) add a definiton for
-//   term -> New Constant.
+//   Return true if term can be replaced by a fresh constant of its
+//   type. In higher-order logic this excludes partial applications
+//   (terms of functional type) and terms containing lambdas or
+//   bound (de Bruijn) variables. In first-order logic, all terms
+//   are definable.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool gd_term_definable(Term_p term)
+{
+   return !TermIsDBVar(term) &&
+      !TypeIsArrow(term->type) &&
+      !TermHasLambdaSubterm(term) &&
+      !TermHasDBSubterm(term);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: gd_term_define()
+//
+//   Conditionally (if it does not already exist, and the term is
+//   definable) add a definiton for term -> New Constant.
 //
 //   Definitions are stored in defs, with cell->key being the entry_no
 //   of the LHS, and cell->val1.pval pointing to the RHS. The
@@ -108,12 +133,13 @@ long gd_term_define(TB_p terms, Term_p term,
    Eqn_p def_eqn;
    Clause_p clause;
 
-   if(TermIsConst(term) || NumTreeFind(defs, term->entry_no))
+   if(TermIsConst(term) || NumTreeFind(defs, term->entry_no) ||
+      !gd_term_definable(term))
    {
       return 0;
    }
    lhs = gd_def_nf(terms, term, defs);
-   new_const = SigGetNewTypedDefCode(terms->sig, NULL, 0, GetReturnSort(term->type));
+   new_const = SigGetNewTypedDefCode(terms->sig, NULL, 0, term->type);
    rhs = TermConstCellAlloc(new_const);
    rhs = TBTermTopInsert(terms, rhs);
    NumTreeStore(defs, lhs->entry_no,
@@ -136,7 +162,8 @@ long gd_term_define(TB_p terms, Term_p term,
 //
 //   Add definitions for the normalform of term (with respect to defs)
 //   and all its subterms to clauses. Returns number of definitions
-//   added.
+//   added. Bound (de Bruijn) variables (reached in the bodies of
+//   lambda terms) are skipped.
 //
 // Global Variables: -
 //
@@ -150,7 +177,7 @@ long gd_term_rek_define(TB_p terms, Term_p term,
 {
    long res = 0;
 
-   if(TermIsConst(term))
+   if(TermIsConst(term) || TermIsDBVar(term))
    {
       return res;
    }
