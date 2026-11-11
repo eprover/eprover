@@ -200,27 +200,36 @@ void SysWarning(char* message, ...)
 //
 // Function: ELog()
 //
-//   Write a message to a logfile.
+//   Append a message (printf()-style, a newline is added) to the
+//   logfile elog<pid>.log of the calling process, prefixed with the
+//   process id and the CPU time used so far. Intended for debugging
+//   (in particular of multi-process runs).
 //
-// Global Variables:
+// Global Variables: TmpErrno
 //
-// Side Effects    :
+// Side Effects    : Writes to the logfile, may terminate with error
 //
 /----------------------------------------------------------------------*/
 
 void ELog(char* message, ...)
 {
    va_list ap;
+   FILE    *logfile;
+   char    logname[64];
+   long    pid = (long)getpid();
+
+   snprintf(logname, sizeof(logname), "elog%ld.log", pid);
+   logfile = fopen(logname, "a");
+   if(!logfile)
+   {
+      TmpErrno = errno;
+      SysError("Cannot open logfile %s", FILE_ERROR, logname);
+   }
+   fprintf(logfile, "%ld: %4.9f: ", pid, GetTotalCPUTime());
    va_start(ap, message);
-
-   FILE *logfile;
-   sprintf(ErrStr, "elog%d.log", getpid());
-   logfile = fopen(ErrStr, "a");
-
-   fprintf(logfile, "%d: %4.9f: ", getpid(), GetTotalCPUTime());
    vfprintf(logfile, message, ap);
-   fprintf(stderr, "\n");
    va_end(ap);
+   fprintf(logfile, "\n");
    fclose(logfile);
 }
 

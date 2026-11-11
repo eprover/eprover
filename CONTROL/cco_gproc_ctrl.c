@@ -482,17 +482,17 @@ EGPCtrl_p EGPCtrlSetGetResult(EGPCtrlSet_p set)
 
    maxfd = EGPCtrlSetFDSet(set, &readfds);
 
-   //ELog("Before select (TERM: %d)\n", SigTermCaught);
+   //ELog("Before select (TERM: %d)", SigTermCaught);
    sel_success = select(maxfd+1, &readfds, &writefds, &errorfds, &waittime);
-   //ELog("After select (TERM: %d)\n", SigTermCaught);
+   //ELog("After select (TERM: %d)", SigTermCaught);
    if(sel_success !=-1)
    {
       for(i=0; i<= maxfd && !res; i++)
       {
-         //ELog("Loop %d\n", i);
+         //ELog("Loop %d", i);
          if(FD_ISSET(i, &readfds))
          {
-            //ELog("Readable:\n", i);
+            //ELog("Readable:", i);
             handle = EGPCtrlSetFindProc(set, i);
             eof = EGPCtrlGetResult(handle, set->buffer, EGPCTRL_BUFSIZE);
             if(eof)
@@ -521,7 +521,7 @@ EGPCtrl_p EGPCtrlSetGetResult(EGPCtrlSet_p set)
          }
       }
    }
-   //ELog("After Loop (TERM: %d)\n", SigTermCaught);
+   //ELog("After Loop (TERM: %d)", SigTermCaught);
    return res;
 }
 
