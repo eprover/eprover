@@ -368,6 +368,7 @@ static long eliminate_context_sr_clauses(ProofState_p state,
                                     state->tmp_store,
                                     state->archive,
                                     clause,
+                                    control->heuristic_parms.context_sr_plain,
                                     &(state->gindices),
                                     lambda_demod);
 }
@@ -705,7 +706,7 @@ static Clause_p insert_new_clauses(ProofState_p state, ProofControl_p control)
          }
          /* Not subsumed. The clause may still change, so it does not
             keep the feature vector. */
-         ClauseDropFeatureVector(handle);
+         ClauseDropFeatures(handle);
       }
 
       if(control->heuristic_parms.er_aggressive &&
@@ -790,11 +791,13 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
    long     clause_count;
    bool     replaced = false;
    /* If the clause is replaced, it may be changed and end up in
-      tmp_store, so it must not keep its feature vector. Otherwise it
-      is unchanged and gets it back. */
+      tmp_store, so it must not keep its features. Otherwise it is
+      unchanged and gets them back. */
    FreqVector_p feature_vec = clause->feature_vec;
+   FeatureSet_p feature_set = clause->feature_set;
 
    clause->feature_vec = NULL;
+   clause->feature_set = NULL;
 
    if(problemType == PROBLEM_HO && ImmediateClausification(clause, state->tmp_store, state->archive, state->freshvars, control->heuristic_parms.fool_unroll, state->step_archive))
    {
@@ -830,9 +833,14 @@ Clause_p replacing_inferences(ProofState_p state, ProofControl_p
       {
          FreqVectorFree(feature_vec);
       }
+      if(feature_set)
+      {
+         FeatureSetFree(feature_set);
+      }
       return insert_new_clauses(state, control);
    }
    clause->feature_vec = feature_vec;
+   clause->feature_set = feature_set;
    return clause;
 }
 
@@ -1412,17 +1420,22 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
    if(control->fvi_parms.cspec.features != FVINoFeatures)
    {
       state->processed_non_units->fvindex =
-         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+         FVIAnchorAlloc(cspec, PermVectorCopy(perm),
+                        control->fvi_parms.structure);
       state->processed_pos_rules->fvindex =
-         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+         FVIAnchorAlloc(cspec, PermVectorCopy(perm),
+                        control->fvi_parms.structure);
       state->processed_pos_eqns->fvindex =
-         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+         FVIAnchorAlloc(cspec, PermVectorCopy(perm),
+                        control->fvi_parms.structure);
       state->processed_neg_units->fvindex =
-         FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+         FVIAnchorAlloc(cspec, PermVectorCopy(perm),
+                        control->fvi_parms.structure);
       if(state->watchlist)
       {
          state->watchlist->fvindex =
-            FVIAnchorAlloc(cspec, PermVectorCopy(perm));
+            FVIAnchorAlloc(cspec, PermVectorCopy(perm),
+                        control->fvi_parms.structure);
          //ClauseSetNewTerms(state->watchlist, state->terms);
       }
    }
@@ -1439,7 +1452,8 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                            0,0,0,
                                            0,0,0);
    state->definition_store->def_clauses->fvindex =
-      FVIAnchorAlloc(state->def_store_cspec, perm);
+      FVIAnchorAlloc(state->def_store_cspec, perm,
+                     control->fvi_parms.structure);
 }
 
 
@@ -1617,7 +1631,7 @@ Clause_p ProcessClause(ProofState_p state, ProofControl_p control,
       if(ClauseIsEmpty(clause)||
          state->answer_count>=answer_limit)
       {
-         ClauseDropFeatureVector(clause);
+         ClauseDropFeatures(clause);
          ClauseEvaluateAnswerLits(clause, state->step_archive);
          return clause;
       }

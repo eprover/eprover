@@ -88,7 +88,9 @@ CLAUSES_OBJ = CLAUSES/ccl_ext_index.o CLAUSES/ccl_neweval.o \
 	CLAUSES/ccl_propclauses.o CLAUSES/ccl_tautologies.o \
 	CLAUSES/ccl_clausepos.o CLAUSES/ccl_clausecpos.o \
 	CLAUSES/ccl_pdtrees.o CLAUSES/ccl_freqvectors.o \
-	CLAUSES/ccl_fcvindexing.o CLAUSES/ccl_clausesets.o \
+	CLAUSES/ccl_featuresets.o CLAUSES/ccl_fcvindexing.o \
+	CLAUSES/ccl_ftindexing.o CLAUSES/ccl_fsindexing.o \
+	CLAUSES/ccl_clausesets.o \
 	CLAUSES/ccl_unfold_defs.o CLAUSES/ccl_clausefunc.o \
 	CLAUSES/ccl_formulafunc.o CLAUSES/ccl_groundconstr.o \
 	CLAUSES/ccl_grounding.o CLAUSES/ccl_g_lithash.o \

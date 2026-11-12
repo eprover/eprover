@@ -142,12 +142,14 @@ static bool forward_contract_keep(ProofState_p state, ProofControl_p
       {
          /* The clause may change, so the feature vector is
             recomputed */
-         ClauseDropFeatureVector(clause);
+         ClauseDropFeatures(clause);
          state->context_sr_count +=
-            ClauseContextualSimplifyReflect(state->processed_non_units,
-                                            clause, state->step_archive);
+            ClauseContextualSimplifyReflect(
+               state->processed_non_units, clause,
+               control->heuristic_parms.context_sr_plain,
+               state->step_archive);
          ClauseSubsumeOrderSortLits(clause);
-         ClauseComputeFeatureVector(clause,
+         ClauseComputeFeatures(clause,
                                     state->processed_non_units->fvindex);
       }
    }
@@ -159,7 +161,7 @@ static bool forward_contract_keep(ProofState_p state, ProofControl_p
          return true;
       }
       clause->weight = ClauseStandardWeight(clause);
-      ClauseComputeFeatureVector(clause, state->processed_non_units->fvindex);
+      ClauseComputeFeatures(clause, state->processed_non_units->fvindex);
    }
    ClauseDelProp(clause, CPIsOriented);
    DoLiteralSelection(control, clause);
@@ -198,7 +200,7 @@ bool ForwardSubsumption(ProofState_p state,
    Clause_p subsumer = NULL;
 
    clause->weight = ClauseStandardWeight(clause);
-   ClauseComputeFeatureVector(clause, state->processed_non_units->fvindex);
+   ClauseComputeFeatures(clause, state->processed_non_units->fvindex);
 
    if(clause->pos_lit_no)
    {
@@ -219,7 +221,7 @@ bool ForwardSubsumption(ProofState_p state,
       DocClauseQuote(GlobalOut, OutputLevel, 6, clause,
                      "subsumed", subsumer);
       (*subsumed_count)++;
-      ClauseDropFeatureVector(clause);
+      ClauseDropFeatures(clause);
       return true;
    }
    return false;
@@ -424,7 +426,7 @@ Clause_p ForwardContractSet(ProofState_p state, ProofControl_p
                                count_eliminated, count_eliminated,
                                non_unit_subsumption, false, false, level))
       {
-         ClauseDropFeatureVector(handle);
+         ClauseDropFeatures(handle);
          if(terminate_on_empty&&ClauseIsEmpty(handle))
          {
             ClauseSetExtractEntry(handle);

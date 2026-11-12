@@ -242,6 +242,8 @@ FreqVector_p FreqVectorAlloc(long size)
    /* printf("Size: %ld\n", size); */
    handle->size         = size;
    handle->array  = SizeMalloc(sizeof(long)*handle->size);
+   handle->nz_count     = -1;
+   handle->nz           = NULL;
    FreqVectorInitialize(handle, 0);
    return handle;
 }
@@ -269,6 +271,10 @@ void FreqVectorFreeReal(FreqVector_p junk)
 #ifndef NDEBUG
       junk->array = NULL;
 #endif
+   }
+   if(junk->nz)
+   {
+      SizeFree(junk->nz, sizeof(long)*junk->nz_count);
    }
    FreqVectorCellFree(junk);
 }
@@ -890,6 +896,145 @@ bool FreqVectorEqual(FreqVector_p vec1, FreqVector_p vec2)
       }
    }
    return true;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreqVectorLessEqual()
+//
+//   Return true if every value of vec1 is less than or equal to the
+//   corresponding value of vec2 (both vectors have the same size).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool FreqVectorLessEqual(FreqVector_p vec1, FreqVector_p vec2)
+{
+   long i;
+
+   assert(vec1->size == vec2->size);
+
+   for(i=0; i<vec1->size; i++)
+   {
+      if(vec1->array[i] > vec2->array[i])
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreqVectorComputeNZ()
+//
+//   Compute the list of non-zero positions of vec, unless it already
+//   exists. The vector must not be changed afterwards.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void FreqVectorComputeNZ(FreqVector_p vec)
+{
+   long i, j;
+
+   if(vec->nz_count != -1)
+   {
+      return;
+   }
+   vec->nz_count = 0;
+   for(i=0; i<vec->size; i++)
+   {
+      if(vec->array[i])
+      {
+         vec->nz_count++;
+      }
+   }
+   if(vec->nz_count)
+   {
+      vec->nz = SizeMalloc(sizeof(long)*vec->nz_count);
+      for(i=0, j=0; i<vec->size; i++)
+      {
+         if(vec->array[i])
+         {
+            vec->nz[j++] = i;
+         }
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreqVectorNZLessEqual()
+//
+//   Same as FreqVectorLessEqual(), but only checks the non-zero
+//   positions of vec1 (the others hold trivially). vec1 needs its
+//   non-zero list (see FreqVectorComputeNZ()).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+bool FreqVectorNZLessEqual(FreqVector_p vec1, FreqVector_p vec2)
+{
+   long i, pos;
+   bool res = true;
+
+   assert(vec1->size == vec2->size);
+   assert(vec1->nz_count != -1);
+
+   for(i=0; i<vec1->nz_count; i++)
+   {
+      pos = vec1->nz[i];
+      if(vec1->array[pos] > vec2->array[pos])
+      {
+         res = false;
+         break;
+      }
+   }
+   assert(res == FreqVectorLessEqual(vec1, vec2));
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FreqVectorFirstDiff()
+//
+//   Return the first position at which the two vectors (of the same
+//   size) differ, or -1 if they are equal.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long FreqVectorFirstDiff(FreqVector_p vec1, FreqVector_p vec2)
+{
+   long i;
+
+   assert(vec1->size == vec2->size);
+
+   for(i=0; i<vec1->size; i++)
+   {
+      if(vec1->array[i] != vec2->array[i])
+      {
+         return i;
+      }
+   }
+   return -1;
 }
 
 

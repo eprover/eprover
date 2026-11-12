@@ -158,6 +158,7 @@ typedef enum
    OPT_FORWARD_CSR,
    OPT_FORWARD_CSR_AGGRESSIVE,
    OPT_BACKWARD_CSR,
+   OPT_CSR_SUBSUMPTION,
    OPT_RULES_GENERAL,
    OPT_FORWARD_DEMOD,
    OPT_DEMOD_LAMBDA,
@@ -179,6 +180,7 @@ typedef enum
    OPT_FVINDEX_FEATURETYPES,
    OPT_FVINDEX_MAXFEATURES,
    OPT_FVINDEX_SLACK,
+   OPT_FVINDEX_STRUCTURE,
    OPT_RW_BW_INDEX,
    OPT_PM_FROM_INDEX,
    OPT_PM_INTO_INDEX,
@@ -1254,6 +1256,14 @@ OptCell opts[] =
     "Apply contextual simplify-reflect with the given clause to "
     "processed clauses."},
 
+   {OPT_CSR_SUBSUMPTION,
+    '\0', "context-sr-subsumption",
+    ReqArg, NULL,
+    "Select the subsumption test for contextual simplify-reflect: "
+    "'Plain' (the default) for plain (set) subsumption, 'MultiSet' "
+    "for multiset subsumption (as used for subsumption proper). Plain "
+    "subsumption applies in more cases."},
+
    {OPT_RULES_GENERAL,
     'g', "prefer-general-demodulators",
     NoArg, NULL,
@@ -1419,6 +1429,17 @@ OptCell opts[] =
     "wastes time and memory. If PermOpt is chosen, the slackness slots will "
     "be deleted from the index anyways, but will still waste "
     "(a little) time in computing feature vectors."},
+
+   {OPT_FVINDEX_STRUCTURE,
+    '\0', "fvindex-structure",
+    ReqArg, NULL,
+    "Select the data structure for subsumption indexing. 'Trie' (the "
+    "default) is a trie over feature vectors, with one level per "
+    "feature. 'Tree' is a feature tree over the same vectors: clauses "
+    "with identical vectors share a leaf, and the decision nodes test "
+    "only features that distinguish the stored vectors. 'SetTree' is "
+    "a feature tree over sparse feature sets (the features of 'All', "
+    "for all symbols), and ignores the other --fvindex-* options."},
 
    {OPT_RW_BW_INDEX,
     '\0', "rw-bw-index",

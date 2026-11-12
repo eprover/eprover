@@ -212,6 +212,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->forward_context_sr            = false;
    handle->forward_context_sr_aggressive = false;
    handle->backward_context_sr           = false;
+   handle->context_sr_plain              = true;
 
    handle->forward_subsumption_aggressive = false;
 
@@ -409,6 +410,8 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
            BOOL2STR(handle->forward_context_sr_aggressive));
    fprintf(out, "   backward_context_sr:            %s\n",
            BOOL2STR(handle->backward_context_sr));
+   fprintf(out, "   context_sr_plain:               %s\n",
+           BOOL2STR(handle->context_sr_plain));
 
    fprintf(out, "   forward_subsumption_aggressive: %s\n",
            BOOL2STR(handle->forward_subsumption_aggressive));
@@ -664,6 +667,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_BOOL(forward_context_sr);
    PARSE_BOOL(forward_context_sr_aggressive);
    PARSE_BOOL(backward_context_sr);
+   PARSE_BOOL(context_sr_plain);
    PARSE_BOOL(forward_subsumption_aggressive);
    PARSE_INT_LIMITED(forward_demod,0,2);
    PARSE_BOOL(prefer_general);

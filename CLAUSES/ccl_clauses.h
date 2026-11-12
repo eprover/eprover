@@ -171,6 +171,12 @@ typedef struct clause_cell
                                          the index the clause is
                                          in. Otherwise it is owned by
                                          the clause. */
+   struct feature_set_cell* feature_set;
+                                      /* Feature set for subsumption
+                                         indexing with a feature set
+                                         tree, or NULL. Owned like
+                                         feature_vec. A clause has at
+                                         most one of the two. */
    struct clausesetcell* set;         /* Is the clause in a set? */
    struct clause_cell*   pred;        /* For clause sets = doubly  */
    struct clause_cell*   succ;        /* linked lists */

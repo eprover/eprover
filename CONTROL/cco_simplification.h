@@ -66,6 +66,7 @@ long     RemoveContextualSRClauses(ClauseSet_p from,
                                    ClauseSet_p into,
                                    ClauseSet_p archive,
                                    Clause_p simplifier,
+                                   bool plain,
                                    GlobalIndices_p gindices,
                                    bool lambda_demod);
 

@@ -189,7 +189,9 @@ long ClauseSetUnitSimplify(ClauseSet_p set, Clause_p simplifier,
 // Function: RemoveContextualSRClauses()
 //
 //   Move clauses that simplifier can contextually simplify-reflect
-//   from from into into. Return number of clauses moved.
+//   from from into into. Return number of clauses moved. plain
+//   selects plain (set) instead of multiset subsumption (see
+//   ClauseContextualSimplifyReflect()).
 //
 // Global Variables:
 //
@@ -201,6 +203,7 @@ long RemoveContextualSRClauses(ClauseSet_p from,
                                ClauseSet_p into,
                                ClauseSet_p archive,
                                Clause_p simplifier,
+                               bool plain,
                                GlobalIndices_p gindices,
                                bool lambda_demod)
 {
@@ -208,7 +211,7 @@ long RemoveContextualSRClauses(ClauseSet_p from,
    long res = 0;
    Clause_p handle;
 
-   ClauseSetFindContextSRClauses(from, simplifier, stack);
+   ClauseSetFindContextSRClauses(from, simplifier, plain, stack);
 
    while(!PStackEmpty(stack))
    {

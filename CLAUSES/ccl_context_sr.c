@@ -49,9 +49,12 @@ Changes
 //
 // Function: ClauseContextualSimplifyReflect()
 //
-//   Perform contextial-simplify-reflect with all clauses in set on
-//   clause. Return number of literals deleted. A full proof object
-//   keeps the clause before each step in step_archive.
+//   Perform contextual simplify-reflect with all clauses in set on
+//   clause. Return number of literals deleted. With plain, the
+//   context clause has to subsume the clause with the literal negated
+//   by plain (set) subsumption, otherwise by multiset subsumption. A
+//   full proof object keeps the clause before each step in
+//   step_archive.
 //
 // Global Variables: -
 //
@@ -60,15 +63,15 @@ Changes
 /----------------------------------------------------------------------*/
 
 int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause,
-                                    ClauseSet_p step_archive)
+                                    bool plain, ClauseSet_p step_archive)
 {
    Eqn_p handle;
    int res = 0;
    Clause_p subsumer;
    PStack_p lit_stack = ClauseToStack(clause);
 
-   /* The clause changes, so it must not have a feature vector */
-   assert(!clause->feature_vec);
+   /* The clause changes, so it must not have features */
+   assert(!clause->feature_vec && !clause->feature_set);
    clause->weight = ClauseStandardWeight(clause);
 
    while(!PStackEmpty(lit_stack))
@@ -78,7 +81,9 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause,
       ClauseFlipLiteralSign(clause, handle);
       ClauseSubsumeOrderSortLits(clause);
 
-      subsumer = ClauseSetPlainSubsumesClause(set, clause);
+      subsumer = plain?
+         ClauseSetPlainSubsumesClause(set, clause):
+         ClauseSetMultiSetSubsumesClause(set, clause);
 
       if(subsumer)
       {
@@ -118,7 +123,8 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause,
 //   simplify-reflected ;-) with clause and push them onto
 //   res. ATTENTION! A clause that can be simplified in more than one
 //   way will be pushed more than once onto the stack! Returns number
-//   of clauses pushed.
+//   of clauses pushed. plain selects the subsumption test as for
+//   ClauseContextualSimplifyReflect().
 //
 // Global Variables: -
 //
@@ -127,28 +133,38 @@ int ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause,
 /----------------------------------------------------------------------*/
 
 long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause,
-               PStack_p res)
+                                   bool plain, PStack_p res)
 {
    Eqn_p handle;
    long old_sp = PStackGetSP(res);
    PStack_p lit_stack = ClauseToStack(clause);
-   /* The clauses with a flipped literal have different feature
-      vectors, so the clause's own one (valid again afterwards) must
-      not be used for them */
+   /* The clauses with a flipped literal have different features, so
+      the clause's own ones (valid again afterwards) must not be used
+      for them */
    FreqVector_p feature_vec = clause->feature_vec;
+   FeatureSet_p feature_set = clause->feature_set;
 
    assert(clause->weight == ClauseStandardWeight(clause));
 
    clause->feature_vec = NULL;
+   clause->feature_set = NULL;
    while(!PStackEmpty(lit_stack))
    {
       handle = PStackPopP(lit_stack);
       ClauseFlipLiteralSign(clause, handle);
       ClauseSubsumeOrderSortLits(clause);
-      ClauseSetFindPlainSubsumedClauses(set, clause, res);
+      if(plain)
+      {
+         ClauseSetFindPlainSubsumedClauses(set, clause, res);
+      }
+      else
+      {
+         ClauseSetFindMultiSetSubsumedClauses(set, clause, res);
+      }
       ClauseFlipLiteralSign(clause, handle);
    }
    clause->feature_vec = feature_vec;
+   clause->feature_set = feature_set;
    PStackFree(lit_stack);
    return PStackGetSP(res) - old_sp;
 }

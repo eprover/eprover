@@ -45,9 +45,9 @@ Changes
 
 
 int  ClauseContextualSimplifyReflect(ClauseSet_p set, Clause_p clause,
-                                     ClauseSet_p step_archive);
+                                     bool plain, ClauseSet_p step_archive);
 long ClauseSetFindContextSRClauses(ClauseSet_p set, Clause_p clause,
-               PStack_p res);
+                                   bool plain, PStack_p res);
 
 #endif
 

@@ -606,7 +606,7 @@ void ClauseSetIndexedInsertClause(ClauseSet_p set, Clause_p newclause)
    }
    else
    {
-      ClauseDropFeatureVector(newclause);
+      ClauseDropFeatures(newclause);
    }
 }
 

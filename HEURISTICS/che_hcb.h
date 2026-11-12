@@ -163,6 +163,8 @@ typedef struct heuristic_parms_cell
    bool                forward_context_sr;
    bool                forward_context_sr_aggressive;
    bool                backward_context_sr;
+   bool                context_sr_plain;   /* Plain (set) instead of
+                                              multiset subsumption */
 
    bool                forward_subsumption_aggressive;
 

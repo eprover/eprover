@@ -35,6 +35,8 @@ Changes
 #endif
 
 #include <ccl_freqvectors.h>
+#include <ccl_ftindexing.h>
+#include <ccl_fsindexing.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -44,6 +46,17 @@ Changes
 PERF_CTR_DECL(FVIndexTimer);
 
 
+/* The data structure used for subsumption indexing: a trie over
+   feature vectors (FVIndex), a feature tree over feature vectors
+   (FTIndex), or a feature tree over feature sets (FSIndex). */
+
+typedef enum
+{
+   FVITrie,
+   FVITree,
+   FVISetTree
+}FVIStructure;
+
 typedef struct fvindex_parms_cell
 {
    FVCollectCell cspec;
@@ -51,6 +64,7 @@ typedef struct fvindex_parms_cell
    bool eliminate_uninformative;
    long max_symbols;
    long symbol_slack;
+   FVIStructure structure;
 }FVIndexParmsCell, *FVIndexParms_p;
 
 
@@ -72,11 +86,21 @@ typedef struct fv_index_cell
    }u1;
 }FVIndexCell, *FVIndex_p;
 
+/* The anchor describes how feature vectors are computed and holds
+   the index proper, as selected by structure: a feature vector trie
+   (index), a feature tree over feature vectors (ftindex, see
+   ccl_ftindexing.h), or a feature tree over feature sets (fsindex,
+   see ccl_fsindexing.h). Feature sets do not depend on cspec and
+   perm_vector. */
+
 typedef struct fvi_anchor_cell
 {
    FVCollect_p  cspec;
    PermVector_p perm_vector;
-   FVIndex_p    index;
+   FVIStructure structure;
+   FVIndex_p    index;        /* Only for FVITrie */
+   FTIndex_p    ftindex;      /* Only for FVITree, NULL if empty */
+   FSIndex_p    fsindex;      /* Only for FVISetTree, NULL if empty */
    long         storage;
 }FVIAnchorCell, *FVIAnchor_p;
 
@@ -103,7 +127,8 @@ void      FVIndexFree(FVIndex_p junk);
 #define FVIAnchorCellAlloc()    (FVIAnchorCell*)SizeMalloc(sizeof(FVIAnchorCell))
 #define FVIAnchorCellFree(junk) SizeFree(junk, sizeof(FVIAnchorCell))
 
-FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm);
+FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm,
+                           FVIStructure structure);
 void        FVIAnchorFree(FVIAnchor_p junk);
 
 #ifdef CONSTANT_MEM_ESTIMATE
@@ -122,13 +147,13 @@ bool        FVIndexDelete(FVIAnchor_p index, Clause_p clause);
 long        FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty);
 
 FreqVector_p FVIndexComputeVector(FVIAnchor_p anchor, Clause_p clause);
-void         ClauseComputeFeatureVector(Clause_p clause, FVIAnchor_p anchor);
-void         ClauseDropFeatureVector(Clause_p clause);
+void         ClauseComputeFeatures(Clause_p clause, FVIAnchor_p anchor);
+void         ClauseDropFeatures(Clause_p clause);
 FreqVector_p ClauseGetFeatureVector(Clause_p clause, FVIAnchor_p anchor,
                                     bool *is_temp);
+FeatureSet_p ClauseGetFeatureSet(Clause_p clause, bool *is_temp);
 #ifndef NDEBUG
-bool         ClauseFeatureVectorIsValid(Clause_p clause,
-                                        FVIAnchor_p anchor);
+bool         ClauseFeaturesAreValid(Clause_p clause, FVIAnchor_p anchor);
 #endif
 
 void        FVIndexPrint(FILE* out, FVIndex_p index, bool fullterms);

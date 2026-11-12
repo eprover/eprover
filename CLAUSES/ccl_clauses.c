@@ -24,6 +24,7 @@
 #include "cte_lambda.h"
 #include "ccl_clausesets.h"
 #include "ccl_freqvectors.h"
+#include "ccl_featuresets.h"
 
 
 /*---------------------------------------------------------------------*/
@@ -120,6 +121,7 @@ Clause_p clause_copy_meta(Clause_p clause)
    handle->info        = NULL;
    handle->derivation  = NULL;
    handle->feature_vec = NULL;
+   handle->feature_set = NULL;
    handle->create_date = clause->create_date;
    handle->date        = clause->date;
    handle->proof_depth = clause->proof_depth;
@@ -317,6 +319,7 @@ Clause_p EmptyClauseAlloc(void)
    handle->proof_depth = 0;
    handle->proof_size  = 0;
    handle->feature_vec = NULL;
+   handle->feature_set = NULL;
    handle->set         = NULL;
    handle->pred        = NULL;
    handle->succ        = NULL;
@@ -744,10 +747,14 @@ void ClauseFree(Clause_p junk)
       PStackFree(junk->derivation);
    }
    /* A clause that is in no set is not FV-indexed, so it owns its
-      feature vector (if any) */
+      feature vector or set (if any) */
    if(junk->feature_vec)
    {
       FreqVectorFree(junk->feature_vec);
+   }
+   if(junk->feature_set)
+   {
+      FeatureSetFree(junk->feature_set);
    }
    ClauseCellFree(junk);
 }

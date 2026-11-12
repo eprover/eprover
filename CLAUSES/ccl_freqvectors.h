@@ -49,6 +49,11 @@ typedef struct freq_vector_cell
 {
    long size;        /* How many fields? */
    long *array;
+   long nz_count;    /* Number of non-zero fields, -1 if not
+                        computed (see FreqVectorComputeNZ()) */
+   long *nz;         /* Positions of the non-zero fields (ascending).
+                        Only valid as long as the vector does not
+                        change. */
 }FreqVectorCell, *FreqVector_p;
 
 /* Where do the symbol-specific features in classival FV-Vectors
@@ -198,6 +203,10 @@ FVCollect_p BillPlusFeaturesCollectAlloc(Sig_p sig, long len);
 
 
 bool FreqVectorEqual(FreqVector_p vec1, FreqVector_p vec2);
+bool FreqVectorLessEqual(FreqVector_p vec1, FreqVector_p vec2);
+void FreqVectorComputeNZ(FreqVector_p vec);
+bool FreqVectorNZLessEqual(FreqVector_p vec1, FreqVector_p vec2);
+long FreqVectorFirstDiff(FreqVector_p vec1, FreqVector_p vec2);
 
 
 void FreqVectorAdd(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);

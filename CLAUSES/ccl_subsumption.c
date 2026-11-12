@@ -1230,6 +1230,375 @@ Clause_p clauseset_find_variant_clause_indexed(FVIndex_p index,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ft_find_subsuming_clause()
+//
+//   Return a clause from the feature tree index that subsumes
+//   sub_candidate (with feature vector vec), NULL if there is
+//   none. Candidates have vectors that are component-wise less than
+//   or equal to vec.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p ft_find_subsuming_clause(FTIndex_p index,
+                                  Clause_p sub_candidate,
+                                  FreqVector_p vec,
+                                  ClauseSubsumesFun subsumes)
+{
+   Clause_p res = NULL;
+
+   if(!index)
+   {
+      return NULL;
+   }
+   if(index->final)
+   {
+      if(FreqVectorNZLessEqual(index->vec, vec))
+      {
+         res = clause_tree_find_subsuming_clause(index->u1.clauses,
+                                                 sub_candidate, subsumes);
+      }
+   }
+   else
+   {
+      long i;
+      FTIndex_p next;
+      IntMapIter_p iter;
+
+      iter = IntMapIterAlloc(index->u1.successors, 0,
+                             vec->array[index->feature]);
+      while(!res && (next = IntMapIterNext(iter, &i)))
+      {
+         res = ft_find_subsuming_clause(next, sub_candidate, vec, subsumes);
+      }
+      IntMapIterFree(iter);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ft_find_subsumed_clauses()
+//
+//   Push all clauses in the feature tree index that are subsumed by
+//   subsumer (with feature vector vec) onto res. Candidates have
+//   vectors that are component-wise greater than or equal to vec.
+//   vec needs its list of non-zero positions.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+void ft_find_subsumed_clauses(FTIndex_p index,
+                              Clause_p subsumer,
+                              FreqVector_p vec,
+                              PStack_p res,
+                              ClauseSubsumesFun subsumes)
+{
+   if(!index)
+   {
+      return;
+   }
+   if(index->final)
+   {
+      if(FreqVectorNZLessEqual(vec, index->vec))
+      {
+         clause_tree_find_subsumed_clauses(index->u1.clauses, subsumer,
+                                           res, subsumes);
+      }
+   }
+   else
+   {
+      long i;
+      FTIndex_p next;
+      IntMapIter_p iter;
+
+      iter = IntMapIterAlloc(index->u1.successors,
+                             vec->array[index->feature], LONG_MAX);
+      while((next = IntMapIterNext(iter, &i)))
+      {
+         ft_find_subsumed_clauses(next, subsumer, vec, res, subsumes);
+      }
+      IntMapIterFree(iter);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ft_find_first_subsumed_clause()
+//
+//   Return the first clause in the feature tree index that is
+//   subsumed by subsumer (with feature vector vec), or NULL. vec
+//   needs its list of non-zero positions.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p ft_find_first_subsumed_clause(FTIndex_p index,
+                                       Clause_p subsumer,
+                                       FreqVector_p vec,
+                                       ClauseSubsumesFun subsumes)
+{
+   Clause_p res = NULL;
+
+   if(!index)
+   {
+      return NULL;
+   }
+   if(index->final)
+   {
+      if(FreqVectorNZLessEqual(vec, index->vec))
+      {
+         res = clause_tree_find_first_subsumed_clause(index->u1.clauses,
+                                                      subsumer, subsumes);
+      }
+   }
+   else
+   {
+      long i;
+      FTIndex_p next;
+      IntMapIter_p iter;
+
+      iter = IntMapIterAlloc(index->u1.successors,
+                             vec->array[index->feature], LONG_MAX);
+      while(!res && (next = IntMapIterNext(iter, &i)))
+      {
+         res = ft_find_first_subsumed_clause(next, subsumer, vec, subsumes);
+      }
+      IntMapIterFree(iter);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ft_find_variant_clause()
+//
+//   Return a variant of clause (with feature vector vec) from the
+//   feature tree index, or NULL if there is none.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p ft_find_variant_clause(FTIndex_p index, Clause_p clause,
+                                FreqVector_p vec)
+{
+   while(index && !index->final)
+   {
+      index = IntMapGetVal(index->u1.successors, vec->array[index->feature]);
+   }
+   if(index && FreqVectorEqual(index->vec, vec))
+   {
+      return clause_tree_find_variant_clause(index->u1.clauses, clause);
+   }
+   return NULL;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fs_find_subsuming_clause()
+//
+//   Return a clause from the feature set tree index that subsumes
+//   sub_candidate (with feature set fset), NULL if there is
+//   none. Candidates have feature values less than or equal to those
+//   of fset.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p fs_find_subsuming_clause(FSIndex_p index,
+                                  Clause_p sub_candidate,
+                                  FeatureSet_p fset,
+                                  ClauseSubsumesFun subsumes)
+{
+   Clause_p res = NULL;
+
+   if(!index)
+   {
+      return NULL;
+   }
+   if(index->final)
+   {
+      if(FeatureSetLessEqual(index->fset, fset))
+      {
+         res = clause_tree_find_subsuming_clause(index->u1.clauses,
+                                                 sub_candidate, subsumes);
+      }
+   }
+   else
+   {
+      long i;
+      FSIndex_p next;
+      IntMapIter_p iter;
+
+      iter = IntMapIterAlloc(index->u1.successors, 0,
+                             FeatureSetGetVal(fset, index->feature));
+      while(!res && (next = IntMapIterNext(iter, &i)))
+      {
+         res = fs_find_subsuming_clause(next, sub_candidate, fset, subsumes);
+      }
+      IntMapIterFree(iter);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fs_find_subsumed_clauses()
+//
+//   Push all clauses in the feature set tree index that are subsumed by
+//   subsumer (with feature set fset) onto res. Candidates have
+//   feature values greater than or equal to those of fset.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+void fs_find_subsumed_clauses(FSIndex_p index,
+                              Clause_p subsumer,
+                              FeatureSet_p fset,
+                              PStack_p res,
+                              ClauseSubsumesFun subsumes)
+{
+   if(!index)
+   {
+      return;
+   }
+   if(index->final)
+   {
+      if(FeatureSetLessEqual(fset, index->fset))
+      {
+         clause_tree_find_subsumed_clauses(index->u1.clauses, subsumer,
+                                           res, subsumes);
+      }
+   }
+   else
+   {
+      long i;
+      FSIndex_p next;
+      IntMapIter_p iter;
+
+      iter = IntMapIterAlloc(index->u1.successors,
+                             FeatureSetGetVal(fset, index->feature), LONG_MAX);
+      while((next = IntMapIterNext(iter, &i)))
+      {
+         fs_find_subsumed_clauses(next, subsumer, fset, res, subsumes);
+      }
+      IntMapIterFree(iter);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fs_find_first_subsumed_clause()
+//
+//   Return the first clause in the feature set tree index that is
+//   subsumed by subsumer (with feature set fset), or NULL.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p fs_find_first_subsumed_clause(FSIndex_p index,
+                                       Clause_p subsumer,
+                                       FeatureSet_p fset,
+                                       ClauseSubsumesFun subsumes)
+{
+   Clause_p res = NULL;
+
+   if(!index)
+   {
+      return NULL;
+   }
+   if(index->final)
+   {
+      if(FeatureSetLessEqual(fset, index->fset))
+      {
+         res = clause_tree_find_first_subsumed_clause(index->u1.clauses,
+                                                      subsumer, subsumes);
+      }
+   }
+   else
+   {
+      long i;
+      FSIndex_p next;
+      IntMapIter_p iter;
+
+      iter = IntMapIterAlloc(index->u1.successors,
+                             FeatureSetGetVal(fset, index->feature), LONG_MAX);
+      while(!res && (next = IntMapIterNext(iter, &i)))
+      {
+         res = fs_find_first_subsumed_clause(next, subsumer, fset, subsumes);
+      }
+      IntMapIterFree(iter);
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fs_find_variant_clause()
+//
+//   Return a variant of clause (with feature set fset) from the
+//   feature set tree index, or NULL if there is none.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p fs_find_variant_clause(FSIndex_p index, Clause_p clause,
+                                FeatureSet_p fset)
+{
+   while(index && !index->final)
+   {
+      index = IntMapGetVal(index->u1.successors,
+                           FeatureSetGetVal(fset, index->feature));
+   }
+   if(index && FeatureSetEqual(index->fset, fset))
+   {
+      return clause_tree_find_variant_clause(index->u1.clauses, clause);
+   }
+   return NULL;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -1597,15 +1966,35 @@ static Clause_p clause_set_subsumes_clause_gen(ClauseSet_p set,
 
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
-   if(set->fvindex)
+   if(set->fvindex && (set->fvindex->structure == FVISetTree))
+   {
+      bool is_temp;
+      FeatureSet_p fset = ClauseGetFeatureSet(sub_candidate, &is_temp);
+
+      res = fs_find_subsuming_clause(set->fvindex->fsindex,
+                                     sub_candidate, fset, subsumes);
+      if(is_temp)
+      {
+         FeatureSetFree(fset);
+      }
+   }
+   else if(set->fvindex)
    {
       bool is_temp;
       FreqVector_p vec = ClauseGetFeatureVector(sub_candidate,
                                                 set->fvindex, &is_temp);
 
-      res = clause_set_subsumes_clause_indexed(set->fvindex->index,
-                                               sub_candidate, vec, 0,
-                                               subsumes);
+      if(set->fvindex->structure == FVITree)
+      {
+         res = ft_find_subsuming_clause(set->fvindex->ftindex,
+                                        sub_candidate, vec, subsumes);
+      }
+      else
+      {
+         res = clause_set_subsumes_clause_indexed(set->fvindex->index,
+                                                  sub_candidate, vec, 0,
+                                                  subsumes);
+      }
       if(is_temp)
       {
          FreqVectorFree(vec);
@@ -1724,15 +2113,36 @@ static long clauseset_find_subsumed_clauses_gen(ClauseSet_p set,
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   if(set->fvindex)
+   if(set->fvindex && (set->fvindex->structure == FVISetTree))
+   {
+      bool is_temp;
+      FeatureSet_p fset = ClauseGetFeatureSet(subsumer, &is_temp);
+
+      fs_find_subsumed_clauses(set->fvindex->fsindex,
+                               subsumer, fset, res, subsumes);
+      if(is_temp)
+      {
+         FeatureSetFree(fset);
+      }
+   }
+   else if(set->fvindex)
    {
       bool is_temp;
       FreqVector_p vec = ClauseGetFeatureVector(subsumer, set->fvindex,
                                                 &is_temp);
 
-      clauseset_find_subsumed_clauses_indexed(set->fvindex->index,
-                                              subsumer, vec, 0, res,
-                                              subsumes);
+      if(set->fvindex->structure == FVITree)
+      {
+         FreqVectorComputeNZ(vec);
+         ft_find_subsumed_clauses(set->fvindex->ftindex,
+                                  subsumer, vec, res, subsumes);
+      }
+      else
+      {
+         clauseset_find_subsumed_clauses_indexed(set->fvindex->index,
+                                                 subsumer, vec, 0, res,
+                                                 subsumes);
+      }
       if(is_temp)
       {
          FreqVectorFree(vec);
@@ -1816,15 +2226,36 @@ static Clause_p clauseset_find_first_subsumed_clause_gen(ClauseSet_p set,
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   if(set->fvindex)
+   if(set->fvindex && (set->fvindex->structure == FVISetTree))
+   {
+      bool is_temp;
+      FeatureSet_p fset = ClauseGetFeatureSet(subsumer, &is_temp);
+
+      res = fs_find_first_subsumed_clause(set->fvindex->fsindex,
+                                          subsumer, fset, subsumes);
+      if(is_temp)
+      {
+         FeatureSetFree(fset);
+      }
+   }
+   else if(set->fvindex)
    {
       bool is_temp;
       FreqVector_p vec = ClauseGetFeatureVector(subsumer, set->fvindex,
                                                 &is_temp);
 
-      res = clauseset_find_first_subsumed_clause_indexed(set->fvindex->index,
-                                                         subsumer, vec, 0,
-                                                         subsumes);
+      if(set->fvindex->structure == FVITree)
+      {
+         FreqVectorComputeNZ(vec);
+         res = ft_find_first_subsumed_clause(set->fvindex->ftindex,
+                                             subsumer, vec, subsumes);
+      }
+      else
+      {
+         res = clauseset_find_first_subsumed_clause_indexed(set->fvindex->index,
+                                                            subsumer, vec, 0,
+                                                            subsumes);
+      }
       if(is_temp)
       {
          FreqVectorFree(vec);
@@ -1906,9 +2337,27 @@ Clause_p ClauseSetFindVariantClause(ClauseSet_p set,
    assert(set->fvindex);
    assert(clause->weight == ClauseStandardWeight(clause));
 
+   if(set->fvindex->structure == FVISetTree)
+   {
+      FeatureSet_p fset = ClauseGetFeatureSet(clause, &is_temp);
+
+      res = fs_find_variant_clause(set->fvindex->fsindex, clause, fset);
+      if(is_temp)
+      {
+         FeatureSetFree(fset);
+      }
+      return res;
+   }
    vec = ClauseGetFeatureVector(clause, set->fvindex, &is_temp);
-   res = clauseset_find_variant_clause_indexed(set->fvindex->index,
-                                               clause, vec, 0);
+   if(set->fvindex->structure == FVITree)
+   {
+      res = ft_find_variant_clause(set->fvindex->ftindex, clause, vec);
+   }
+   else
+   {
+      res = clauseset_find_variant_clause_indexed(set->fvindex->index,
+                                                  clause, vec, 0);
+   }
    if(is_temp)
    {
       FreqVectorFree(vec);

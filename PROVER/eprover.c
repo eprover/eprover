@@ -2227,6 +2227,21 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_BACKWARD_CSR:
             h_parms->backward_context_sr = true;
             break;
+      case OPT_CSR_SUBSUMPTION:
+            if(strcmp(arg, "Plain")==0)
+            {
+               h_parms->context_sr_plain = true;
+            }
+            else if(strcmp(arg, "MultiSet")==0)
+            {
+               h_parms->context_sr_plain = false;
+            }
+            else
+            {
+               Error("Option --context-sr-subsumption requires "
+                     "'Plain' or 'MultiSet'.", USAGE_ERROR);
+            }
+            break;
       case OPT_RULES_GENERAL:
             h_parms->prefer_general = true;
             break;
@@ -2380,6 +2395,25 @@ CLState_p process_options(int argc, char* argv[])
             break;
       case OPT_FVINDEX_SLACK:
             fvi_parms->symbol_slack = CLStateGetIntArgCheckRange(handle, arg, 0, LONG_MAX);
+            break;
+      case OPT_FVINDEX_STRUCTURE:
+            if(strcmp(arg, "Trie")==0)
+            {
+               fvi_parms->structure = FVITrie;
+            }
+            else if(strcmp(arg, "Tree")==0)
+            {
+               fvi_parms->structure = FVITree;
+            }
+            else if(strcmp(arg, "SetTree")==0)
+            {
+               fvi_parms->structure = FVISetTree;
+            }
+            else
+            {
+               Error("Option --fvindex-structure requires "
+                     "'Trie', 'Tree', or 'SetTree'.", USAGE_ERROR);
+            }
             break;
       case OPT_RW_BW_INDEX:
             check_fp_index_arg(arg, "--rw-bw-index");
