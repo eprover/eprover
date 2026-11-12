@@ -2360,8 +2360,12 @@ REENTER:
 	  if (ps->ohead == ps->eoo)
 	    {
 	      ENLARGE (ps->oclauses, ps->ohead, ps->eoo);
+	      /* ditto, but enlarging 'oclauses' again does not help if
+	       * it can grow in place, while 'lclauses' can not (the
+	       * original clauses follow it), so it has to move.
+	       */
 	      if (ps->EOL == ps->oclauses)
-		ENLARGE (ps->oclauses, ps->ohead, ps->eoo);	/* ditto */
+		ENLARGE (ps->lclauses, ps->lhead, ps->EOL);
 	    }
 
 #if !defined(NDEBUG) && defined(TRACE)
@@ -2625,7 +2629,12 @@ simplify_and_add_original_clause (PS * ps)
       ps->ahead = ps->added;
 
       if (ps->ohead == ps->eoo)
-	ENLARGE (ps->oclauses, ps->ohead, ps->eoo);
+	{
+	  ENLARGE (ps->oclauses, ps->ohead, ps->eoo);
+	  if (ps->EOL == ps->oclauses)		/* see 'add_simplified_clause' */
+	    ENLARGE (ps->lclauses, ps->lhead, ps->EOL);
+	}
+      assert (ps->EOL != ps->oclauses);
 
       *ps->ohead++ = 0;
 

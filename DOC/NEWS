@@ -90,6 +90,7 @@ Version 3.2.5 -> 3.5 Countess Grey
   Clearer error messages for unsupported polymorphism and datatypes.
   Contextual simplify-reflect now uses plain (set) subsumption and
   applies in more cases.
+  Fixed an intermittent crash in PicoSAT during SAT checks.
 - Skolemization is now documented as one step per eliminated
   existential quantifier in proof objects, each with its own
   intermediate formula, the new Skolem symbol
