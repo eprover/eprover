@@ -555,6 +555,48 @@ long FTIndexCountNodes(FTIndex_p index, bool leaves)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FTIndexCollectStats()
+//
+//   Add the sizes of the feature tree at index to stats.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes stats
+//
+/----------------------------------------------------------------------*/
+
+void FTIndexCollectStats(FTIndex_p index, FTStats_p stats)
+{
+   IntMapIter_p iter;
+   FTIndex_p    succ;
+   long         i;
+
+   if(!index)
+   {
+      return;
+   }
+   if(index->final)
+   {
+      stats->leaves++;
+      stats->sets++;
+      stats->clauses += index->clause_count;
+      stats->set_mem += FreqVectorStorage(index->vec);
+   }
+   else
+   {
+      stats->inner++;
+      iter = IntMapIterAlloc(index->u1.successors, 0, LONG_MAX);
+      while((succ = IntMapIterNext(iter, &i)))
+      {
+         FTIndexCollectStats(succ, stats);
+      }
+      IntMapIterFree(iter);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: FTIndexPrint()
 //
 //   Pretty-print the feature tree.

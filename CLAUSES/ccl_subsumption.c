@@ -1802,6 +1802,56 @@ Clause_p fb_find_first_subsumed_clause(FBIndex_p index,
 
 /*-----------------------------------------------------------------------
 //
+// Function: fb_lists_find_subsumed_clauses()
+//
+//   Push all clauses subsumed by subsumer (with feature set fset) onto
+//   res, checking only the entries on the shortest per-feature list
+//   of fset's features. If first is true, stop at (and return) the
+//   first one found.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p fb_lists_find_subsumed_clauses(FBLists_p lists,
+                                        Clause_p subsumer,
+                                        FeatureSet_p fset,
+                                        PStack_p res,
+                                        ClauseSubsumesFun subsumes,
+                                        bool first)
+{
+   OrdSet_p  list = FBListsShortest(lists, fset), handle;
+   FSEntry_p entry;
+   Clause_p  found = NULL;
+
+   for(handle = OrdSetFirst(list); handle && !found;
+       handle = OrdSetNext(list, handle))
+   {
+      entry = handle->key;
+      if(FeatureSetLessEqual(fset, entry->fset))
+      {
+         if(first)
+         {
+            found = clause_tree_find_first_subsumed_clause(entry->clauses,
+                                                           subsumer,
+                                                           subsumes);
+         }
+         else
+         {
+            clause_tree_find_subsumed_clauses(entry->clauses, subsumer,
+                                              res, subsumes);
+         }
+      }
+   }
+   return found;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: fb_find_variant_clause()
 //
 //   Return a variant of clause (with feature set fset) from the
@@ -2379,6 +2429,11 @@ static long clauseset_find_subsumed_clauses_gen(ClauseSet_p set,
          fs_find_subsumed_clauses(set->fvindex->fsindex,
                                   subsumer, fset, res, subsumes, bounds);
       }
+      else if(set->fvindex->fblists)
+      {
+         fb_lists_find_subsumed_clauses(set->fvindex->fblists, subsumer,
+                                        fset, res, subsumes, false);
+      }
       else
       {
          fb_find_subsumed_clauses(set->fvindex->fbindex,
@@ -2504,6 +2559,12 @@ static Clause_p clauseset_find_first_subsumed_clause_gen(ClauseSet_p set,
          res = fs_find_first_subsumed_clause(set->fvindex->fsindex,
                                              subsumer, fset, subsumes,
                                              bounds);
+      }
+      else if(set->fvindex->fblists)
+      {
+         res = fb_lists_find_subsumed_clauses(set->fvindex->fblists,
+                                              subsumer, fset, NULL,
+                                              subsumes, true);
       }
       else
       {

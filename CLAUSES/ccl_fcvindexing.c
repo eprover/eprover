@@ -61,7 +61,8 @@ FVIndexParmsCell FVIDefaultParameters =
    FSAllFeatures, /* set_features */
    FTSplitFirst,  /* split_rule */
    1,             /* bucket_size */
-   false          /* weight_bounds */
+   false,         /* weight_bounds */
+   false          /* feature_lists */
 };
 
 /*---------------------------------------------------------------------*/
@@ -340,6 +341,8 @@ FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm,
    handle->ftindex      = NULL;
    handle->fsindex      = NULL;
    handle->fbindex      = NULL;
+   handle->fblists      = ((parms->structure == FVIBinSetTree) &&
+                           parms->feature_lists)? FBListsAlloc() : NULL;
    handle->split        = trie? NULL : FTSplitAlloc(parms->split_rule,
                                                 parms->bucket_size);
    handle->weight_bounds = FVIUsesFeatureSets(parms->structure) &&
@@ -381,6 +384,7 @@ void FVIAnchorFree(FVIAnchor_p junk)
    FTIndexFree(junk->ftindex);
    FSIndexFree(junk->fsindex);
    FBIndexFree(junk->fbindex);
+   FBListsFree(junk->fblists);
    FTSplitFree(junk->split);
    if(junk->perm_vector)
    {
@@ -461,7 +465,7 @@ void FVIndexInsert(FVIAnchor_p index, Clause_p clause)
       else
       {
          FBIndexInsert(&(index->fbindex), &(index->storage), index->split,
-                       clause);
+                       index->fblists, clause);
       }
       PERF_CTR_EXIT(FVIndexTimer);
       return;
@@ -556,7 +560,7 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
       else
       {
          res = FBIndexDelete(&(index->fbindex), &(index->storage),
-                             index->split, clause);
+                             index->split, index->fblists, clause);
       }
       clause->feature_set = NULL;
       PERF_CTR_EXIT(FVIndexTimer);
@@ -650,6 +654,109 @@ long FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty)
    }
    return res;
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: fv_index_collect_stats()
+//
+//   Add the sizes of the feature vector trie at index to stats. Empty
+//   leaves (which the trie keeps) are not counted, but the memory of
+//   their vectors is.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes stats
+//
+/----------------------------------------------------------------------*/
+
+static void fv_index_collect_stats(FVIndex_p index, FTStats_p stats)
+{
+   IntMapIter_p iter;
+   FVIndex_p    succ;
+   long         i;
+
+   if(!index)
+   {
+      return;
+   }
+   if(index->final)
+   {
+      if(index->clause_count)
+      {
+         stats->leaves++;
+         stats->sets++;
+         stats->clauses += index->clause_count;
+      }
+      if(index->vec)
+      {
+         stats->set_mem += FreqVectorStorage(index->vec);
+      }
+   }
+   else
+   {
+      stats->inner++;
+      if(index->u1.successors)
+      {
+         iter = IntMapIterAlloc(index->u1.successors, 0, LONG_MAX);
+         while((succ = IntMapIterNext(iter, &i)))
+         {
+            fv_index_collect_stats(succ, stats);
+         }
+         IntMapIterFree(iter);
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FVIAnchorPrintStats()
+//
+//   Print the size statistics of the index (structure, stored
+//   clauses, distinct feature vectors/sets, inner nodes, non-empty
+//   leaves, memory of the index structure, memory of the stored
+//   vectors/sets, and memory of the per-feature lists of BinSetTree)
+//   as one comment line, labelled with name.
+//
+// Global Variables: -
+//
+// Side Effects    : Output
+//
+/----------------------------------------------------------------------*/
+
+void FVIAnchorPrintStats(FILE* out, char* name, FVIAnchor_p anchor)
+{
+   FTStatsCell stats = {0, 0, 0, 0, 0};
+   static char *structure_names[] = {"Trie", "Tree", "SetTree", "BinSetTree"};
+   long        list_mem = 0;
+
+   switch(anchor->structure)
+   {
+   case FVITrie:
+         fv_index_collect_stats(anchor->index, &stats);
+         break;
+   case FVITree:
+         FTIndexCollectStats(anchor->ftindex, &stats);
+         break;
+   case FVISetTree:
+         FSIndexCollectStats(anchor->fsindex, &stats);
+         break;
+   case FVIBinSetTree:
+         FBIndexCollectStats(anchor->fbindex, &stats);
+         list_mem = FBListsStorage(anchor->fblists);
+         break;
+   default:
+         assert(false && "Unknown index structure");
+         break;
+   }
+   fprintf(out, COMCHAR" FV index %-27s: %s, %ld clauses, %ld sets, "
+           "%ld inner nodes, %ld leaves, %ld node bytes, %ld set bytes, "
+           "%ld list bytes\n",
+           name, structure_names[anchor->structure], stats.clauses,
+           stats.sets, stats.inner, stats.leaves, anchor->storage,
+           stats.set_mem, list_mem);
+}
+
 
 /*-----------------------------------------------------------------------
 //

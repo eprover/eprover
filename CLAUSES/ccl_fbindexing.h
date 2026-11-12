@@ -65,6 +65,19 @@ typedef struct fb_index_cell
    }u1;
 }FBIndexCell, *FBIndex_p;
 
+/* Optional per-feature lists of the leaf entries of a binary feature
+   set tree: for each feature, the entries whose set contains it (in
+   insertion order), and their number. A clause subsumed by a query
+   clause has all features of the query's set, so its entry is on the
+   list of each of them, in particular on the shortest one. */
+
+typedef struct fb_lists_cell
+{
+   PDArray_p entries;  /* Feature -> OrdSet_p of FSEntry_p */
+   PDArray_p sizes;    /* Feature -> number of entries */
+   long      cells;    /* Total number of list cells */
+}FBListsCell, *FBLists_p;
+
 
 /*---------------------------------------------------------------------*/
 /*                Exported Functions and Variables                     */
@@ -72,6 +85,8 @@ typedef struct fb_index_cell
 
 #define FBIndexCellAlloc()    (FBIndexCell*)SizeMalloc(sizeof(FBIndexCell))
 #define FBIndexCellFree(junk) SizeFree(junk, sizeof(FBIndexCell))
+#define FBListsCellAlloc()    (FBListsCell*)SizeMalloc(sizeof(FBListsCell))
+#define FBListsCellFree(junk) SizeFree(junk, sizeof(FBListsCell))
 
 #ifdef CONSTANT_MEM_ESTIMATE
 #define FBINDEX_MEM 48
@@ -79,14 +94,20 @@ typedef struct fb_index_cell
 #define FBINDEX_MEM MEMSIZE(FBIndexCell)
 #endif
 
+FBLists_p FBListsAlloc(void);
+void      FBListsFree(FBLists_p junk);
+OrdSet_p  FBListsShortest(FBLists_p lists, FeatureSet_p fset);
+
 void FBIndexFree(FBIndex_p junk);
 void FBIndexInsert(FBIndex_p *root, long *storage, FTSplit_p split,
-                   Clause_p clause);
+                   FBLists_p lists, Clause_p clause);
 bool FBIndexDelete(FBIndex_p *root, long *storage, FTSplit_p split,
-                   Clause_p clause);
+                   FBLists_p lists, Clause_p clause);
 long FBIndexMaxWeight(FBIndex_p index);
 long FBIndexMinWeight(FBIndex_p index);
 long FBIndexCountNodes(FBIndex_p index, bool leaves);
+void FBIndexCollectStats(FBIndex_p index, FTStats_p stats);
+long FBListsStorage(FBLists_p lists);
 void FBIndexPrint(FILE* out, FBIndex_p index, bool fullterms);
 
 #endif

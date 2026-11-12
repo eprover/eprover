@@ -867,6 +867,69 @@ long FSIndexCountNodes(FSIndex_p index, bool leaves)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FSEntriesCollectStats()
+//
+//   Add the sizes of a list of leaf entries to stats.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes stats
+//
+/----------------------------------------------------------------------*/
+
+void FSEntriesCollectStats(FSEntry_p entries, FTStats_p stats)
+{
+   for(; entries; entries = entries->next)
+   {
+      stats->sets++;
+      stats->clauses += entries->clause_count;
+      stats->set_mem += FeatureSetStorage(entries->fset);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FSIndexCollectStats()
+//
+//   Add the sizes of the feature set tree at index to stats.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes stats
+//
+/----------------------------------------------------------------------*/
+
+void FSIndexCollectStats(FSIndex_p index, FTStats_p stats)
+{
+   IntMapIter_p iter;
+   FSIndex_p    succ;
+   long         i;
+
+   if(!index)
+   {
+      return;
+   }
+   if(index->final)
+   {
+      stats->leaves++;
+      FSEntriesCollectStats(index->u1.entries, stats);
+   }
+   else
+   {
+      stats->inner++;
+      iter = IntMapIterAlloc(index->u1.successors, 0, LONG_MAX);
+      while((succ = IntMapIterNext(iter, &i)))
+      {
+         FSIndexCollectStats(succ, stats);
+      }
+      IntMapIterFree(iter);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: FSIndexPrint()
 //
 //   Pretty-print the feature tree.

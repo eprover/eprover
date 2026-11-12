@@ -446,9 +446,165 @@ static void leaf_split(FBIndex_p *ref, long *storage, FTSplit_p split)
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: lists_add()
+//
+//   Add a new entry to the lists of all features of its set (if
+//   lists is not NULL).
+//
+// Global Variables: -
+//
+// Side Effects    : Changes lists, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void lists_add(FBLists_p lists, FSEntry_p entry)
+{
+   long     i, f;
+   OrdSet_p *set;
+
+   if(!lists)
+   {
+      return;
+   }
+   for(i=0; i<entry->fset->size; i++)
+   {
+      f = entry->fset->pairs[i].feature;
+      set = (OrdSet_p*)&(PDArrayElementP(lists->entries, f));
+      OrdSetStore(set, entry);
+      PDArrayElementInt(lists->sizes, f)++;
+      lists->cells++;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: lists_remove()
+//
+//   Remove an entry (about to be freed) from the lists of all
+//   features of its set (if lists is not NULL).
+//
+// Global Variables: -
+//
+// Side Effects    : Changes lists, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void lists_remove(FBLists_p lists, FSEntry_p entry)
+{
+   long     i, f;
+   OrdSet_p *set;
+
+   if(!lists)
+   {
+      return;
+   }
+   for(i=0; i<entry->fset->size; i++)
+   {
+      f = entry->fset->pairs[i].feature;
+      set = (OrdSet_p*)&(PDArrayElementP(lists->entries, f));
+      UNUSED(OrdSetDeleteEntry(set, entry));
+      assert(PDArrayElementInt(lists->sizes, f) > 0);
+      PDArrayElementInt(lists->sizes, f)--;
+      lists->cells--;
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FBListsAlloc()
+//
+//   Allocate empty per-feature entry lists.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FBLists_p FBListsAlloc(void)
+{
+   FBLists_p handle = FBListsCellAlloc();
+
+   handle->entries = PDArrayAlloc(64, 0);
+   handle->sizes   = PDIntArrayAlloc(64, 0);
+   handle->cells   = 0;
+
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FBListsFree()
+//
+//   Free per-feature entry lists (but not the entries).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void FBListsFree(FBLists_p junk)
+{
+   long i;
+
+   if(junk)
+   {
+      for(i=0; i<junk->entries->size; i++)
+      {
+         OrdSetFree(PDArrayElementP(junk->entries, i));
+      }
+      PDArrayFree(junk->entries);
+      PDArrayFree(junk->sizes);
+      FBListsCellFree(junk);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FBListsShortest()
+//
+//   Return the shortest list of entries among those of the features
+//   of fset (NULL if it is empty, or if fset has no features, which
+//   does not happen for clause feature sets).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+OrdSet_p FBListsShortest(FBLists_p lists, FeatureSet_p fset)
+{
+   long i, f, size, best = -1, best_size = LONG_MAX;
+
+   for(i=0; i<fset->size; i++)
+   {
+      f = fset->pairs[i].feature;
+      size = PDArrayElementInt(lists->sizes, f);
+      if(size < best_size)
+      {
+         best_size = size;
+         best = f;
+         if(!size)
+         {
+            break;
+         }
+      }
+   }
+   return (best == -1)? NULL : PDArrayElementP(lists->entries, best);
+}
 
 
 /*-----------------------------------------------------------------------
@@ -501,7 +657,8 @@ void FBIndexFree(FBIndex_p junk)
 //   same feature set, the clause is stored there and references the
 //   entry's set (its own is freed). Otherwise, a new entry is added
 //   to the leaf, and if the leaf then has more entries than the
-//   bucket size, it is split (see leaf_split()). *storage is
+//   bucket size, it is split (see leaf_split()). A new entry is added
+//   to the per-feature lists (if lists is not NULL). *storage is
 //   updated.
 //
 // Global Variables: -
@@ -511,7 +668,7 @@ void FBIndexFree(FBIndex_p junk)
 /----------------------------------------------------------------------*/
 
 void FBIndexInsert(FBIndex_p *root, long *storage, FTSplit_p split,
-                   Clause_p clause)
+                   FBLists_p lists, Clause_p clause)
 {
    FBIndex_p    *ref, node, leaf;
    FSEntry_p    entry;
@@ -557,6 +714,7 @@ void FBIndexInsert(FBIndex_p *root, long *storage, FTSplit_p split,
    {
       entry = FSEntryAlloc(storage, fset);
       leaf_append(leaf, entry);
+      lists_add(lists, entry);
    }
    entry->clause_count++;
    leaf->clause_count++;
@@ -575,7 +733,8 @@ void FBIndexInsert(FBIndex_p *root, long *storage, FTSplit_p split,
 //
 //   Delete clause from the binary feature tree at *root. Return true
 //   if the clause was found, false otherwise. An entry that becomes
-//   empty is removed (together with its feature set). A leaf without
+//   empty is removed (together with its feature set, and from the
+//   per-feature lists if lists is not NULL). A leaf without
 //   entries is removed, and its parent is replaced by the other
 //   successor. The caller has to reset clause->feature_set. *storage
 //   is updated.
@@ -587,7 +746,7 @@ void FBIndexInsert(FBIndex_p *root, long *storage, FTSplit_p split,
 /----------------------------------------------------------------------*/
 
 bool FBIndexDelete(FBIndex_p *root, long *storage, FTSplit_p split,
-                   Clause_p clause)
+                   FBLists_p lists, Clause_p clause)
 {
    FeatureSet_p  fset = clause->feature_set;
    FBIndex_p     *ref, node, leaf, parent;
@@ -638,6 +797,7 @@ bool FBIndexDelete(FBIndex_p *root, long *storage, FTSplit_p split,
       {
          *eref = entry->next;
          leaf->entry_count--;
+         lists_remove(lists, entry);
          FSEntryFree(storage, entry); /* Frees fset */
       }
       if(!leaf->clause_count)
@@ -783,6 +943,62 @@ long FBIndexCountNodes(FBIndex_p index, bool leaves)
    return (leaves? 0 : 1) +
       FBIndexCountNodes(index->u1.succ.le, leaves) +
       FBIndexCountNodes(index->u1.succ.gt, leaves);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FBIndexCollectStats()
+//
+//   Add the sizes of the binary feature set tree at index to stats.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes stats
+//
+/----------------------------------------------------------------------*/
+
+void FBIndexCollectStats(FBIndex_p index, FTStats_p stats)
+{
+   if(!index)
+   {
+      return;
+   }
+   if(index->final)
+   {
+      stats->leaves++;
+      FSEntriesCollectStats(index->u1.entries, stats);
+   }
+   else
+   {
+      stats->inner++;
+      FBIndexCollectStats(index->u1.succ.le, stats);
+      FBIndexCollectStats(index->u1.succ.gt, stats);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FBListsStorage()
+//
+//   Return the memory of the per-feature lists (arrays and list
+//   cells), 0 for NULL.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long FBListsStorage(FBLists_p lists)
+{
+   if(!lists)
+   {
+      return 0;
+   }
+   return MEMSIZE(FBListsCell)+PDArrayStorage(lists->entries)+
+      PDArrayStorage(lists->sizes)+lists->cells*ORDSET_CELL_MEM;
 }
 
 

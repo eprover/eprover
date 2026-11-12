@@ -6,7 +6,8 @@
 
   Contents
 
-  Split rules for the feature trees (ccl_ftindexing, ccl_fsindexing):
+  Common support for the feature trees (ccl_ftindexing,
+  ccl_fsindexing, ccl_fbindexing): index statistics, and split rules:
   when a new clause reaches a leaf with a different feature
   vector/set, the leaf is replaced by a decision node on one of the
   features in which the two differ. The rule selects which one. Some
@@ -68,6 +69,18 @@ typedef struct ft_split_cell
    PDArray_p   freq;      /* Indexed clauses with a non-zero value, by
                              feature (only if FTSplitUsesFreq) */
 }FTSplitCell, *FTSplit_p;
+
+/* Size statistics of a subsumption index (any structure, see
+   ccl_fcvindexing.h). */
+
+typedef struct ft_stats_cell
+{
+   long inner;     /* Decision nodes (trie: inner nodes) */
+   long leaves;    /* Non-empty leaves */
+   long sets;      /* Distinct stored feature vectors/sets */
+   long clauses;   /* Stored clauses */
+   long set_mem;   /* Memory of the stored feature vectors/sets */
+}FTStatsCell, *FTStats_p;
 
 
 /*---------------------------------------------------------------------*/

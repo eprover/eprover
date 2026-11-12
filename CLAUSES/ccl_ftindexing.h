@@ -79,6 +79,7 @@ void FTIndexInsert(FTIndex_p *root, long *storage, FTSplit_p split,
 bool FTIndexDelete(FTIndex_p *root, long *storage, FTSplit_p split,
                    Clause_p clause);
 long FTIndexCountNodes(FTIndex_p index, bool leaves);
+void FTIndexCollectStats(FTIndex_p index, FTStats_p stats);
 void FTIndexPrint(FILE* out, FTIndex_p index, bool fullterms);
 
 #endif

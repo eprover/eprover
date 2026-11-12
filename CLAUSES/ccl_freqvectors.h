@@ -125,6 +125,9 @@ PermVector_p PermVectorComputeInternal(FreqVector_p fmax, FreqVector_p fmin,
 
 
 #define FreqVectorCellAlloc()    (FreqVectorCell*)SizeMalloc(sizeof(FreqVectorCell))
+#define FreqVectorStorage(vec)                                    \
+   (MEMSIZE(FreqVectorCell)+                                      \
+    ((vec)->size+MAX((vec)->nz_count, 0))*(long)sizeof(long))
 #define FreqVectorCellFree(junk) SizeFree(junk, sizeof(FreqVectorCell))
 
 

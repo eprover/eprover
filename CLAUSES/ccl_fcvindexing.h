@@ -75,6 +75,7 @@ typedef struct fvindex_parms_cell
    FTSplitRule split_rule;      /* Only for FVITree and FVISetTree */
    long bucket_size;            /* Only for (Bin)SetTree */
    bool weight_bounds;          /* Only for (Bin)SetTree */
+   bool feature_lists;          /* Only for BinSetTree */
 }FVIndexParmsCell, *FVIndexParms_p;
 
 
@@ -115,6 +116,7 @@ typedef struct fvi_anchor_cell
    FTIndex_p    ftindex;      /* Only for FVITree, NULL if empty */
    FSIndex_p    fsindex;      /* Only for FVISetTree, NULL if empty */
    FBIndex_p    fbindex;      /* Only for FVIBinSetTree, NULL if empty */
+   FBLists_p    fblists;      /* Only for FVIBinSetTree, optional */
    FTSplit_p    split;        /* Not for FVITrie */
    bool         weight_bounds; /* Prune (Bin)SetTree retrieval for
                                   multiset subsumption by weight */
@@ -162,6 +164,7 @@ void        FVIndexInsert(FVIAnchor_p index, Clause_p clause);
 bool        FVIndexDelete(FVIAnchor_p index, Clause_p clause);
 
 long        FVIndexCountNodes(FVIndex_p index, bool leaves, bool empty);
+void        FVIAnchorPrintStats(FILE* out, char* name, FVIAnchor_p anchor);
 
 FreqVector_p FVIndexComputeVector(FVIAnchor_p anchor, Clause_p clause);
 void         ClauseComputeFeatures(Clause_p clause, FVIAnchor_p anchor);

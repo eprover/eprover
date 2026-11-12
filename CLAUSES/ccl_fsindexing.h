@@ -110,6 +110,8 @@ void FSIndexInsert(FSIndex_p *root, long *storage, FTSplit_p split,
 bool FSIndexDelete(FSIndex_p *root, long *storage, FTSplit_p split,
                    Clause_p clause);
 long FSIndexCountNodes(FSIndex_p index, bool leaves);
+void FSIndexCollectStats(FSIndex_p index, FTStats_p stats);
+void FSEntriesCollectStats(FSEntry_p entries, FTStats_p stats);
 long FSIndexMaxWeight(FSIndex_p index);
 long FSIndexMinWeight(FSIndex_p index);
 void FSIndexPrint(FILE* out, FSIndex_p index, bool fullterms);

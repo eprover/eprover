@@ -2439,6 +2439,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_FVINDEX_WEIGHTBOUNDS:
             fvi_parms->weight_bounds = true;
             break;
+      case OPT_FVINDEX_FEATURELISTS:
+            fvi_parms->feature_lists = true;
+            break;
       case OPT_FVINDEX_SPLIT:
             {
                int rule = FTSplitRuleParse(arg);

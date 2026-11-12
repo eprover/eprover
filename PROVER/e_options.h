@@ -185,6 +185,7 @@ typedef enum
    OPT_FVINDEX_SPLIT,
    OPT_FVINDEX_BUCKETSIZE,
    OPT_FVINDEX_WEIGHTBOUNDS,
+   OPT_FVINDEX_FEATURELISTS,
    OPT_RW_BW_INDEX,
    OPT_PM_FROM_INDEX,
    OPT_PM_INTO_INDEX,
@@ -1490,6 +1491,14 @@ OptCell opts[] =
     "and skip "
     "subtrees whose clauses are too light or too heavy for multiset "
     "subsumption."},
+
+   {OPT_FVINDEX_FEATURELISTS,
+    '\0', "fvindex-feature-lists",
+    NoArg, NULL,
+    "For --fvindex-structure=BinSetTree, keep for each feature the "
+    "list of stored feature sets that contain it, and find subsumed "
+    "clauses (backward subsumption) by checking only the sets on the "
+    "shortest list among the features of the subsuming clause."},
 
    {OPT_RW_BW_INDEX,
     '\0', "rw-bw-index",

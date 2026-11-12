@@ -736,6 +736,17 @@ void ProofStateStatisticsPrint(FILE* out, ProofState_p state)
                 state->processed_pos_eqns->members,
                 state->processed_neg_units->members,
                 state->processed_non_units->members);
+   if(state->processed_non_units->fvindex)
+   {
+      FVIAnchorPrintStats(out, "(processed non-units)",
+                          state->processed_non_units->fvindex);
+      FVIAnchorPrintStats(out, "(pos. orientable units)",
+                          state->processed_pos_rules->fvindex);
+      FVIAnchorPrintStats(out, "(pos. unorientable units)",
+                          state->processed_pos_eqns->fvindex);
+      FVIAnchorPrintStats(out, "(neg. units)",
+                          state->processed_neg_units->fvindex);
+   }
    CommentPrint(out,
                 " Current number of unprocessed clauses: %ld\n",
                 state->unprocessed->members);
