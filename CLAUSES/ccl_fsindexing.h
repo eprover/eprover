@@ -101,6 +101,9 @@ typedef struct fs_index_cell
 #define FSENTRY_MEM MEMSIZE(FSEntryCell)
 #endif
 
+FSEntry_p FSEntryAlloc(long *storage, FeatureSet_p fset);
+void      FSEntryFree(long *storage, FSEntry_p junk);
+
 void FSIndexFree(FSIndex_p junk);
 void FSIndexInsert(FSIndex_p *root, long *storage, FTSplit_p split,
                    Clause_p clause);

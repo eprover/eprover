@@ -135,6 +135,10 @@ FeatureSetType FeatureSetTypeParse(const char* name);
 
 bool         FeatureSetLessEqual(FeatureSet_p set1, FeatureSet_p set2);
 long         FeatureSetFirstDiff(FeatureSet_p set1, FeatureSet_p set2);
+void         FeatureSetSplitCount(FTSplit_p split, FeatureSet_p fset,
+                                  long delta);
+void         FeatureSetPushDiffs(FeatureSet_p set1, FeatureSet_p set2,
+                                 PStack_p res);
 void         FeatureSetSplitConsider(FeatureSet_p set1, FeatureSet_p set2,
                                      FTSplit_p split, long *best,
                                      long *best_score);

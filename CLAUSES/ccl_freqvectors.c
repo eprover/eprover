@@ -1059,7 +1059,7 @@ long FreqVectorSplitFeature(FreqVector_p vec1, FreqVector_p vec2,
 
    assert(vec1->size == vec2->size);
 
-   if(split->rule == FTSplitFirst)
+   if(split->rule == FTSplitFirst || split->rule == FTSplitEven)
    {
       return FreqVectorFirstDiff(vec1, vec2);
    }

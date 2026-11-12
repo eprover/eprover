@@ -101,7 +101,7 @@ void FTSplitFree(FTSplit_p junk)
 // Function: FTSplitRuleParse()
 //
 //   Return the FTSplitRule named by name ("First", "Last",
-//   "Frequent", "Balanced"), or -1 if there is none.
+//   "Frequent", "Balanced", "Even"), or -1 if there is none.
 //
 // Global Variables: -
 //
@@ -127,6 +127,10 @@ FTSplitRule FTSplitRuleParse(const char* name)
    {
       return FTSplitBalanced;
    }
+   if(strcmp(name, "Even")==0)
+   {
+      return FTSplitEven;
+   }
    return -1;
 }
 
@@ -151,6 +155,7 @@ long FTSplitScore(FTSplit_p split, long feature)
    switch(split->rule)
    {
    case FTSplitFirst:
+   case FTSplitEven:
          return -feature;
    case FTSplitLast:
          return feature;

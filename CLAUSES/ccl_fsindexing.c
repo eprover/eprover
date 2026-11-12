@@ -123,54 +123,6 @@ static void fs_index_print(FILE* out, FSIndex_p node, bool fullterms,
 
 /*-----------------------------------------------------------------------
 //
-// Function: entry_alloc()
-//
-//   Allocate a new, empty leaf entry owning fset.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-static FSEntry_p entry_alloc(long *storage, FeatureSet_p fset)
-{
-   FSEntry_p handle = FSEntryCellAlloc();
-
-   handle->fset         = fset;
-   handle->clause_count = 0;
-   handle->clauses      = NULL;
-   handle->next         = NULL;
-   *storage += FSENTRY_MEM;
-
-   return handle;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: entry_free()
-//
-//   Free a leaf entry, its feature set, and its clause set (but not
-//   the clauses).
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-static void entry_free(long *storage, FSEntry_p junk)
-{
-   *storage -= FSENTRY_MEM;
-   OrdSetFree(junk->clauses);
-   FeatureSetFree(junk->fset);
-   FSEntryCellFree(junk);
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: leaf_alloc()
 //
 //   Allocate a new leaf without entries (and with invalid weight
@@ -468,36 +420,57 @@ static void leaf_split(FSIndex_p *ref, long *storage, FTSplit_p split)
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: ft_split_count()
-//
-//   Account for a clause with feature set fset entering (delta 1) or
-//   leaving (delta -1) the index, if split needs feature
-//   frequencies.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes split
-//
-/----------------------------------------------------------------------*/
-
-static void ft_split_count(FTSplit_p split, FeatureSet_p fset, long delta)
-{
-   if(FTSplitUsesFreq(split))
-   {
-      FTSplitCountClause(split, delta);
-      for(long i=0; i<fset->size; i++)
-      {
-         FTSplitCountFeature(split, fset->pairs[i].feature, delta);
-      }
-   }
-}
-
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FSEntryAlloc()
+//
+//   Allocate a new, empty leaf entry owning fset.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+FSEntry_p FSEntryAlloc(long *storage, FeatureSet_p fset)
+{
+   FSEntry_p handle = FSEntryCellAlloc();
+
+   handle->fset         = fset;
+   handle->clause_count = 0;
+   handle->clauses      = NULL;
+   handle->next         = NULL;
+   *storage += FSENTRY_MEM;
+
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FSEntryFree()
+//
+//   Free a leaf entry, its feature set, and its clause set (but not
+//   the clauses).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+void FSEntryFree(long *storage, FSEntry_p junk)
+{
+   *storage -= FSENTRY_MEM;
+   OrdSetFree(junk->clauses);
+   FeatureSetFree(junk->fset);
+   FSEntryCellFree(junk);
+}
 
 
 /*-----------------------------------------------------------------------
@@ -530,7 +503,7 @@ void FSIndexFree(FSIndex_p junk)
       for(entry = junk->u1.entries; entry; entry = next)
       {
          next = entry->next;
-         entry_free(&dummy, entry);
+         FSEntryFree(&dummy, entry);
       }
    }
    else
@@ -576,7 +549,7 @@ void FSIndexInsert(FSIndex_p *root, long *storage, FTSplit_p split,
 
    assert(fset);
 
-   ft_split_count(split, fset, 1);
+   FeatureSetSplitCount(split, fset, 1);
    ref = root;
    while(*ref && !(*ref)->final)
    {
@@ -616,7 +589,7 @@ void FSIndexInsert(FSIndex_p *root, long *storage, FTSplit_p split,
    }
    if(!entry)
    {
-      entry = entry_alloc(storage, fset);
+      entry = FSEntryAlloc(storage, fset);
       leaf_append(leaf, entry);
    }
    entry->clause_count++;
@@ -682,7 +655,7 @@ bool FSIndexDelete(FSIndex_p *root, long *storage, FTSplit_p split,
    }
    if(res)
    {
-      ft_split_count(split, fset, -1);
+      FeatureSetSplitCount(split, fset, -1);
       for(i=0; i<PStackGetSP(path); i++)
       {
          parent = PStackElementP(path, i);
@@ -732,7 +705,7 @@ bool FSIndexDelete(FSIndex_p *root, long *storage, FTSplit_p split,
       }
       if(!entry->clause_count)
       {
-         entry_free(storage, entry); /* Frees fset */
+         FSEntryFree(storage, entry); /* Frees fset */
       }
    }
    PStackFree(path);

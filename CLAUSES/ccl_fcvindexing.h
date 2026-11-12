@@ -37,6 +37,7 @@ Changes
 #include <ccl_freqvectors.h>
 #include <ccl_ftindexing.h>
 #include <ccl_fsindexing.h>
+#include <ccl_fbindexing.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -48,14 +49,19 @@ PERF_CTR_DECL(FVIndexTimer);
 
 /* The data structure used for subsumption indexing: a trie over
    feature vectors (FVIndex), a feature tree over feature vectors
-   (FTIndex), or a feature tree over feature sets (FSIndex). */
+   (FTIndex), a feature tree over feature sets (FSIndex), or a binary
+   feature tree over feature sets (FBIndex). */
 
 typedef enum
 {
    FVITrie,
    FVITree,
-   FVISetTree
+   FVISetTree,
+   FVIBinSetTree
 }FVIStructure;
+
+#define FVIUsesFeatureSets(structure) \
+   (((structure) == FVISetTree) || ((structure) == FVIBinSetTree))
 
 typedef struct fvindex_parms_cell
 {
@@ -67,8 +73,8 @@ typedef struct fvindex_parms_cell
    FVIStructure structure;
    FeatureSetType set_features; /* Only for FVISetTree */
    FTSplitRule split_rule;      /* Only for FVITree and FVISetTree */
-   long bucket_size;            /* Only for FVISetTree */
-   bool weight_bounds;          /* Only for FVISetTree */
+   long bucket_size;            /* Only for (Bin)SetTree */
+   bool weight_bounds;          /* Only for (Bin)SetTree */
 }FVIndexParmsCell, *FVIndexParms_p;
 
 
@@ -93,8 +99,9 @@ typedef struct fv_index_cell
 /* The anchor describes how feature vectors are computed and holds
    the index proper, as selected by structure: a feature vector trie
    (index), a feature tree over feature vectors (ftindex, see
-   ccl_ftindexing.h), or a feature tree over feature sets (fsindex,
-   see ccl_fsindexing.h). Feature sets do not depend on cspec and
+   ccl_ftindexing.h), a feature tree over feature sets (fsindex,
+   see ccl_fsindexing.h), or a binary one (fbindex, see
+   ccl_fbindexing.h). Feature sets do not depend on cspec and
    perm_vector, set_features selects their features. split selects
    the tests of new decision nodes in the feature trees. */
 
@@ -107,8 +114,9 @@ typedef struct fvi_anchor_cell
    FVIndex_p    index;        /* Only for FVITrie */
    FTIndex_p    ftindex;      /* Only for FVITree, NULL if empty */
    FSIndex_p    fsindex;      /* Only for FVISetTree, NULL if empty */
-   FTSplit_p    split;        /* Only for FVITree and FVISetTree */
-   bool         weight_bounds; /* Prune FVISetTree retrieval for
+   FBIndex_p    fbindex;      /* Only for FVIBinSetTree, NULL if empty */
+   FTSplit_p    split;        /* Not for FVITrie */
+   bool         weight_bounds; /* Prune (Bin)SetTree retrieval for
                                   multiset subsumption by weight */
    long         storage;
 }FVIAnchorCell, *FVIAnchor_p;

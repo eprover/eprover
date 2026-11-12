@@ -1444,12 +1444,14 @@ OptCell opts[] =
     "only features that distinguish the stored vectors. 'SetTree' is "
     "a feature tree over sparse feature sets for all symbols (see "
     "--fvindex-setfeatures), and ignores the other --fvindex-* "
-    "options."},
+    "options. 'BinSetTree' is like 'SetTree', but its decision nodes "
+    "compare a feature with a threshold and have exactly two "
+    "successors."},
 
    {OPT_FVINDEX_SETFEATURES,
     '\0', "fvindex-setfeatures",
     ReqArg, NULL,
-    "Select the features for --fvindex-structure=SetTree. 'All' (the "
+    "Select the features for --fvindex-structure=SetTree and BinSetTree. 'All' (the "
     "default) uses the features of --fvindex-featuretypes=All: literal "
     "counts, and symbol counts and maximal depths for positive and "
     "negative literals. 'AllMinDepth' adds the minimal depth of each "
@@ -1462,27 +1464,30 @@ OptCell opts[] =
     '\0', "fvindex-split",
     ReqArg, NULL,
     "Select the feature tested by a new decision node in the feature "
-    "trees (--fvindex-structure=Tree or SetTree), among the features "
+    "trees (--fvindex-structure=Tree, SetTree, or BinSetTree), among the features "
     "in which the two clauses to be separated differ. 'First' (the "
     "default) takes the one with the smallest number, 'Last' the one "
     "with the largest number, 'Frequent' the one with a non-zero value "
-    "in the most indexed clauses, and 'Balanced' the one with a "
-    "non-zero value in closest to half of the indexed clauses. This "
+    "in the most indexed clauses, 'Balanced' the one with a "
+    "non-zero value in closest to half of the indexed clauses, and "
+    "'Even' (only for BinSetTree, elsewhere the same as 'First') the "
+    "one that splits the feature sets of the leaf most evenly. This "
     "affects only the shape of the index, not the search."},
 
    {OPT_FVINDEX_BUCKETSIZE,
     '\0', "fvindex-bucket-size",
     ReqArg, NULL,
     "Set the number of different feature sets a leaf of the feature "
-    "set tree (--fvindex-structure=SetTree) may hold before it is "
-    "split. Larger buckets give a smaller tree with more feature set "
+    "set tree (--fvindex-structure=SetTree or BinSetTree) may hold "
+    "before it is split. Larger buckets give a smaller tree with more feature set "
     "comparisons at the leaves. The default is 1."},
 
    {OPT_FVINDEX_WEIGHTBOUNDS,
     '\0', "fvindex-weight-bounds",
     NoArg, NULL,
     "Keep the minimal and maximal clause weight for each node of the "
-    "feature set tree (--fvindex-structure=SetTree), and skip "
+    "feature set tree (--fvindex-structure=SetTree or BinSetTree), "
+    "and skip "
     "subtrees whose clauses are too light or too heavy for multiset "
     "subsumption."},
 

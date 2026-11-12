@@ -2409,10 +2409,15 @@ CLState_p process_options(int argc, char* argv[])
             {
                fvi_parms->structure = FVISetTree;
             }
+            else if(strcmp(arg, "BinSetTree")==0)
+            {
+               fvi_parms->structure = FVIBinSetTree;
+            }
             else
             {
                Error("Option --fvindex-structure requires "
-                     "'Trie', 'Tree', or 'SetTree'.", USAGE_ERROR);
+                     "'Trie', 'Tree', 'SetTree', or 'BinSetTree'.",
+                     USAGE_ERROR);
             }
             break;
       case OPT_FVINDEX_SETFEATURES:
@@ -2441,7 +2446,8 @@ CLState_p process_options(int argc, char* argv[])
                if(rule == -1)
                {
                   Error("Option --fvindex-split requires 'First', "
-                        "'Last', 'Frequent', or 'Balanced'.", USAGE_ERROR);
+                        "'Last', 'Frequent', 'Balanced', or 'Even'.",
+                        USAGE_ERROR);
                }
                fvi_parms->split_rule = rule;
             }

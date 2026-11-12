@@ -470,7 +470,7 @@ void FeatureSetSplitConsider(FeatureSet_p set1, FeatureSet_p set2,
 {
    long i = 0, j = 0, feature;
 
-   if(split->rule == FTSplitFirst)
+   if(split->rule == FTSplitFirst || split->rule == FTSplitEven)
    {
       /* Only the smallest differing feature can win */
       feature = FeatureSetFirstDiff(set1, set2);
@@ -505,6 +505,78 @@ void FeatureSetSplitConsider(FeatureSet_p set1, FeatureSet_p set2,
          }
       }
       FTSplitConsider(split, feature, best, best_score);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FeatureSetPushDiffs()
+//
+//   Push all features in which the two sets differ onto res (in
+//   ascending order).
+//
+// Global Variables: -
+//
+// Side Effects    : Changes res
+//
+/----------------------------------------------------------------------*/
+
+void FeatureSetPushDiffs(FeatureSet_p set1, FeatureSet_p set2, PStack_p res)
+{
+   long i = 0, j = 0;
+
+   if(set1 == set2)
+   {
+      return;
+   }
+   while(i < set1->size || j < set2->size)
+   {
+      if(j == set2->size ||
+         (i < set1->size && set1->pairs[i].feature < set2->pairs[j].feature))
+      {
+         PStackPushInt(res, set1->pairs[i++].feature);
+      }
+      else if(i == set1->size ||
+              set2->pairs[j].feature < set1->pairs[i].feature)
+      {
+         PStackPushInt(res, set2->pairs[j++].feature);
+      }
+      else
+      {
+         if(set1->pairs[i].value != set2->pairs[j].value)
+         {
+            PStackPushInt(res, set1->pairs[i].feature);
+         }
+         i++;
+         j++;
+      }
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FeatureSetSplitCount()
+//
+//   Account for a clause with feature set fset entering (delta 1) or
+//   leaving (delta -1) an index, if split needs feature frequencies.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes split
+//
+/----------------------------------------------------------------------*/
+
+void FeatureSetSplitCount(FTSplit_p split, FeatureSet_p fset, long delta)
+{
+   if(FTSplitUsesFreq(split))
+   {
+      FTSplitCountClause(split, delta);
+      for(long i=0; i<fset->size; i++)
+      {
+         FTSplitCountFeature(split, fset->pairs[i].feature, delta);
+      }
    }
 }
 

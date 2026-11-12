@@ -44,6 +44,9 @@
      indexed clauses
    - FTSplitBalanced: the feature with a non-zero value in the number
      of indexed clauses closest to half of them
+   - FTSplitEven: the feature that splits the sets of the leaf most
+     evenly (only for the binary feature set tree, ccl_fbindexing,
+     elsewhere the same as FTSplitFirst)
    Ties are broken by the smallest feature number. When a leaf with
    several feature sets is split, the candidates are the features on
    which not all of them agree. */
@@ -53,7 +56,8 @@ typedef enum
    FTSplitFirst,
    FTSplitLast,
    FTSplitFrequent,
-   FTSplitBalanced
+   FTSplitBalanced,
+   FTSplitEven
 }FTSplitRule;
 
 typedef struct ft_split_cell

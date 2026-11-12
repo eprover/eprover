@@ -339,9 +339,10 @@ FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm,
    handle->index        = trie? FVIndexAlloc() : NULL;
    handle->ftindex      = NULL;
    handle->fsindex      = NULL;
+   handle->fbindex      = NULL;
    handle->split        = trie? NULL : FTSplitAlloc(parms->split_rule,
                                                 parms->bucket_size);
-   handle->weight_bounds = (parms->structure == FVISetTree) &&
+   handle->weight_bounds = FVIUsesFeatureSets(parms->structure) &&
                            parms->weight_bounds;
    handle->storage      = 0;
 
@@ -379,6 +380,7 @@ void FVIAnchorFree(FVIAnchor_p junk)
    }
    FTIndexFree(junk->ftindex);
    FSIndexFree(junk->fsindex);
+   FBIndexFree(junk->fbindex);
    FTSplitFree(junk->split);
    if(junk->perm_vector)
    {
@@ -442,7 +444,7 @@ void FVIndexInsert(FVIAnchor_p index, Clause_p clause)
    assert(!ClauseQueryProp(clause, CPIsSIndexed));
    assert(ClauseFeaturesAreValid(clause, index));
 
-   if(index->structure == FVISetTree)
+   if(FVIUsesFeatureSets(index->structure))
    {
       if(!clause->feature_set)
       {
@@ -451,8 +453,16 @@ void FVIndexInsert(FVIAnchor_p index, Clause_p clause)
       }
       PERF_CTR_ENTRY(FVIndexTimer);
       ClauseSubsumeOrderSortLits(clause);
-      FSIndexInsert(&(index->fsindex), &(index->storage), index->split,
-                    clause);
+      if(index->structure == FVISetTree)
+      {
+         FSIndexInsert(&(index->fsindex), &(index->storage), index->split,
+                       clause);
+      }
+      else
+      {
+         FBIndexInsert(&(index->fbindex), &(index->storage), index->split,
+                       clause);
+      }
       PERF_CTR_EXIT(FVIndexTimer);
       return;
    }
@@ -534,12 +544,20 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
 
    assert(ClauseFeaturesAreValid(clause, index));
 
-   if(index->structure == FVISetTree)
+   if(FVIUsesFeatureSets(index->structure))
    {
       assert(clause->feature_set);
       PERF_CTR_ENTRY(FVIndexTimer);
-      res = FSIndexDelete(&(index->fsindex), &(index->storage),
-                          index->split, clause);
+      if(index->structure == FVISetTree)
+      {
+         res = FSIndexDelete(&(index->fsindex), &(index->storage),
+                             index->split, clause);
+      }
+      else
+      {
+         res = FBIndexDelete(&(index->fbindex), &(index->storage),
+                             index->split, clause);
+      }
       clause->feature_set = NULL;
       PERF_CTR_EXIT(FVIndexTimer);
       return res;
@@ -672,7 +690,7 @@ void ClauseComputeFeatures(Clause_p clause, FVIAnchor_p anchor)
    ClauseDropFeatures(clause);
    if(anchor)
    {
-      if(anchor->structure == FVISetTree)
+      if(FVIUsesFeatureSets(anchor->structure))
       {
          clause->feature_set =
             ClauseFeatureSetCompute(clause, anchor->set_features);
@@ -795,7 +813,7 @@ bool ClauseFeaturesAreValid(Clause_p clause, FVIAnchor_p anchor)
    if(clause->feature_vec)
    {
       FreqVector_p fresh = FVIndexComputeVector(anchor, clause);
-      res = (anchor->structure != FVISetTree) &&
+      res = !FVIUsesFeatureSets(anchor->structure) &&
          FreqVectorEqual(fresh, clause->feature_vec);
       FreqVectorFree(fresh);
    }
@@ -803,7 +821,7 @@ bool ClauseFeaturesAreValid(Clause_p clause, FVIAnchor_p anchor)
    {
       FeatureSet_p fresh =
          ClauseFeatureSetCompute(clause, anchor->set_features);
-      res = (anchor->structure == FVISetTree) &&
+      res = FVIUsesFeatureSets(anchor->structure) &&
          FeatureSetEqual(fresh, clause->feature_set);
       FeatureSetFree(fresh);
    }

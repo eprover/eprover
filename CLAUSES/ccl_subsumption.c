@@ -1636,6 +1636,208 @@ Clause_p fs_find_variant_clause(FSIndex_p index, Clause_p clause,
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: fb_find_subsuming_clause()
+//
+//   As fs_find_subsuming_clause(), for the binary feature set
+//   tree. Candidates have feature values less than or equal to those
+//   of fset, so the successor for values above the threshold is only
+//   searched if the value of fset is above it.
+//
+// Global Variables: -
+//
+// Side Effects    : May update weight bounds in the index
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p fb_find_subsuming_clause(FBIndex_p index,
+                                  Clause_p sub_candidate,
+                                  FeatureSet_p fset,
+                                  ClauseSubsumesFun subsumes,
+                                  bool bounds)
+{
+   Clause_p res = NULL;
+
+   while(index && !res)
+   {
+      if(bounds && FBIndexMinWeight(index) > sub_candidate->weight)
+      {
+         return NULL;
+      }
+      if(index->final)
+      {
+         FSEntry_p entry;
+
+         for(entry = index->u1.entries; !res && entry; entry = entry->next)
+         {
+            if(FeatureSetLessEqual(entry->fset, fset))
+            {
+               res = clause_tree_find_subsuming_clause(entry->clauses,
+                                                       sub_candidate,
+                                                       subsumes);
+            }
+         }
+         return res;
+      }
+      res = fb_find_subsuming_clause(index->u1.succ.le, sub_candidate,
+                                     fset, subsumes, bounds);
+      if(FeatureSetGetVal(fset, index->feature) <= index->threshold)
+      {
+         return res;
+      }
+      index = index->u1.succ.gt;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fb_find_subsumed_clauses()
+//
+//   As fs_find_subsumed_clauses(), for the binary feature set
+//   tree. Candidates have feature values greater than or equal to
+//   those of fset, so the successor for values up to the threshold is
+//   only searched if the value of fset is at most the threshold.
+//
+// Global Variables: -
+//
+// Side Effects    : May update weight bounds in the index
+//
+/----------------------------------------------------------------------*/
+
+static
+void fb_find_subsumed_clauses(FBIndex_p index,
+                              Clause_p subsumer,
+                              FeatureSet_p fset,
+                              PStack_p res,
+                              ClauseSubsumesFun subsumes,
+                              bool bounds)
+{
+   while(index)
+   {
+      if(bounds && FBIndexMaxWeight(index) < subsumer->weight)
+      {
+         return;
+      }
+      if(index->final)
+      {
+         FSEntry_p entry;
+
+         for(entry = index->u1.entries; entry; entry = entry->next)
+         {
+            if(FeatureSetLessEqual(fset, entry->fset))
+            {
+               clause_tree_find_subsumed_clauses(entry->clauses, subsumer,
+                                                 res, subsumes);
+            }
+         }
+         return;
+      }
+      if(FeatureSetGetVal(fset, index->feature) <= index->threshold)
+      {
+         fb_find_subsumed_clauses(index->u1.succ.le, subsumer, fset, res,
+                                  subsumes, bounds);
+      }
+      index = index->u1.succ.gt;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fb_find_first_subsumed_clause()
+//
+//   As fs_find_first_subsumed_clause(), for the binary feature set
+//   tree (see fb_find_subsumed_clauses()).
+//
+// Global Variables: -
+//
+// Side Effects    : May update weight bounds in the index
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p fb_find_first_subsumed_clause(FBIndex_p index,
+                                       Clause_p subsumer,
+                                       FeatureSet_p fset,
+                                       ClauseSubsumesFun subsumes,
+                                       bool bounds)
+{
+   Clause_p res = NULL;
+
+   while(index && !res)
+   {
+      if(bounds && FBIndexMaxWeight(index) < subsumer->weight)
+      {
+         return NULL;
+      }
+      if(index->final)
+      {
+         FSEntry_p entry;
+
+         for(entry = index->u1.entries; !res && entry; entry = entry->next)
+         {
+            if(FeatureSetLessEqual(fset, entry->fset))
+            {
+               res = clause_tree_find_first_subsumed_clause(entry->clauses,
+                                                            subsumer,
+                                                            subsumes);
+            }
+         }
+         return res;
+      }
+      if(FeatureSetGetVal(fset, index->feature) <= index->threshold)
+      {
+         res = fb_find_first_subsumed_clause(index->u1.succ.le, subsumer,
+                                             fset, subsumes, bounds);
+      }
+      index = index->u1.succ.gt;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: fb_find_variant_clause()
+//
+//   Return a variant of clause (with feature set fset) from the
+//   binary feature set tree index, or NULL if there is none.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static
+Clause_p fb_find_variant_clause(FBIndex_p index, Clause_p clause,
+                                FeatureSet_p fset)
+{
+   FSEntry_p entry;
+
+   while(index && !index->final)
+   {
+      index = (FeatureSetGetVal(fset, index->feature) <= index->threshold)?
+         index->u1.succ.le : index->u1.succ.gt;
+   }
+   if(index)
+   {
+      for(entry = index->u1.entries; entry; entry = entry->next)
+      {
+         if(FeatureSetEqual(entry->fset, fset))
+         {
+            return clause_tree_find_variant_clause(entry->clauses, clause);
+         }
+      }
+   }
+   return NULL;
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -2006,14 +2208,24 @@ static Clause_p clause_set_subsumes_clause_gen(ClauseSet_p set,
 
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(sub_candidate->weight == ClauseStandardWeight(sub_candidate));
-   if(set->fvindex && (set->fvindex->structure == FVISetTree))
+   if(set->fvindex && FVIUsesFeatureSets(set->fvindex->structure))
    {
       bool is_temp;
+      bool bounds = multiset && set->fvindex->weight_bounds;
       FeatureSet_p fset = ClauseGetFeatureSet(sub_candidate, set->fvindex, &is_temp);
 
-      res = fs_find_subsuming_clause(set->fvindex->fsindex,
-                                     sub_candidate, fset, subsumes,
-                                     multiset && set->fvindex->weight_bounds);
+      if(set->fvindex->structure == FVISetTree)
+      {
+         res = fs_find_subsuming_clause(set->fvindex->fsindex,
+                                        sub_candidate, fset, subsumes,
+                                        bounds);
+      }
+      else
+      {
+         res = fb_find_subsuming_clause(set->fvindex->fbindex,
+                                        sub_candidate, fset, subsumes,
+                                        bounds);
+      }
       if(is_temp)
       {
          FeatureSetFree(fset);
@@ -2156,14 +2368,22 @@ static long clauseset_find_subsumed_clauses_gen(ClauseSet_p set,
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   if(set->fvindex && (set->fvindex->structure == FVISetTree))
+   if(set->fvindex && FVIUsesFeatureSets(set->fvindex->structure))
    {
       bool is_temp;
+      bool bounds = multiset && set->fvindex->weight_bounds;
       FeatureSet_p fset = ClauseGetFeatureSet(subsumer, set->fvindex, &is_temp);
 
-      fs_find_subsumed_clauses(set->fvindex->fsindex,
-                               subsumer, fset, res, subsumes,
-                               multiset && set->fvindex->weight_bounds);
+      if(set->fvindex->structure == FVISetTree)
+      {
+         fs_find_subsumed_clauses(set->fvindex->fsindex,
+                                  subsumer, fset, res, subsumes, bounds);
+      }
+      else
+      {
+         fb_find_subsumed_clauses(set->fvindex->fbindex,
+                                  subsumer, fset, res, subsumes, bounds);
+      }
       if(is_temp)
       {
          FeatureSetFree(fset);
@@ -2273,14 +2493,24 @@ static Clause_p clauseset_find_first_subsumed_clause_gen(ClauseSet_p set,
    PERF_CTR_ENTRY(SetSubsumeTimer);
    assert(subsumer->weight == ClauseStandardWeight(subsumer));
 
-   if(set->fvindex && (set->fvindex->structure == FVISetTree))
+   if(set->fvindex && FVIUsesFeatureSets(set->fvindex->structure))
    {
       bool is_temp;
+      bool bounds = multiset && set->fvindex->weight_bounds;
       FeatureSet_p fset = ClauseGetFeatureSet(subsumer, set->fvindex, &is_temp);
 
-      res = fs_find_first_subsumed_clause(set->fvindex->fsindex,
-                                          subsumer, fset, subsumes,
-                                          multiset && set->fvindex->weight_bounds);
+      if(set->fvindex->structure == FVISetTree)
+      {
+         res = fs_find_first_subsumed_clause(set->fvindex->fsindex,
+                                             subsumer, fset, subsumes,
+                                             bounds);
+      }
+      else
+      {
+         res = fb_find_first_subsumed_clause(set->fvindex->fbindex,
+                                             subsumer, fset, subsumes,
+                                             bounds);
+      }
       if(is_temp)
       {
          FeatureSetFree(fset);
@@ -2387,11 +2617,13 @@ Clause_p ClauseSetFindVariantClause(ClauseSet_p set,
    assert(set->fvindex);
    assert(clause->weight == ClauseStandardWeight(clause));
 
-   if(set->fvindex->structure == FVISetTree)
+   if(FVIUsesFeatureSets(set->fvindex->structure))
    {
       FeatureSet_p fset = ClauseGetFeatureSet(clause, set->fvindex, &is_temp);
 
-      res = fs_find_variant_clause(set->fvindex->fsindex, clause, fset);
+      res = (set->fvindex->structure == FVISetTree)?
+         fs_find_variant_clause(set->fvindex->fsindex, clause, fset) :
+         fb_find_variant_clause(set->fvindex->fbindex, clause, fset);
       if(is_temp)
       {
          FeatureSetFree(fset);
