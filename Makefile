@@ -475,11 +475,12 @@ distrib: default_config commit_id man documentation cleandist
 	@echo " - Changing the bibliographies to local version"
 	@echo " - increasing the dev version number and committing to git?"
 	@echo "    ??? "
-	@p=`basename "$$PWD"`; echo "" > etc/NO_DISTRIB; \
-	cd ..; find $$p -name ".git" -print >> $$p/etc/NO_DISTRIB; \
-	echo "$$p/config.mk" >> $$p/etc/NO_DISTRIB; \
-	echo "$$p/deps.mk" >> $$p/etc/NO_DISTRIB; \
-	$(TAR) cfX - $$p/etc/NO_DISTRIB $$p | $(GZIP) - -c > $$p.tgz
+	@p=`basename "$$PWD"`; x="$${TMPDIR:-/tmp}/E_NO_DISTRIB.$$$$"; \
+	cd ..; find $$p -name ".git" -print > "$$x"; \
+	echo "$$p/config.mk" >> "$$x"; \
+	echo "$$p/deps.mk" >> "$$x"; \
+	$(TAR) cfX - "$$x" $$p | $(GZIP) - -c > $$p.tgz; \
+	rm -f "$$x"
 
 # Include the GIT subdirectories (and non-GPL files, of which there
 # currently are none).
