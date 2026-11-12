@@ -66,6 +66,9 @@ typedef struct fvindex_parms_cell
    long symbol_slack;
    FVIStructure structure;
    FeatureSetType set_features; /* Only for FVISetTree */
+   FTSplitRule split_rule;      /* Only for FVITree and FVISetTree */
+   long bucket_size;            /* Only for FVISetTree */
+   bool weight_bounds;          /* Only for FVISetTree */
 }FVIndexParmsCell, *FVIndexParms_p;
 
 
@@ -92,7 +95,8 @@ typedef struct fv_index_cell
    (index), a feature tree over feature vectors (ftindex, see
    ccl_ftindexing.h), or a feature tree over feature sets (fsindex,
    see ccl_fsindexing.h). Feature sets do not depend on cspec and
-   perm_vector, set_features selects their features. */
+   perm_vector, set_features selects their features. split selects
+   the tests of new decision nodes in the feature trees. */
 
 typedef struct fvi_anchor_cell
 {
@@ -103,6 +107,9 @@ typedef struct fvi_anchor_cell
    FVIndex_p    index;        /* Only for FVITrie */
    FTIndex_p    ftindex;      /* Only for FVITree, NULL if empty */
    FSIndex_p    fsindex;      /* Only for FVISetTree, NULL if empty */
+   FTSplit_p    split;        /* Only for FVITree and FVISetTree */
+   bool         weight_bounds; /* Prune FVISetTree retrieval for
+                                  multiset subsumption by weight */
    long         storage;
 }FVIAnchorCell, *FVIAnchor_p;
 
@@ -130,8 +137,7 @@ void      FVIndexFree(FVIndex_p junk);
 #define FVIAnchorCellFree(junk) SizeFree(junk, sizeof(FVIAnchorCell))
 
 FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm,
-                           FVIStructure structure,
-                           FeatureSetType set_features);
+                           FVIndexParms_p parms);
 void        FVIAnchorFree(FVIAnchor_p junk);
 
 #ifdef CONSTANT_MEM_ESTIMATE

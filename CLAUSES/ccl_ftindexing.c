@@ -275,6 +275,36 @@ static FTIndex_p single_succ(FTIndex_p node)
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ft_split_count()
+//
+//   Account for a clause with feature vector vec entering (delta 1)
+//   or leaving (delta -1) the index, if split needs feature
+//   frequencies.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes split
+//
+/----------------------------------------------------------------------*/
+
+static void ft_split_count(FTSplit_p split, FreqVector_p vec, long delta)
+{
+   if(FTSplitUsesFreq(split))
+   {
+      FTSplitCountClause(split, delta);
+      for(long i=0; i<vec->size; i++)
+      {
+         if(vec->array[i])
+         {
+            FTSplitCountFeature(split, i, delta);
+         }
+      }
+   }
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -333,8 +363,8 @@ void FTIndexFree(FTIndex_p junk)
 //   leaf is added. If it reaches a leaf with the same vector, it is
 //   stored there and references the leaf's vector (its own is
 //   freed). If the leaf has a different vector, the leaf is replaced
-//   by a decision node on the first feature in which the vectors
-//   differ, with the old leaf and a new leaf for the clause as
+//   by a decision node on a feature in which the vectors differ,
+//   selected by split, with the old leaf and a new leaf for the clause as
 //   successors. *storage is updated.
 //
 // Global Variables: -
@@ -343,7 +373,8 @@ void FTIndexFree(FTIndex_p junk)
 //
 /----------------------------------------------------------------------*/
 
-void FTIndexInsert(FTIndex_p *root, long *storage, Clause_p clause)
+void FTIndexInsert(FTIndex_p *root, long *storage, FTSplit_p split,
+                   Clause_p clause)
 {
    FTIndex_p    *ref, node, leaf = NULL;
    FreqVector_p vec = clause->feature_vec;
@@ -351,6 +382,7 @@ void FTIndexInsert(FTIndex_p *root, long *storage, Clause_p clause)
 
    assert(vec);
 
+   ft_split_count(split, vec, 1);
    ref = root;
    while(*ref && !(*ref)->final)
    {
@@ -374,7 +406,7 @@ void FTIndexInsert(FTIndex_p *root, long *storage, Clause_p clause)
       }
       else
       {
-         feature = FreqVectorFirstDiff((*ref)->vec, vec);
+         feature = FreqVectorSplitFeature((*ref)->vec, vec, split);
          if(feature == -1)
          {
             leaf = *ref;
@@ -413,7 +445,8 @@ void FTIndexInsert(FTIndex_p *root, long *storage, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-bool FTIndexDelete(FTIndex_p *root, long *storage, Clause_p clause)
+bool FTIndexDelete(FTIndex_p *root, long *storage, FTSplit_p split,
+                   Clause_p clause)
 {
    FreqVector_p  vec = clause->feature_vec;
    FTIndex_p     node, parent, succ;
@@ -433,6 +466,7 @@ bool FTIndexDelete(FTIndex_p *root, long *storage, Clause_p clause)
    res = node && OrdSetDeleteEntry(&(node->u1.clauses), clause);
    if(res)
    {
+      ft_split_count(split, vec, -1);
       assert(node->vec == vec);
       for(i=0; i<PStackGetSP(path); i++)
       {

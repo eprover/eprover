@@ -55,6 +55,7 @@
 
 #include <stdint.h>
 #include <ccl_clauses.h>
+#include <ccl_ftsplit.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
@@ -134,6 +135,9 @@ FeatureSetType FeatureSetTypeParse(const char* name);
 
 bool         FeatureSetLessEqual(FeatureSet_p set1, FeatureSet_p set2);
 long         FeatureSetFirstDiff(FeatureSet_p set1, FeatureSet_p set2);
+void         FeatureSetSplitConsider(FeatureSet_p set1, FeatureSet_p set2,
+                                     FTSplit_p split, long *best,
+                                     long *best_score);
 #define      FeatureSetEqual(set1, set2) \
    (FeatureSetFirstDiff((set1), (set2)) == -1)
 

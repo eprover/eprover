@@ -382,6 +382,7 @@ int main(int argc, char* argv[])
    PermVector_p    perm;
    //long            symbols = 100; /* Temporary fix */
    FVCollect_p     cspec;
+   FVIndexParmsCell fvi_parms;
    StrTree_p       skip_includes = NULL;
 
    assert(argv[0]);
@@ -466,7 +467,8 @@ int main(int argc, char* argv[])
    perm = PermVectorCompute(clauses,
                             cspec,
                             false);
-   def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm, FVITrie, FSAllFeatures);
+   FVIndexParmsInit(&fvi_parms);
+   def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm, &fvi_parms);
 
    SpecFeaturesCompute(&features, clauses, NULL, NULL, terms);
 

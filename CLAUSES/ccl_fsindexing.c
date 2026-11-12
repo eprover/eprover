@@ -80,17 +80,25 @@ static void fs_index_print(FILE* out, FSIndex_p node, bool fullterms,
    }
    else if(node->final)
    {
-      OrdSet_p handle;
+      FSEntry_p entry;
+      OrdSet_p  handle;
 
       print_lvl(out, level);
-      fprintf(out, "Leaf (%ld clauses): ", node->clause_count);
-      FeatureSetPrint(out, node->fset);
-      for(handle = OrdSetFirst(node->u1.clauses); handle;
-          handle = OrdSetNext(node->u1.clauses, handle))
+      fprintf(out, "Leaf (%ld clauses, %ld sets)\n",
+              node->clause_count, node->entry_count);
+      for(entry = node->u1.entries; entry; entry = entry->next)
       {
          print_lvl(out, level+1);
-         ClausePrint(out, handle->key, fullterms);
+         fprintf(out, "Set (%ld clauses): ", entry->clause_count);
+         FeatureSetPrint(out, entry->fset);
          fprintf(out, "\n");
+         for(handle = OrdSetFirst(entry->clauses); handle;
+             handle = OrdSetNext(entry->clauses, handle))
+         {
+            print_lvl(out, level+2);
+            ClausePrint(out, handle->key, fullterms);
+            fprintf(out, "\n");
+         }
       }
    }
    else
@@ -115,9 +123,9 @@ static void fs_index_print(FILE* out, FSIndex_p node, bool fullterms,
 
 /*-----------------------------------------------------------------------
 //
-// Function: leaf_alloc()
+// Function: entry_alloc()
 //
-//   Allocate a new, empty leaf owning fset.
+//   Allocate a new, empty leaf entry owning fset.
 //
 // Global Variables: -
 //
@@ -125,15 +133,66 @@ static void fs_index_print(FILE* out, FSIndex_p node, bool fullterms,
 //
 /----------------------------------------------------------------------*/
 
-static FSIndex_p leaf_alloc(long *storage, FeatureSet_p fset)
+static FSEntry_p entry_alloc(long *storage, FeatureSet_p fset)
+{
+   FSEntry_p handle = FSEntryCellAlloc();
+
+   handle->fset         = fset;
+   handle->clause_count = 0;
+   handle->clauses      = NULL;
+   handle->next         = NULL;
+   *storage += FSENTRY_MEM;
+
+   return handle;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: entry_free()
+//
+//   Free a leaf entry, its feature set, and its clause set (but not
+//   the clauses).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void entry_free(long *storage, FSEntry_p junk)
+{
+   *storage -= FSENTRY_MEM;
+   OrdSetFree(junk->clauses);
+   FeatureSetFree(junk->fset);
+   FSEntryCellFree(junk);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: leaf_alloc()
+//
+//   Allocate a new leaf without entries (and with invalid weight
+//   bounds).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static FSIndex_p leaf_alloc(long *storage)
 {
    FSIndex_p handle = FSIndexCellAlloc();
 
    handle->final         = true;
    handle->clause_count  = 0;
    handle->feature       = -1;
-   handle->fset          = fset;
-   handle->u1.clauses    = NULL;
+   handle->entry_count   = 0;
+   handle->max_weight    = FS_WEIGHT_INVALID;
+   handle->min_weight    = FS_WEIGHT_INVALID;
+   handle->u1.entries    = NULL;
    *storage += FSINDEX_MEM;
 
    return handle;
@@ -142,10 +201,40 @@ static FSIndex_p leaf_alloc(long *storage, FeatureSet_p fset)
 
 /*-----------------------------------------------------------------------
 //
+// Function: leaf_append()
+//
+//   Append entry to the entries of leaf (keeping insertion order) and
+//   account for its clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes leaf
+//
+/----------------------------------------------------------------------*/
+
+static void leaf_append(FSIndex_p leaf, FSEntry_p entry)
+{
+   FSEntry_p *ref = &(leaf->u1.entries);
+
+   assert(leaf->final);
+
+   while(*ref)
+   {
+      ref = &((*ref)->next);
+   }
+   *ref = entry;
+   entry->next = NULL;
+   leaf->entry_count++;
+   leaf->clause_count += entry->clause_count;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: decision_alloc()
 //
 //   Allocate a new decision node testing feature, without
-//   successors.
+//   successors (and with invalid weight bounds).
 //
 // Global Variables: -
 //
@@ -160,7 +249,9 @@ static FSIndex_p decision_alloc(long *storage, long feature)
    handle->final         = false;
    handle->clause_count  = 0;
    handle->feature       = feature;
-   handle->fset          = NULL;
+   handle->entry_count   = 0;
+   handle->max_weight    = FS_WEIGHT_INVALID;
+   handle->min_weight    = FS_WEIGHT_INVALID;
    handle->u1.successors = IntMapAlloc();
    *storage += FSINDEX_MEM+IntMapStorage(handle->u1.successors);
 
@@ -172,9 +263,9 @@ static FSIndex_p decision_alloc(long *storage, long feature)
 //
 // Function: node_free()
 //
-//   Free a single node (a leaf with its feature set, or a decision node
-//   with its successor map, but not the successors), and account for
-//   the memory.
+//   Free a single node (a leaf, which has to be without entries, or a
+//   decision node with its successor map, but not the successors),
+//   and account for the memory.
 //
 // Global Variables: -
 //
@@ -187,8 +278,7 @@ static void node_free(long *storage, FSIndex_p junk)
    *storage -= FSINDEX_MEM;
    if(junk->final)
    {
-      assert(!junk->u1.clauses);
-      FeatureSetFree(junk->fset);
+      assert(!junk->u1.entries);
    }
    else
    {
@@ -272,6 +362,138 @@ static FSIndex_p single_succ(FSIndex_p node)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: bounds_add()
+//
+//   Update the weight bounds of node for a new clause with the given
+//   weight (invalid bounds stay invalid).
+//
+// Global Variables: -
+//
+// Side Effects    : Changes node
+//
+/----------------------------------------------------------------------*/
+
+static void bounds_add(FSIndex_p node, long weight)
+{
+   if(node->max_weight != FS_WEIGHT_INVALID)
+   {
+      node->max_weight = MAX(node->max_weight, weight);
+   }
+   if(node->min_weight != FS_WEIGHT_INVALID)
+   {
+      node->min_weight = MIN(node->min_weight, weight);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: bounds_remove()
+//
+//   Update the weight bounds of node for the removal of a clause with
+//   the given weight: a bound reached by the clause becomes invalid.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes node
+//
+/----------------------------------------------------------------------*/
+
+static void bounds_remove(FSIndex_p node, long weight)
+{
+   if(weight >= node->max_weight)
+   {
+      node->max_weight = FS_WEIGHT_INVALID;
+   }
+   if(weight <= node->min_weight)
+   {
+      node->min_weight = FS_WEIGHT_INVALID;
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: leaf_split()
+//
+//   Replace the leaf at *ref (with more than one entry) by a decision
+//   node on a feature on which its entries do not all agree (selected
+//   by split), with new leaves for the entries as successors. The
+//   entries keep their relative order.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes index, memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void leaf_split(FSIndex_p *ref, long *storage, FTSplit_p split)
+{
+   FSIndex_p leaf = *ref, node, succ;
+   FSEntry_p entry, next;
+   long      feature = -1, score = 0, key;
+
+   assert(leaf->final);
+   assert(leaf->entry_count > 1);
+
+   for(entry = leaf->u1.entries->next; entry; entry = entry->next)
+   {
+      FeatureSetSplitConsider(leaf->u1.entries->fset, entry->fset,
+                              split, &feature, &score);
+   }
+   assert(feature != -1);
+
+   node = decision_alloc(storage, feature);
+   node->clause_count = leaf->clause_count;
+   node->max_weight   = leaf->max_weight;
+   node->min_weight   = leaf->min_weight;
+
+   for(entry = leaf->u1.entries; entry; entry = next)
+   {
+      next = entry->next;
+      key  = FeatureSetGetVal(entry->fset, feature);
+      succ = IntMapGetVal(node->u1.successors, key);
+      if(!succ)
+      {
+         succ = leaf_alloc(storage);
+         succ_assign(storage, node, key, succ);
+      }
+      leaf_append(succ, entry);
+   }
+   leaf->u1.entries = NULL;
+   node_free(storage, leaf);
+   *ref = node;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ft_split_count()
+//
+//   Account for a clause with feature set fset entering (delta 1) or
+//   leaving (delta -1) the index, if split needs feature
+//   frequencies.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes split
+//
+/----------------------------------------------------------------------*/
+
+static void ft_split_count(FTSplit_p split, FeatureSet_p fset, long delta)
+{
+   if(FTSplitUsesFreq(split))
+   {
+      FTSplitCountClause(split, delta);
+      for(long i=0; i<fset->size; i++)
+      {
+         FTSplitCountFeature(split, fset->pairs[i].feature, delta);
+      }
+   }
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -295,8 +517,9 @@ static FSIndex_p single_succ(FSIndex_p node)
 void FSIndexFree(FSIndex_p junk)
 {
    IntMapIter_p iter;
-   long         i;
+   long         i, dummy = 0;
    FSIndex_p    succ;
+   FSEntry_p    entry, next;
 
    if(!junk)
    {
@@ -304,8 +527,11 @@ void FSIndexFree(FSIndex_p junk)
    }
    if(junk->final)
    {
-      OrdSetFree(junk->u1.clauses);
-      FeatureSetFree(junk->fset);
+      for(entry = junk->u1.entries; entry; entry = next)
+      {
+         next = entry->next;
+         entry_free(&dummy, entry);
+      }
    }
    else
    {
@@ -328,12 +554,11 @@ void FSIndexFree(FSIndex_p junk)
 //   Insert clause (with its feature set in clause->feature_set)
 //   into the feature tree at *root. The clause follows the tests of
 //   the decision nodes. If there is no successor for its value, a new
-//   leaf is added. If it reaches a leaf with the same feature set, it
-//   is stored there and references the leaf's set (its own is
-//   freed). If the leaf has a different set, the leaf is replaced
-//   by a decision node on the first feature in which the sets
-//   differ, with the old leaf and a new leaf for the clause as
-//   successors. *storage is updated.
+//   leaf is added. If it reaches a leaf with an entry with the same
+//   feature set, it is stored there and references the entry's set
+//   (its own is freed). Otherwise, a new entry is added to the leaf,
+//   and if the leaf then has more entries than the bucket size, it is
+//   split (see leaf_split()). *storage is updated.
 //
 // Global Variables: -
 //
@@ -341,58 +566,67 @@ void FSIndexFree(FSIndex_p junk)
 //
 /----------------------------------------------------------------------*/
 
-void FSIndexInsert(FSIndex_p *root, long *storage, Clause_p clause)
+void FSIndexInsert(FSIndex_p *root, long *storage, FTSplit_p split,
+                   Clause_p clause)
 {
-   FSIndex_p    *ref, node, leaf = NULL;
+   FSIndex_p    *ref, node, leaf;
+   FSEntry_p    entry = NULL;
    FeatureSet_p fset = clause->feature_set;
-   long         key, feature;
+   long         key;
 
    assert(fset);
 
+   ft_split_count(split, fset, 1);
    ref = root;
    while(*ref && !(*ref)->final)
    {
       node = *ref;
       node->clause_count++;
+      bounds_add(node, clause->weight);
       key = FeatureSetGetVal(fset, node->feature);
       if(!IntMapGetVal(node->u1.successors, key))
       {
-         leaf = leaf_alloc(storage, fset);
-         succ_assign(storage, node, key, leaf);
-         break;
+         succ_assign(storage, node, key, leaf_alloc(storage));
       }
       ref = (FSIndex_p*)IntMapGetRef(node->u1.successors, key);
    }
-   if(!leaf)
+   if(!*ref)
    {
-      if(!*ref)
+      *ref = leaf_alloc(storage);
+   }
+   leaf = *ref;
+   if(!leaf->entry_count)
+   {
+      /* A new leaf has exact bounds */
+      leaf->max_weight = clause->weight;
+      leaf->min_weight = clause->weight;
+   }
+   else
+   {
+      bounds_add(leaf, clause->weight);
+   }
+   for(entry = leaf->u1.entries; entry; entry = entry->next)
+   {
+      if(FeatureSetEqual(entry->fset, fset))
       {
-         leaf = leaf_alloc(storage, fset);
-         *ref = leaf;
-      }
-      else
-      {
-         feature = FeatureSetFirstDiff((*ref)->fset, fset);
-         if(feature == -1)
-         {
-            leaf = *ref;
-            FeatureSetFree(clause->feature_set);
-            clause->feature_set = leaf->fset;
-         }
-         else
-         {
-            node = decision_alloc(storage, feature);
-            node->clause_count = (*ref)->clause_count+1;
-            succ_assign(storage, node,
-                        FeatureSetGetVal((*ref)->fset, feature), *ref);
-            leaf = leaf_alloc(storage, fset);
-            succ_assign(storage, node, FeatureSetGetVal(fset, feature), leaf);
-            *ref = node;
-         }
+         FeatureSetFree(clause->feature_set);
+         clause->feature_set = entry->fset;
+         break;
       }
    }
+   if(!entry)
+   {
+      entry = entry_alloc(storage, fset);
+      leaf_append(leaf, entry);
+   }
+   entry->clause_count++;
    leaf->clause_count++;
-   OrdSetStore(&(leaf->u1.clauses), clause);
+   OrdSetStore(&(entry->clauses), clause);
+
+   if(leaf->entry_count > split->bucket_size)
+   {
+      leaf_split(ref, storage, split);
+   }
 }
 
 
@@ -401,10 +635,11 @@ void FSIndexInsert(FSIndex_p *root, long *storage, Clause_p clause)
 // Function: FSIndexDelete()
 //
 //   Delete clause from the feature tree at *root. Return true if the
-//   clause was found, false otherwise. A leaf that becomes empty is
-//   removed (together with its feature set), and a decision node left
-//   with a single successor is replaced by that successor. The caller
-//   has to reset clause->feature_set. *storage is updated.
+//   clause was found, false otherwise. An entry that becomes empty is
+//   removed (together with its feature set), a leaf without entries is
+//   removed, and a decision node left with a single successor is
+//   replaced by that successor. The caller has to reset
+//   clause->feature_set. *storage is updated.
 //
 // Global Variables: -
 //
@@ -412,15 +647,18 @@ void FSIndexInsert(FSIndex_p *root, long *storage, Clause_p clause)
 //
 /----------------------------------------------------------------------*/
 
-bool FSIndexDelete(FSIndex_p *root, long *storage, Clause_p clause)
+bool FSIndexDelete(FSIndex_p *root, long *storage, FTSplit_p split,
+                   Clause_p clause)
 {
    FeatureSet_p  fset = clause->feature_set;
    FSIndex_p     node, parent, succ;
+   FSEntry_p     *eref = NULL, entry = NULL;
    PStack_p      path;
    PStackPointer i;
-   bool          res;
+   bool          res = false;
 
    assert(fset);
+   assert(clause->weight == ClauseStandardWeight(clause));
 
    path = PStackAlloc();
    node = *root;
@@ -430,19 +668,40 @@ bool FSIndexDelete(FSIndex_p *root, long *storage, Clause_p clause)
       node = IntMapGetVal(node->u1.successors,
                           FeatureSetGetVal(fset, node->feature));
    }
-   res = node && OrdSetDeleteEntry(&(node->u1.clauses), clause);
+   if(node)
+   {
+      for(eref = &(node->u1.entries); *eref; eref = &((*eref)->next))
+      {
+         if((*eref)->fset == fset)
+         {
+            entry = *eref;
+            break;
+         }
+      }
+      res = entry && OrdSetDeleteEntry(&(entry->clauses), clause);
+   }
    if(res)
    {
-      assert(node->fset == fset);
+      ft_split_count(split, fset, -1);
       for(i=0; i<PStackGetSP(path); i++)
       {
          parent = PStackElementP(path, i);
          parent->clause_count--;
          assert(parent->clause_count > 0);
+         bounds_remove(parent, clause->weight);
       }
+      bounds_remove(node, clause->weight);
       node->clause_count--;
+      entry->clause_count--;
+      if(!entry->clause_count)
+      {
+         /* Freed at the end, fset is still needed for the path */
+         *eref = entry->next;
+         node->entry_count--;
+      }
       if(!node->clause_count)
       {
+         assert(!node->entry_count);
          if(PStackEmpty(path))
          {
             *root = NULL;
@@ -469,11 +728,123 @@ bool FSIndexDelete(FSIndex_p *root, long *storage, Clause_p clause)
                node_free(storage, parent);
             }
          }
-         node_free(storage, node); /* Frees the set */
+         node_free(storage, node);
+      }
+      if(!entry->clause_count)
+      {
+         entry_free(storage, entry); /* Frees fset */
       }
    }
    PStackFree(path);
    return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FSIndexMaxWeight()
+//
+//   Return the maximal standard weight of the clauses at or below
+//   index (which must not be empty), recomputing invalid bounds.
+//
+// Global Variables: -
+//
+// Side Effects    : Updates the bounds
+//
+/----------------------------------------------------------------------*/
+
+long FSIndexMaxWeight(FSIndex_p index)
+{
+   assert(index && index->clause_count);
+
+   if(index->max_weight == FS_WEIGHT_INVALID)
+   {
+      long res = 0;
+
+      if(index->final)
+      {
+         FSEntry_p entry;
+         OrdSet_p  handle;
+
+         for(entry = index->u1.entries; entry; entry = entry->next)
+         {
+            for(handle = OrdSetFirst(entry->clauses); handle;
+                handle = OrdSetNext(entry->clauses, handle))
+            {
+               res = MAX(res, ((Clause_p)handle->key)->weight);
+            }
+         }
+      }
+      else
+      {
+         IntMapIter_p iter = IntMapIterAlloc(index->u1.successors,
+                                             0, LONG_MAX);
+         FSIndex_p    succ;
+         long         key;
+
+         while((succ = IntMapIterNext(iter, &key)))
+         {
+            res = MAX(res, FSIndexMaxWeight(succ));
+         }
+         IntMapIterFree(iter);
+      }
+      index->max_weight = res;
+   }
+   return index->max_weight;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FSIndexMinWeight()
+//
+//   Return the minimal standard weight of the clauses at or below
+//   index (which must not be empty), recomputing invalid bounds.
+//
+// Global Variables: -
+//
+// Side Effects    : Updates the bounds
+//
+/----------------------------------------------------------------------*/
+
+long FSIndexMinWeight(FSIndex_p index)
+{
+   assert(index && index->clause_count);
+
+   if(index->min_weight == FS_WEIGHT_INVALID)
+   {
+      long res = LONG_MAX;
+
+      if(index->final)
+      {
+         FSEntry_p entry;
+         OrdSet_p  handle;
+
+         for(entry = index->u1.entries; entry; entry = entry->next)
+         {
+            for(handle = OrdSetFirst(entry->clauses); handle;
+                handle = OrdSetNext(entry->clauses, handle))
+            {
+               res = MIN(res, ((Clause_p)handle->key)->weight);
+            }
+         }
+      }
+      else
+      {
+         IntMapIter_p iter = IntMapIterAlloc(index->u1.successors,
+                                             0, LONG_MAX);
+         FSIndex_p    succ;
+         long         key;
+
+         while((succ = IntMapIterNext(iter, &key)))
+         {
+            res = MIN(res, FSIndexMinWeight(succ));
+         }
+         IntMapIterFree(iter);
+      }
+      index->min_weight = res;
+   }
+   return index->min_weight;
 }
 
 
@@ -500,7 +871,7 @@ long FSIndexCountNodes(FSIndex_p index, bool leaves)
    {
       if(index->final)
       {
-         assert(index->clause_count && index->u1.clauses);
+         assert(index->clause_count && index->u1.entries);
          res++;
       }
       else

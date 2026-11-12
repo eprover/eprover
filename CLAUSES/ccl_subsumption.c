@@ -1422,11 +1422,13 @@ Clause_p ft_find_variant_clause(FTIndex_p index, Clause_p clause,
 //   Return a clause from the feature set tree index that subsumes
 //   sub_candidate (with feature set fset), NULL if there is
 //   none. Candidates have feature values less than or equal to those
-//   of fset.
+//   of fset. If bounds is true (only for multiset subsumption),
+//   subtrees whose clauses are all heavier than sub_candidate are
+//   skipped.
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : May update weight bounds in the index
 //
 /----------------------------------------------------------------------*/
 
@@ -1434,20 +1436,27 @@ static
 Clause_p fs_find_subsuming_clause(FSIndex_p index,
                                   Clause_p sub_candidate,
                                   FeatureSet_p fset,
-                                  ClauseSubsumesFun subsumes)
+                                  ClauseSubsumesFun subsumes,
+                                  bool bounds)
 {
    Clause_p res = NULL;
 
-   if(!index)
+   if(!index ||
+      (bounds && FSIndexMinWeight(index) > sub_candidate->weight))
    {
       return NULL;
    }
    if(index->final)
    {
-      if(FeatureSetLessEqual(index->fset, fset))
+      FSEntry_p entry;
+
+      for(entry = index->u1.entries; !res && entry; entry = entry->next)
       {
-         res = clause_tree_find_subsuming_clause(index->u1.clauses,
-                                                 sub_candidate, subsumes);
+         if(FeatureSetLessEqual(entry->fset, fset))
+         {
+            res = clause_tree_find_subsuming_clause(entry->clauses,
+                                                    sub_candidate, subsumes);
+         }
       }
    }
    else
@@ -1460,7 +1469,8 @@ Clause_p fs_find_subsuming_clause(FSIndex_p index,
                              FeatureSetGetVal(fset, index->feature));
       while(!res && (next = IntMapIterNext(iter, &i)))
       {
-         res = fs_find_subsuming_clause(next, sub_candidate, fset, subsumes);
+         res = fs_find_subsuming_clause(next, sub_candidate, fset,
+                                        subsumes, bounds);
       }
       IntMapIterFree(iter);
    }
@@ -1474,11 +1484,13 @@ Clause_p fs_find_subsuming_clause(FSIndex_p index,
 //
 //   Push all clauses in the feature set tree index that are subsumed by
 //   subsumer (with feature set fset) onto res. Candidates have
-//   feature values greater than or equal to those of fset.
+//   feature values greater than or equal to those of fset. If bounds
+//   is true (only for multiset subsumption), subtrees whose clauses
+//   are all lighter than subsumer are skipped.
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : May update weight bounds in the index
 //
 /----------------------------------------------------------------------*/
 
@@ -1487,18 +1499,25 @@ void fs_find_subsumed_clauses(FSIndex_p index,
                               Clause_p subsumer,
                               FeatureSet_p fset,
                               PStack_p res,
-                              ClauseSubsumesFun subsumes)
+                              ClauseSubsumesFun subsumes,
+                              bool bounds)
 {
-   if(!index)
+   if(!index ||
+      (bounds && FSIndexMaxWeight(index) < subsumer->weight))
    {
       return;
    }
    if(index->final)
    {
-      if(FeatureSetLessEqual(fset, index->fset))
+      FSEntry_p entry;
+
+      for(entry = index->u1.entries; entry; entry = entry->next)
       {
-         clause_tree_find_subsumed_clauses(index->u1.clauses, subsumer,
-                                           res, subsumes);
+         if(FeatureSetLessEqual(fset, entry->fset))
+         {
+            clause_tree_find_subsumed_clauses(entry->clauses, subsumer,
+                                              res, subsumes);
+         }
       }
    }
    else
@@ -1511,7 +1530,8 @@ void fs_find_subsumed_clauses(FSIndex_p index,
                              FeatureSetGetVal(fset, index->feature), LONG_MAX);
       while((next = IntMapIterNext(iter, &i)))
       {
-         fs_find_subsumed_clauses(next, subsumer, fset, res, subsumes);
+         fs_find_subsumed_clauses(next, subsumer, fset, res, subsumes,
+                                  bounds);
       }
       IntMapIterFree(iter);
    }
@@ -1523,11 +1543,12 @@ void fs_find_subsumed_clauses(FSIndex_p index,
 // Function: fs_find_first_subsumed_clause()
 //
 //   Return the first clause in the feature set tree index that is
-//   subsumed by subsumer (with feature set fset), or NULL.
+//   subsumed by subsumer (with feature set fset), or NULL. bounds is
+//   as for fs_find_subsumed_clauses().
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : May update weight bounds in the index
 //
 /----------------------------------------------------------------------*/
 
@@ -1535,20 +1556,27 @@ static
 Clause_p fs_find_first_subsumed_clause(FSIndex_p index,
                                        Clause_p subsumer,
                                        FeatureSet_p fset,
-                                       ClauseSubsumesFun subsumes)
+                                       ClauseSubsumesFun subsumes,
+                                       bool bounds)
 {
    Clause_p res = NULL;
 
-   if(!index)
+   if(!index ||
+      (bounds && FSIndexMaxWeight(index) < subsumer->weight))
    {
       return NULL;
    }
    if(index->final)
    {
-      if(FeatureSetLessEqual(fset, index->fset))
+      FSEntry_p entry;
+
+      for(entry = index->u1.entries; !res && entry; entry = entry->next)
       {
-         res = clause_tree_find_first_subsumed_clause(index->u1.clauses,
-                                                      subsumer, subsumes);
+         if(FeatureSetLessEqual(fset, entry->fset))
+         {
+            res = clause_tree_find_first_subsumed_clause(entry->clauses,
+                                                         subsumer, subsumes);
+         }
       }
    }
    else
@@ -1561,7 +1589,8 @@ Clause_p fs_find_first_subsumed_clause(FSIndex_p index,
                              FeatureSetGetVal(fset, index->feature), LONG_MAX);
       while(!res && (next = IntMapIterNext(iter, &i)))
       {
-         res = fs_find_first_subsumed_clause(next, subsumer, fset, subsumes);
+         res = fs_find_first_subsumed_clause(next, subsumer, fset,
+                                             subsumes, bounds);
       }
       IntMapIterFree(iter);
    }
@@ -1586,14 +1615,22 @@ static
 Clause_p fs_find_variant_clause(FSIndex_p index, Clause_p clause,
                                 FeatureSet_p fset)
 {
+   FSEntry_p entry;
+
    while(index && !index->final)
    {
       index = IntMapGetVal(index->u1.successors,
                            FeatureSetGetVal(fset, index->feature));
    }
-   if(index && FeatureSetEqual(index->fset, fset))
+   if(index)
    {
-      return clause_tree_find_variant_clause(index->u1.clauses, clause);
+      for(entry = index->u1.entries; entry; entry = entry->next)
+      {
+         if(FeatureSetEqual(entry->fset, fset))
+         {
+            return clause_tree_find_variant_clause(entry->clauses, clause);
+         }
+      }
    }
    return NULL;
 }
@@ -1950,7 +1987,9 @@ bool ClausePlainSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 //   Return a clause from set that subsumes sub_candidate according
 //   to subsumes, NULL if there is none. If the set is FV-indexed, the
 //   feature vector of sub_candidate is used (or a temporary one
-//   computed if it has none). All clauses need correct weights!
+//   computed if it has none). multiset states that subsumes is
+//   multiset subsumption (which allows weight bounds). All clauses
+//   need correct weights!
 //
 // Global Variables: -
 //
@@ -1960,7 +1999,8 @@ bool ClausePlainSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 
 static Clause_p clause_set_subsumes_clause_gen(ClauseSet_p set,
                                                Clause_p sub_candidate,
-                                               ClauseSubsumesFun subsumes)
+                                               ClauseSubsumesFun subsumes,
+                                               bool multiset)
 {
    Clause_p res;
 
@@ -1972,7 +2012,8 @@ static Clause_p clause_set_subsumes_clause_gen(ClauseSet_p set,
       FeatureSet_p fset = ClauseGetFeatureSet(sub_candidate, set->fvindex, &is_temp);
 
       res = fs_find_subsuming_clause(set->fvindex->fsindex,
-                                     sub_candidate, fset, subsumes);
+                                     sub_candidate, fset, subsumes,
+                                     multiset && set->fvindex->weight_bounds);
       if(is_temp)
       {
          FeatureSetFree(fset);
@@ -2026,7 +2067,7 @@ Clause_p ClauseSetMultiSetSubsumesClause(ClauseSet_p set,
                                          Clause_p sub_candidate)
 {
    return clause_set_subsumes_clause_gen(set, sub_candidate,
-                                         clause_subsumes_clause);
+                                         clause_subsumes_clause, true);
 }
 
 
@@ -2048,7 +2089,7 @@ Clause_p ClauseSetPlainSubsumesClause(ClauseSet_p set,
                                       Clause_p sub_candidate)
 {
    return clause_set_subsumes_clause_gen(set, sub_candidate,
-                                         ClausePlainSubsumesClause);
+                                         ClausePlainSubsumesClause, false);
 }
 
 
@@ -2095,7 +2136,8 @@ Clause_p ClauseSetFindMultiSetSubsumedClause(ClauseSet_p set,
 //   Find all clauses in set that are subsumed by subsumer according
 //   to subsumes, and push them onto stack. Return number of clauses
 //   found. If the set is FV-indexed, the feature vector of subsumer
-//   is used (or a temporary one computed if it has none).
+//   is used (or a temporary one computed if it has none). multiset
+//   is as for clause_set_subsumes_clause_gen().
 //
 // Global Variables: -
 //
@@ -2106,7 +2148,8 @@ Clause_p ClauseSetFindMultiSetSubsumedClause(ClauseSet_p set,
 static long clauseset_find_subsumed_clauses_gen(ClauseSet_p set,
                                                 Clause_p subsumer,
                                                 PStack_p res,
-                                                ClauseSubsumesFun subsumes)
+                                                ClauseSubsumesFun subsumes,
+                                                bool multiset)
 {
    long old_sp = PStackGetSP(res);
 
@@ -2119,7 +2162,8 @@ static long clauseset_find_subsumed_clauses_gen(ClauseSet_p set,
       FeatureSet_p fset = ClauseGetFeatureSet(subsumer, set->fvindex, &is_temp);
 
       fs_find_subsumed_clauses(set->fvindex->fsindex,
-                               subsumer, fset, res, subsumes);
+                               subsumer, fset, res, subsumes,
+                               multiset && set->fvindex->weight_bounds);
       if(is_temp)
       {
          FeatureSetFree(fset);
@@ -2175,7 +2219,7 @@ long ClauseSetFindMultiSetSubsumedClauses(ClauseSet_p set,
                                           PStack_p res)
 {
    return clauseset_find_subsumed_clauses_gen(set, subsumer, res,
-                                              clause_subsumes_clause);
+                                              clause_subsumes_clause, true);
 }
 
 
@@ -2198,7 +2242,8 @@ long ClauseSetFindPlainSubsumedClauses(ClauseSet_p set,
                                        PStack_p res)
 {
    return clauseset_find_subsumed_clauses_gen(set, subsumer, res,
-                                              ClausePlainSubsumesClause);
+                                              ClausePlainSubsumesClause,
+                                              false);
 }
 
 
@@ -2209,7 +2254,8 @@ long ClauseSetFindPlainSubsumedClauses(ClauseSet_p set,
 //   Find and return the first clause in set subsumed by subsumer
 //   according to subsumes (or NULL). If the set is FV-indexed, the
 //   feature vector of subsumer is used (or a temporary one computed
-//   if it has none).
+//   if it has none). multiset is as for
+//   clause_set_subsumes_clause_gen().
 //
 // Global Variables: -
 //
@@ -2219,7 +2265,8 @@ long ClauseSetFindPlainSubsumedClauses(ClauseSet_p set,
 
 static Clause_p clauseset_find_first_subsumed_clause_gen(ClauseSet_p set,
                                                         Clause_p subsumer,
-                                                        ClauseSubsumesFun subsumes)
+                                                        ClauseSubsumesFun subsumes,
+                                                        bool multiset)
 {
    Clause_p res;
 
@@ -2232,7 +2279,8 @@ static Clause_p clauseset_find_first_subsumed_clause_gen(ClauseSet_p set,
       FeatureSet_p fset = ClauseGetFeatureSet(subsumer, set->fvindex, &is_temp);
 
       res = fs_find_first_subsumed_clause(set->fvindex->fsindex,
-                                          subsumer, fset, subsumes);
+                                          subsumer, fset, subsumes,
+                                          multiset && set->fvindex->weight_bounds);
       if(is_temp)
       {
          FeatureSetFree(fset);
@@ -2287,7 +2335,8 @@ Clause_p ClauseSetFindFirstMultiSetSubsumedClause(ClauseSet_p set,
                                                   Clause_p subsumer)
 {
    return clauseset_find_first_subsumed_clause_gen(set, subsumer,
-                                                   clause_subsumes_clause);
+                                                   clause_subsumes_clause,
+                                                   true);
 }
 
 
@@ -2309,7 +2358,8 @@ Clause_p ClauseSetFindFirstPlainSubsumedClause(ClauseSet_p set,
                                                Clause_p subsumer)
 {
    return clauseset_find_first_subsumed_clause_gen(set, subsumer,
-                                                   ClausePlainSubsumesClause);
+                                                   ClausePlainSubsumesClause,
+                                                   false);
 }
 
 

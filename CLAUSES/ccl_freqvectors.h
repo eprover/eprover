@@ -27,6 +27,7 @@
 #include <clb_fixdarrays.h>
 #include <clb_regmem.h>
 #include <ccl_clauses.h>
+#include <ccl_ftsplit.h>
 
 
 /*---------------------------------------------------------------------*/
@@ -207,6 +208,8 @@ bool FreqVectorLessEqual(FreqVector_p vec1, FreqVector_p vec2);
 void FreqVectorComputeNZ(FreqVector_p vec);
 bool FreqVectorNZLessEqual(FreqVector_p vec1, FreqVector_p vec2);
 long FreqVectorFirstDiff(FreqVector_p vec1, FreqVector_p vec2);
+long FreqVectorSplitFeature(FreqVector_p vec1, FreqVector_p vec2,
+                            FTSplit_p split);
 
 
 void FreqVectorAdd(FreqVector_p dest, FreqVector_p s1, FreqVector_p s2);

@@ -452,6 +452,65 @@ long FeatureSetFirstDiff(FeatureSet_p set1, FeatureSet_p set2)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FeatureSetSplitConsider()
+//
+//   Consider all features in which the two sets differ as tests for
+//   a new decision node, and update the best one so far (*best, with
+//   score *best_score, *best == -1 if there is none) according to
+//   split (see FTSplitConsider()).
+//
+// Global Variables: -
+//
+// Side Effects    : Changes *best and *best_score
+//
+/----------------------------------------------------------------------*/
+
+void FeatureSetSplitConsider(FeatureSet_p set1, FeatureSet_p set2,
+                             FTSplit_p split, long *best, long *best_score)
+{
+   long i = 0, j = 0, feature;
+
+   if(split->rule == FTSplitFirst)
+   {
+      /* Only the smallest differing feature can win */
+      feature = FeatureSetFirstDiff(set1, set2);
+      if(feature != -1)
+      {
+         FTSplitConsider(split, feature, best, best_score);
+      }
+      return;
+   }
+   if(set1 == set2)
+   {
+      return;
+   }
+   while(i < set1->size || j < set2->size)
+   {
+      if(j == set2->size ||
+         (i < set1->size && set1->pairs[i].feature < set2->pairs[j].feature))
+      {
+         feature = set1->pairs[i++].feature;
+      }
+      else if(i == set1->size ||
+              set2->pairs[j].feature < set1->pairs[i].feature)
+      {
+         feature = set2->pairs[j++].feature;
+      }
+      else
+      {
+         feature = set1->pairs[i].feature;
+         if(set1->pairs[i++].value == set2->pairs[j++].value)
+         {
+            continue;
+         }
+      }
+      FTSplitConsider(split, feature, best, best_score);
+   }
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: FeatureSetPrint()
 //
 //   Print a feature set as a list of feature:value pairs.

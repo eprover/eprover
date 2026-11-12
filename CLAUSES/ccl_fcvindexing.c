@@ -58,7 +58,10 @@ FVIndexParmsCell FVIDefaultParameters =
    FVINDEX_MAX_FEATURES_DEFAULT,
    FVINDEX_SYMBOL_SLACK_DEFAULT,
    FVITrie,       /* structure */
-   FSAllFeatures  /* set_features */
+   FSAllFeatures, /* set_features */
+   FTSplitFirst,  /* split_rule */
+   1,             /* bucket_size */
+   false          /* weight_bounds */
 };
 
 /*---------------------------------------------------------------------*/
@@ -313,8 +316,9 @@ void FVIndexFree(FVIndex_p junk)
 //
 // Function: FVIAnchorAlloc()
 //
-//   Allocate an (empty) FV index with the given structure (and, for
-//   feature set trees, features).
+//   Allocate an (empty) FV index with the structure, set features
+//   and split rule from parms (cspec and perm are passed
+//   separately).
 //
 // Global Variables: -
 //
@@ -323,18 +327,22 @@ void FVIndexFree(FVIndex_p junk)
 /----------------------------------------------------------------------*/
 
 FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm,
-                           FVIStructure structure,
-                           FeatureSetType set_features)
+                           FVIndexParms_p parms)
 {
    FVIAnchor_p handle = FVIAnchorCellAlloc();
+   bool        trie = (parms->structure == FVITrie);
 
    handle->perm_vector  = perm;
    handle->cspec        = cspec;
-   handle->structure    = structure;
-   handle->set_features = set_features;
-   handle->index        = (structure == FVITrie)? FVIndexAlloc() : NULL;
+   handle->structure    = parms->structure;
+   handle->set_features = parms->set_features;
+   handle->index        = trie? FVIndexAlloc() : NULL;
    handle->ftindex      = NULL;
    handle->fsindex      = NULL;
+   handle->split        = trie? NULL : FTSplitAlloc(parms->split_rule,
+                                                parms->bucket_size);
+   handle->weight_bounds = (parms->structure == FVISetTree) &&
+                           parms->weight_bounds;
    handle->storage      = 0;
 
    return handle;
@@ -371,6 +379,7 @@ void FVIAnchorFree(FVIAnchor_p junk)
    }
    FTIndexFree(junk->ftindex);
    FSIndexFree(junk->fsindex);
+   FTSplitFree(junk->split);
    if(junk->perm_vector)
    {
       PermVectorFree(junk->perm_vector);
@@ -442,7 +451,8 @@ void FVIndexInsert(FVIAnchor_p index, Clause_p clause)
       }
       PERF_CTR_ENTRY(FVIndexTimer);
       ClauseSubsumeOrderSortLits(clause);
-      FSIndexInsert(&(index->fsindex), &(index->storage), clause);
+      FSIndexInsert(&(index->fsindex), &(index->storage), index->split,
+                    clause);
       PERF_CTR_EXIT(FVIndexTimer);
       return;
    }
@@ -459,7 +469,8 @@ void FVIndexInsert(FVIAnchor_p index, Clause_p clause)
 
    if(index->structure == FVITree)
    {
-      FTIndexInsert(&(index->ftindex), &(index->storage), clause);
+      FTIndexInsert(&(index->ftindex), &(index->storage), index->split,
+                    clause);
       PERF_CTR_EXIT(FVIndexTimer);
       return;
    }
@@ -527,7 +538,8 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
    {
       assert(clause->feature_set);
       PERF_CTR_ENTRY(FVIndexTimer);
-      res = FSIndexDelete(&(index->fsindex), &(index->storage), clause);
+      res = FSIndexDelete(&(index->fsindex), &(index->storage),
+                          index->split, clause);
       clause->feature_set = NULL;
       PERF_CTR_EXIT(FVIndexTimer);
       return res;
@@ -539,7 +551,8 @@ bool FVIndexDelete(FVIAnchor_p index, Clause_p clause)
 
    if(index->structure == FVITree)
    {
-      res = FTIndexDelete(&(index->ftindex), &(index->storage), clause);
+      res = FTIndexDelete(&(index->ftindex), &(index->storage),
+                          index->split, clause);
       clause->feature_vec = NULL;
       PERF_CTR_EXIT(FVIndexTimer);
       return res;

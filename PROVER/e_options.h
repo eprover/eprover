@@ -182,6 +182,9 @@ typedef enum
    OPT_FVINDEX_SLACK,
    OPT_FVINDEX_STRUCTURE,
    OPT_FVINDEX_SETFEATURES,
+   OPT_FVINDEX_SPLIT,
+   OPT_FVINDEX_BUCKETSIZE,
+   OPT_FVINDEX_WEIGHTBOUNDS,
    OPT_RW_BW_INDEX,
    OPT_PM_FROM_INDEX,
    OPT_PM_INTO_INDEX,
@@ -1454,6 +1457,34 @@ OptCell opts[] =
     "'Plain' uses only the maximal and minimal depths, which, "
     "unlike the counts, are also compatible with plain subsumption "
     "(see --context-sr-subsumption)."},
+
+   {OPT_FVINDEX_SPLIT,
+    '\0', "fvindex-split",
+    ReqArg, NULL,
+    "Select the feature tested by a new decision node in the feature "
+    "trees (--fvindex-structure=Tree or SetTree), among the features "
+    "in which the two clauses to be separated differ. 'First' (the "
+    "default) takes the one with the smallest number, 'Last' the one "
+    "with the largest number, 'Frequent' the one with a non-zero value "
+    "in the most indexed clauses, and 'Balanced' the one with a "
+    "non-zero value in closest to half of the indexed clauses. This "
+    "affects only the shape of the index, not the search."},
+
+   {OPT_FVINDEX_BUCKETSIZE,
+    '\0', "fvindex-bucket-size",
+    ReqArg, NULL,
+    "Set the number of different feature sets a leaf of the feature "
+    "set tree (--fvindex-structure=SetTree) may hold before it is "
+    "split. Larger buckets give a smaller tree with more feature set "
+    "comparisons at the leaves. The default is 1."},
+
+   {OPT_FVINDEX_WEIGHTBOUNDS,
+    '\0', "fvindex-weight-bounds",
+    NoArg, NULL,
+    "Keep the minimal and maximal clause weight for each node of the "
+    "feature set tree (--fvindex-structure=SetTree), and skip "
+    "subtrees whose clauses are too light or too heavy for multiset "
+    "subsumption."},
 
    {OPT_RW_BW_INDEX,
     '\0', "rw-bw-index",

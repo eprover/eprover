@@ -2427,6 +2427,25 @@ CLState_p process_options(int argc, char* argv[])
                fvi_parms->set_features = type;
             }
             break;
+      case OPT_FVINDEX_BUCKETSIZE:
+            fvi_parms->bucket_size = CLStateGetIntArgCheckRange(handle, arg,
+                                                                1, LONG_MAX);
+            break;
+      case OPT_FVINDEX_WEIGHTBOUNDS:
+            fvi_parms->weight_bounds = true;
+            break;
+      case OPT_FVINDEX_SPLIT:
+            {
+               int rule = FTSplitRuleParse(arg);
+
+               if(rule == -1)
+               {
+                  Error("Option --fvindex-split requires 'First', "
+                        "'Last', 'Frequent', or 'Balanced'.", USAGE_ERROR);
+               }
+               fvi_parms->split_rule = rule;
+            }
+            break;
       case OPT_RW_BW_INDEX:
             check_fp_index_arg(arg, "--rw-bw-index");
             strcpy(h_parms->rw_bw_index_type, arg);

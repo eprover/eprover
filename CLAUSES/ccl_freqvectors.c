@@ -1040,6 +1040,42 @@ long FreqVectorFirstDiff(FreqVector_p vec1, FreqVector_p vec2)
 
 /*-----------------------------------------------------------------------
 //
+// Function: FreqVectorSplitFeature()
+//
+//   Return the position at which the two vectors (of the same size)
+//   differ that split selects for a new decision node (see
+//   ccl_ftsplit.h), or -1 if they are equal.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+long FreqVectorSplitFeature(FreqVector_p vec1, FreqVector_p vec2,
+                            FTSplit_p split)
+{
+   long i, best = -1, best_score = 0;
+
+   assert(vec1->size == vec2->size);
+
+   if(split->rule == FTSplitFirst)
+   {
+      return FreqVectorFirstDiff(vec1, vec2);
+   }
+   for(i=0; i<vec1->size; i++)
+   {
+      if(vec1->array[i] != vec2->array[i])
+      {
+         FTSplitConsider(split, i, &best, &best_score);
+      }
+   }
+   return best;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: FreqVectorAdd()
 //
 //   Component-wise addition of both sources. Guaranteed to work if

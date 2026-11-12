@@ -74,8 +74,10 @@ typedef struct ft_index_cell
 #endif
 
 void FTIndexFree(FTIndex_p junk);
-void FTIndexInsert(FTIndex_p *root, long *storage, Clause_p clause);
-bool FTIndexDelete(FTIndex_p *root, long *storage, Clause_p clause);
+void FTIndexInsert(FTIndex_p *root, long *storage, FTSplit_p split,
+                   Clause_p clause);
+bool FTIndexDelete(FTIndex_p *root, long *storage, FTSplit_p split,
+                   Clause_p clause);
 long FTIndexCountNodes(FTIndex_p index, bool leaves);
 void FTIndexPrint(FILE* out, FTIndex_p index, bool fullterms);
 
