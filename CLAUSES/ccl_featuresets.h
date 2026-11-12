@@ -53,14 +53,14 @@
 
 #define CCL_FEATURESETS
 
-#include <clb_numtrees.h>
+#include <stdint.h>
 #include <ccl_clauses.h>
 
 /*---------------------------------------------------------------------*/
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-/* Feature numbers: the literal counts come first, then four features
+/* Feature numbers: the literal counts come first, then six features
    for each function symbol (f_code 0 collects phony applications in
    HO terms, as for feature vectors). */
 
@@ -89,13 +89,24 @@ typedef enum
 #define FSSymbolFeatureNo(f_code, kind) \
    (FS_LIT_FEATURES+FS_SYMBOL_FEATURES*(f_code)+(kind))
 
-/* A set of features with non-zero values, as a NumTree with the
-   feature number as key and the value in val1.i_val. */
+/* A feature with its (non-zero) value. Feature numbers and values
+   fit into 32 bits (values are counts, depths, and FS_MINDEPTH_BASE
+   minus a depth). */
+
+typedef struct fs_pair_cell
+{
+   int32_t feature;
+   int32_t value;
+}FSPairCell, *FSPair_p;
+
+/* A set of features with non-zero values, as an array of pairs
+   sorted by feature number. Sets are built once from a clause and
+   never changed afterwards. */
 
 typedef struct feature_set_cell
 {
    long      size;      /* Number of features in the set */
-   NumTree_p features;
+   FSPair_p  pairs;     /* NULL if size is 0 */
 }FeatureSetCell, *FeatureSet_p;
 
 
@@ -113,13 +124,10 @@ typedef struct feature_set_cell
 #endif
 
 #define FeatureSetStorage(set) \
-   (FEATURESETCELL_MEM+(set)->size*NUMTREECELL_MEM)
+   (FEATURESETCELL_MEM+(set)->size*(long)sizeof(FSPairCell))
 
-FeatureSet_p FeatureSetAlloc(void);
 void         FeatureSetFree(FeatureSet_p junk);
 long         FeatureSetGetVal(FeatureSet_p set, long feature);
-void         FeatureSetAddVal(FeatureSet_p set, long feature, long value);
-void         FeatureSetMaxVal(FeatureSet_p set, long feature, long value);
 
 FeatureSet_p ClauseFeatureSetCompute(Clause_p clause, FeatureSetType type);
 FeatureSetType FeatureSetTypeParse(const char* name);

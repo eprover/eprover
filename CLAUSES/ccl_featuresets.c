@@ -38,32 +38,107 @@
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
 
+/* While a set is built, every contribution of a symbol occurrence is
+   collected as a pair in a buffer (on the stack for small clauses).
+   The buffer is then sorted by feature and runs of equal features are
+   combined: counts are added, depths are combined by maximum. */
+
+#define FS_BUILDER_LOCAL 128
+
+typedef struct fs_builder_cell
+{
+   FSPair_p   pairs;
+   long       count;
+   long       size;
+   FSPairCell local[FS_BUILDER_LOCAL];
+}FSBuilderCell, *FSBuilder_p;
+
+
 /*-----------------------------------------------------------------------
 //
-// Function: feature_cell()
+// Function: builder_push()
 //
-//   Return the cell for feature in set, creating it (with value 0)
-//   if necessary.
+//   Add a contribution (feature, value) to the builder (ignored if
+//   value is 0).
 //
 // Global Variables: -
 //
-// Side Effects    : Memory operations, changes set
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
-static NumTree_p feature_cell(FeatureSet_p set, long feature)
+static void builder_push(FSBuilder_p b, long feature, long value)
 {
-   NumTree_p cell = NumTreeFind(&(set->features), feature);
+   assert(value >= 0);
+   assert(feature >= 0 && feature <= INT32_MAX);
+   assert(value <= INT32_MAX);
 
-   if(!cell)
+   if(!value)
    {
-      cell = NumTreeCellAllocEmpty();
-      cell->key = feature;
-      cell->val1.i_val = 0;
-      NumTreeInsert(&(set->features), cell);
-      set->size++;
+      return;
    }
-   return cell;
+   if(b->count == b->size)
+   {
+      long     new_size = 2*b->size;
+      FSPair_p new_pairs = SizeMalloc(new_size*sizeof(FSPairCell));
+
+      memcpy(new_pairs, b->pairs, b->count*sizeof(FSPairCell));
+      if(b->pairs != b->local)
+      {
+         SizeFree(b->pairs, b->size*sizeof(FSPairCell));
+      }
+      b->pairs = new_pairs;
+      b->size  = new_size;
+   }
+   b->pairs[b->count].feature = feature;
+   b->pairs[b->count].value   = value;
+   b->count++;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: feature_is_count()
+//
+//   Return true if the values of feature are added up (literal and
+//   symbol counts), false if they are combined by maximum (depths).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool feature_is_count(long feature)
+{
+   long kind;
+
+   if(feature < FS_LIT_FEATURES)
+   {
+      return true;
+   }
+   kind = (feature-FS_LIT_FEATURES)%FS_SYMBOL_FEATURES;
+   return (kind == FSNegFreq) || (kind == FSPosFreq);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: pair_cmp()
+//
+//   Compare two pairs by feature (for qsort()).
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static int pair_cmp(const void* p1, const void* p2)
+{
+   const FSPairCell *a = p1, *b = p2;
+
+   return (a->feature > b->feature) - (a->feature < b->feature);
 }
 
 
@@ -72,19 +147,19 @@ static NumTree_p feature_cell(FeatureSet_p set, long feature)
 // Function: term_add_features()
 //
 //   Add the symbol features of term (at the given depth, in a
-//   literal of the given sign) to set, as selected by type. Minimal
-//   depths are only recorded if min_depth is true (see the header
-//   for why). For the features of FSAllFeatures, this mirrors
-//   TermAddSymbolFeaturesLimited() without the symbol limit (phony
-//   applications only contribute to the depths of f_code 0).
+//   literal of the given sign) to the builder, as selected by
+//   type. Minimal depths are only recorded if min_depth is true (see
+//   the header for why). For the features of FSAllFeatures, this
+//   mirrors TermAddSymbolFeaturesLimited() without the symbol limit
+//   (phony applications only contribute to the depths of f_code 0).
 //
 // Global Variables: -
 //
-// Side Effects    : Changes set
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
-static void term_add_features(FeatureSet_p set, Term_p term, long depth,
+static void term_add_features(FSBuilder_p b, Term_p term, long depth,
                               bool positive, bool min_depth,
                               FeatureSetType type)
 {
@@ -95,21 +170,20 @@ static void term_add_features(FeatureSet_p set, Term_p term, long depth,
 
       if((type != FSPlainFeatures) && !TermIsPhonyApp(term))
       {
-         FeatureSetAddVal(set, FSSymbolFeatureNo(f_code, positive?
-                                                 FSPosFreq:FSNegFreq), 1);
+         builder_push(b, FSSymbolFeatureNo(f_code, positive?
+                                           FSPosFreq:FSNegFreq), 1);
       }
-      FeatureSetMaxVal(set, FSSymbolFeatureNo(f_code, positive?
-                                              FSPosDepth:FSNegDepth),
-                       depth);
+      builder_push(b, FSSymbolFeatureNo(f_code, positive?
+                                        FSPosDepth:FSNegDepth), depth);
       if(min_depth)
       {
-         FeatureSetMaxVal(set, FSSymbolFeatureNo(f_code, positive?
-                                                 FSPosMinDepth:FSNegMinDepth),
-                          MAX(FS_MINDEPTH_BASE-depth, 1));
+         builder_push(b, FSSymbolFeatureNo(f_code, positive?
+                                           FSPosMinDepth:FSNegMinDepth),
+                      MAX(FS_MINDEPTH_BASE-depth, 1));
       }
       for(i=0; i<term->arity; i++)
       {
-         term_add_features(set, term->args[i], depth+1, positive,
+         term_add_features(b, term->args[i], depth+1, positive,
                            min_depth, type);
       }
    }
@@ -119,29 +193,6 @@ static void term_add_features(FeatureSet_p set, Term_p term, long depth,
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
-
-/*-----------------------------------------------------------------------
-//
-// Function: FeatureSetAlloc()
-//
-//   Return an empty feature set.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-FeatureSet_p FeatureSetAlloc(void)
-{
-   FeatureSet_p handle = FeatureSetCellAlloc();
-
-   handle->size     = 0;
-   handle->features = NULL;
-
-   return handle;
-}
-
 
 /*-----------------------------------------------------------------------
 //
@@ -159,7 +210,10 @@ void FeatureSetFree(FeatureSet_p junk)
 {
    assert(junk);
 
-   NumTreeFree(junk->features);
+   if(junk->pairs)
+   {
+      SizeFree(junk->pairs, junk->size*sizeof(FSPairCell));
+   }
    FeatureSetCellFree(junk);
 }
 
@@ -168,69 +222,36 @@ void FeatureSetFree(FeatureSet_p junk)
 //
 // Function: FeatureSetGetVal()
 //
-//   Return the value of feature in set (0 if it is not in the set).
+//   Return the value of feature in set (0 if it is not in the set),
+//   by binary search.
 //
 // Global Variables: -
 //
-// Side Effects    : Reorganizes the tree (splaying)
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
 long FeatureSetGetVal(FeatureSet_p set, long feature)
 {
-   NumTree_p cell = NumTreeFind(&(set->features), feature);
+   long lo = 0, hi = set->size-1, mid;
 
-   return cell? cell->val1.i_val : 0;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: FeatureSetAddVal()
-//
-//   Add value to the value of feature in set.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations, changes set
-//
-/----------------------------------------------------------------------*/
-
-void FeatureSetAddVal(FeatureSet_p set, long feature, long value)
-{
-   assert(value >= 0);
-
-   if(value)
+   while(lo <= hi)
    {
-      feature_cell(set, feature)->val1.i_val += value;
+      mid = (lo+hi)/2;
+      if(set->pairs[mid].feature < feature)
+      {
+         lo = mid+1;
+      }
+      else if(set->pairs[mid].feature > feature)
+      {
+         hi = mid-1;
+      }
+      else
+      {
+         return set->pairs[mid].value;
+      }
    }
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: FeatureSetMaxVal()
-//
-//   Set the value of feature in set to the maximum of its current
-//   value and value.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations, changes set
-//
-/----------------------------------------------------------------------*/
-
-void FeatureSetMaxVal(FeatureSet_p set, long feature, long value)
-{
-   NumTree_p cell;
-
-   assert(value >= 0);
-
-   if(value)
-   {
-      cell = feature_cell(set, feature);
-      cell->val1.i_val = MAX(cell->val1.i_val, value);
-   }
+   return 0;
 }
 
 
@@ -249,13 +270,19 @@ void FeatureSetMaxVal(FeatureSet_p set, long feature, long value)
 
 FeatureSet_p ClauseFeatureSetCompute(Clause_p clause, FeatureSetType type)
 {
-   FeatureSet_p set = FeatureSetAlloc();
-   Eqn_p        handle;
+   FSBuilderCell b;
+   FeatureSet_p  set = FeatureSetCellAlloc();
+   Eqn_p         handle;
+   long          i, n;
+
+   b.pairs = b.local;
+   b.count = 0;
+   b.size  = FS_BUILDER_LOCAL;
 
    if(type != FSPlainFeatures)
    {
-      FeatureSetAddVal(set, FS_POS_LITS, clause->pos_lit_no);
-      FeatureSetAddVal(set, FS_NEG_LITS, clause->neg_lit_no);
+      builder_push(&b, FS_POS_LITS, clause->pos_lit_no);
+      builder_push(&b, FS_NEG_LITS, clause->neg_lit_no);
    }
    for(handle = clause->literals; handle; handle = handle->next)
    {
@@ -263,8 +290,41 @@ FeatureSet_p ClauseFeatureSetCompute(Clause_p clause, FeatureSetType type)
       bool min_depth = (type != FSAllFeatures) &&
          (!positive || !EqnIsEquLit(handle));
 
-      term_add_features(set, handle->lterm, 0, positive, min_depth, type);
-      term_add_features(set, handle->rterm, 0, positive, min_depth, type);
+      term_add_features(&b, handle->lterm, 0, positive, min_depth, type);
+      term_add_features(&b, handle->rterm, 0, positive, min_depth, type);
+   }
+   qsort(b.pairs, b.count, sizeof(FSPairCell), pair_cmp);
+
+   /* Combine runs of equal features in place */
+   n = 0;
+   for(i=0; i<b.count; i++)
+   {
+      if(n && b.pairs[n-1].feature == b.pairs[i].feature)
+      {
+         if(feature_is_count(b.pairs[i].feature))
+         {
+            b.pairs[n-1].value += b.pairs[i].value;
+         }
+         else
+         {
+            b.pairs[n-1].value = MAX(b.pairs[n-1].value, b.pairs[i].value);
+         }
+      }
+      else
+      {
+         b.pairs[n++] = b.pairs[i];
+      }
+   }
+   set->size  = n;
+   set->pairs = NULL;
+   if(n)
+   {
+      set->pairs = SizeMalloc(n*sizeof(FSPairCell));
+      memcpy(set->pairs, b.pairs, n*sizeof(FSPairCell));
+   }
+   if(b.pairs != b.local)
+   {
+      SizeFree(b.pairs, b.size*sizeof(FSPairCell));
    }
    return set;
 }
@@ -316,9 +376,7 @@ FeatureSetType FeatureSetTypeParse(const char* name)
 
 bool FeatureSetLessEqual(FeatureSet_p set1, FeatureSet_p set2)
 {
-   PStack_p  iter1, iter2;
-   NumTree_p cell1, cell2;
-   bool      res = true;
+   long i, j = 0;
 
    if(set1 == set2)
    {
@@ -328,21 +386,21 @@ bool FeatureSetLessEqual(FeatureSet_p set1, FeatureSet_p set2)
    {  /* Some feature of set1 is 0 in set2 */
       return false;
    }
-   iter1 = NumTreeTraverseInit(set1->features);
-   iter2 = NumTreeTraverseInit(set2->features);
-   cell2 = NumTreeTraverseNext(iter2);
-   while(res && (cell1 = NumTreeTraverseNext(iter1)))
+   for(i=0; i<set1->size; i++)
    {
-      while(cell2 && cell2->key < cell1->key)
+      while(j < set2->size && set2->pairs[j].feature < set1->pairs[i].feature)
       {
-         cell2 = NumTreeTraverseNext(iter2);
+         j++;
       }
-      res = cell2 && (cell2->key == cell1->key) &&
-         (cell1->val1.i_val <= cell2->val1.i_val);
+      if(j == set2->size ||
+         set2->pairs[j].feature != set1->pairs[i].feature ||
+         set2->pairs[j].value < set1->pairs[i].value)
+      {
+         return false;
+      }
+      j++;
    }
-   NumTreeTraverseExit(iter1);
-   NumTreeTraverseExit(iter2);
-   return res;
+   return true;
 }
 
 
@@ -361,41 +419,34 @@ bool FeatureSetLessEqual(FeatureSet_p set1, FeatureSet_p set2)
 
 long FeatureSetFirstDiff(FeatureSet_p set1, FeatureSet_p set2)
 {
-   PStack_p  iter1, iter2;
-   NumTree_p cell1, cell2;
-   long      res = -1;
+   long i = 0, j = 0;
 
    if(set1 == set2)
    {
       return -1;
    }
-   iter1 = NumTreeTraverseInit(set1->features);
-   iter2 = NumTreeTraverseInit(set2->features);
-   cell1 = NumTreeTraverseNext(iter1);
-   cell2 = NumTreeTraverseNext(iter2);
-   while(cell1 || cell2)
+   while(i < set1->size && j < set2->size)
    {
-      if(!cell2 || (cell1 && cell1->key < cell2->key))
+      if(set1->pairs[i].feature != set2->pairs[j].feature)
       {
-         res = cell1->key;
-         break;
+         return MIN(set1->pairs[i].feature, set2->pairs[j].feature);
       }
-      if(!cell1 || cell2->key < cell1->key)
+      if(set1->pairs[i].value != set2->pairs[j].value)
       {
-         res = cell2->key;
-         break;
+         return set1->pairs[i].feature;
       }
-      if(cell1->val1.i_val != cell2->val1.i_val)
-      {
-         res = cell1->key;
-         break;
-      }
-      cell1 = NumTreeTraverseNext(iter1);
-      cell2 = NumTreeTraverseNext(iter2);
+      i++;
+      j++;
    }
-   NumTreeTraverseExit(iter1);
-   NumTreeTraverseExit(iter2);
-   return res;
+   if(i < set1->size)
+   {
+      return set1->pairs[i].feature;
+   }
+   if(j < set2->size)
+   {
+      return set2->pairs[j].feature;
+   }
+   return -1;
 }
 
 
@@ -413,16 +464,14 @@ long FeatureSetFirstDiff(FeatureSet_p set1, FeatureSet_p set2)
 
 void FeatureSetPrint(FILE* out, FeatureSet_p set)
 {
-   PStack_p  iter = NumTreeTraverseInit(set->features);
-   NumTree_p cell;
+   long i;
 
    fprintf(out, "{");
-   while((cell = NumTreeTraverseNext(iter)))
+   for(i=0; i<set->size; i++)
    {
-      fprintf(out, " %ld:%ld", cell->key, cell->val1.i_val);
+      fprintf(out, " %d:%d", set->pairs[i].feature, set->pairs[i].value);
    }
    fprintf(out, " }\n");
-   NumTreeTraverseExit(iter);
 }
 
 
