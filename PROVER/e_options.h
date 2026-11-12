@@ -181,6 +181,7 @@ typedef enum
    OPT_FVINDEX_MAXFEATURES,
    OPT_FVINDEX_SLACK,
    OPT_FVINDEX_STRUCTURE,
+   OPT_FVINDEX_SETFEATURES,
    OPT_RW_BW_INDEX,
    OPT_PM_FROM_INDEX,
    OPT_PM_INTO_INDEX,
@@ -1438,8 +1439,21 @@ OptCell opts[] =
     "feature. 'Tree' is a feature tree over the same vectors: clauses "
     "with identical vectors share a leaf, and the decision nodes test "
     "only features that distinguish the stored vectors. 'SetTree' is "
-    "a feature tree over sparse feature sets (the features of 'All', "
-    "for all symbols), and ignores the other --fvindex-* options."},
+    "a feature tree over sparse feature sets for all symbols (see "
+    "--fvindex-setfeatures), and ignores the other --fvindex-* "
+    "options."},
+
+   {OPT_FVINDEX_SETFEATURES,
+    '\0', "fvindex-setfeatures",
+    ReqArg, NULL,
+    "Select the features for --fvindex-structure=SetTree. 'All' (the "
+    "default) uses the features of --fvindex-featuretypes=All: literal "
+    "counts, and symbol counts and maximal depths for positive and "
+    "negative literals. 'AllMinDepth' adds the minimal depth of each "
+    "symbol (in negative and in positive non-equational literals). "
+    "'Plain' uses only the maximal and minimal depths, which, "
+    "unlike the counts, are also compatible with plain subsumption "
+    "(see --context-sr-subsumption)."},
 
    {OPT_RW_BW_INDEX,
     '\0', "rw-bw-index",

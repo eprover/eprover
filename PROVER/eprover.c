@@ -2415,6 +2415,18 @@ CLState_p process_options(int argc, char* argv[])
                      "'Trie', 'Tree', or 'SetTree'.", USAGE_ERROR);
             }
             break;
+      case OPT_FVINDEX_SETFEATURES:
+            {
+               int type = FeatureSetTypeParse(arg);
+
+               if(type == -1)
+               {
+                  Error("Option --fvindex-setfeatures requires "
+                        "'All', 'AllMinDepth', or 'Plain'.", USAGE_ERROR);
+               }
+               fvi_parms->set_features = type;
+            }
+            break;
       case OPT_RW_BW_INDEX:
             check_fp_index_arg(arg, "--rw-bw-index");
             strcpy(h_parms->rw_bw_index_type, arg);

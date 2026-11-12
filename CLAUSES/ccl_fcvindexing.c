@@ -57,7 +57,8 @@ FVIndexParmsCell FVIDefaultParameters =
    false,  /* eliminate_uninformative */
    FVINDEX_MAX_FEATURES_DEFAULT,
    FVINDEX_SYMBOL_SLACK_DEFAULT,
-   FVITrie /* structure */
+   FVITrie,       /* structure */
+   FSAllFeatures  /* set_features */
 };
 
 /*---------------------------------------------------------------------*/
@@ -312,7 +313,8 @@ void FVIndexFree(FVIndex_p junk)
 //
 // Function: FVIAnchorAlloc()
 //
-//   Allocate an (empty) FV index with the given structure.
+//   Allocate an (empty) FV index with the given structure (and, for
+//   feature set trees, features).
 //
 // Global Variables: -
 //
@@ -321,13 +323,15 @@ void FVIndexFree(FVIndex_p junk)
 /----------------------------------------------------------------------*/
 
 FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm,
-                           FVIStructure structure)
+                           FVIStructure structure,
+                           FeatureSetType set_features)
 {
    FVIAnchor_p handle = FVIAnchorCellAlloc();
 
    handle->perm_vector  = perm;
    handle->cspec        = cspec;
    handle->structure    = structure;
+   handle->set_features = set_features;
    handle->index        = (structure == FVITrie)? FVIndexAlloc() : NULL;
    handle->ftindex      = NULL;
    handle->fsindex      = NULL;
@@ -433,7 +437,8 @@ void FVIndexInsert(FVIAnchor_p index, Clause_p clause)
    {
       if(!clause->feature_set)
       {
-         clause->feature_set = ClauseFeatureSetCompute(clause);
+         clause->feature_set =
+            ClauseFeatureSetCompute(clause, index->set_features);
       }
       PERF_CTR_ENTRY(FVIndexTimer);
       ClauseSubsumeOrderSortLits(clause);
@@ -656,7 +661,8 @@ void ClauseComputeFeatures(Clause_p clause, FVIAnchor_p anchor)
    {
       if(anchor->structure == FVISetTree)
       {
-         clause->feature_set = ClauseFeatureSetCompute(clause);
+         clause->feature_set =
+            ClauseFeatureSetCompute(clause, anchor->set_features);
       }
       else
       {
@@ -728,9 +734,10 @@ FreqVector_p ClauseGetFeatureVector(Clause_p clause, FVIAnchor_p anchor,
 //
 // Function: ClauseGetFeatureSet()
 //
-//   Return the feature set of clause: the clause's own one if it has
-//   one, otherwise a newly computed one, in which case *is_temp is
-//   set and the caller has to free it.
+//   Return the feature set of clause for indices with anchor's
+//   features: the clause's own one if it has one, otherwise a newly
+//   computed one, in which case *is_temp is set and the caller has to
+//   free it.
 //
 // Global Variables: -
 //
@@ -738,12 +745,15 @@ FreqVector_p ClauseGetFeatureVector(Clause_p clause, FVIAnchor_p anchor,
 //
 /----------------------------------------------------------------------*/
 
-FeatureSet_p ClauseGetFeatureSet(Clause_p clause, bool *is_temp)
+FeatureSet_p ClauseGetFeatureSet(Clause_p clause, FVIAnchor_p anchor,
+                                 bool *is_temp)
 {
+   assert(ClauseFeaturesAreValid(clause, anchor));
+
    *is_temp = !clause->feature_set;
    if(*is_temp)
    {
-      return ClauseFeatureSetCompute(clause);
+      return ClauseFeatureSetCompute(clause, anchor->set_features);
    }
    return clause->feature_set;
 }
@@ -778,7 +788,8 @@ bool ClauseFeaturesAreValid(Clause_p clause, FVIAnchor_p anchor)
    }
    if(res && clause->feature_set)
    {
-      FeatureSet_p fresh = ClauseFeatureSetCompute(clause);
+      FeatureSet_p fresh =
+         ClauseFeatureSetCompute(clause, anchor->set_features);
       res = (anchor->structure == FVISetTree) &&
          FeatureSetEqual(fresh, clause->feature_set);
       FeatureSetFree(fresh);

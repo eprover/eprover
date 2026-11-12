@@ -71,9 +71,12 @@ static NumTree_p feature_cell(FeatureSet_p set, long feature)
 //
 // Function: term_add_features()
 //
-//   Add the symbol features of term (at the given depth) to set,
-//   using freq and depth as the feature kinds. This mirrors
-//   TermAddSymbolFeaturesLimited() without the symbol limit.
+//   Add the symbol features of term (at the given depth, in a
+//   literal of the given sign) to set, as selected by type. Minimal
+//   depths are only recorded if min_depth is true (see the header
+//   for why). For the features of FSAllFeatures, this mirrors
+//   TermAddSymbolFeaturesLimited() without the symbol limit (phony
+//   applications only contribute to the depths of f_code 0).
 //
 // Global Variables: -
 //
@@ -82,25 +85,32 @@ static NumTree_p feature_cell(FeatureSet_p set, long feature)
 /----------------------------------------------------------------------*/
 
 static void term_add_features(FeatureSet_p set, Term_p term, long depth,
-                              FSSymbolFeature freq, FSSymbolFeature dkind)
+                              bool positive, bool min_depth,
+                              FeatureSetType type)
 {
    if(!TermIsAnyVar(term))
    {
-      int i;
+      int  i;
+      long f_code = TermIsPhonyApp(term)? 0 : term->f_code;
 
-      if(TermIsPhonyApp(term))
+      if((type != FSPlainFeatures) && !TermIsPhonyApp(term))
       {
-         FeatureSetMaxVal(set, FSSymbolFeatureNo(0, dkind), depth);
+         FeatureSetAddVal(set, FSSymbolFeatureNo(f_code, positive?
+                                                 FSPosFreq:FSNegFreq), 1);
       }
-      else
+      FeatureSetMaxVal(set, FSSymbolFeatureNo(f_code, positive?
+                                              FSPosDepth:FSNegDepth),
+                       depth);
+      if(min_depth)
       {
-         FeatureSetAddVal(set, FSSymbolFeatureNo(term->f_code, freq), 1);
-         FeatureSetMaxVal(set, FSSymbolFeatureNo(term->f_code, dkind),
-                          depth);
+         FeatureSetMaxVal(set, FSSymbolFeatureNo(f_code, positive?
+                                                 FSPosMinDepth:FSNegMinDepth),
+                          MAX(FS_MINDEPTH_BASE-depth, 1));
       }
       for(i=0; i<term->arity; i++)
       {
-         term_add_features(set, term->args[i], depth+1, freq, dkind);
+         term_add_features(set, term->args[i], depth+1, positive,
+                           min_depth, type);
       }
    }
 }
@@ -228,7 +238,8 @@ void FeatureSetMaxVal(FeatureSet_p set, long feature, long value)
 //
 // Function: ClauseFeatureSetCompute()
 //
-//   Compute and return the feature set of clause.
+//   Compute and return the feature set of clause with the features
+//   selected by type.
 //
 // Global Variables: -
 //
@@ -236,23 +247,57 @@ void FeatureSetMaxVal(FeatureSet_p set, long feature, long value)
 //
 /----------------------------------------------------------------------*/
 
-FeatureSet_p ClauseFeatureSetCompute(Clause_p clause)
+FeatureSet_p ClauseFeatureSetCompute(Clause_p clause, FeatureSetType type)
 {
    FeatureSet_p set = FeatureSetAlloc();
    Eqn_p        handle;
 
-   FeatureSetAddVal(set, FS_POS_LITS, clause->pos_lit_no);
-   FeatureSetAddVal(set, FS_NEG_LITS, clause->neg_lit_no);
-
+   if(type != FSPlainFeatures)
+   {
+      FeatureSetAddVal(set, FS_POS_LITS, clause->pos_lit_no);
+      FeatureSetAddVal(set, FS_NEG_LITS, clause->neg_lit_no);
+   }
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      FSSymbolFeature freq  = EqnIsPositive(handle)? FSPosFreq : FSNegFreq;
-      FSSymbolFeature depth = EqnIsPositive(handle)? FSPosDepth : FSNegDepth;
+      bool positive  = EqnIsPositive(handle);
+      bool min_depth = (type != FSAllFeatures) &&
+         (!positive || !EqnIsEquLit(handle));
 
-      term_add_features(set, handle->lterm, 0, freq, depth);
-      term_add_features(set, handle->rterm, 0, freq, depth);
+      term_add_features(set, handle->lterm, 0, positive, min_depth, type);
+      term_add_features(set, handle->rterm, 0, positive, min_depth, type);
    }
    return set;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: FeatureSetTypeParse()
+//
+//   Return the FeatureSetType named by name ("All", "AllMinDepth",
+//   "Plain"), or -1 if there is none.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+FeatureSetType FeatureSetTypeParse(const char* name)
+{
+   if(strcmp(name, "All")==0)
+   {
+      return FSAllFeatures;
+   }
+   if(strcmp(name, "AllMinDepth")==0)
+   {
+      return FSAllMinDepthFeatures;
+   }
+   if(strcmp(name, "Plain")==0)
+   {
+      return FSPlainFeatures;
+   }
+   return -1;
 }
 
 

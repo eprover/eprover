@@ -1421,21 +1421,26 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
    {
       state->processed_non_units->fvindex =
          FVIAnchorAlloc(cspec, PermVectorCopy(perm),
-                        control->fvi_parms.structure);
+                        control->fvi_parms.structure,
+                        control->fvi_parms.set_features);
       state->processed_pos_rules->fvindex =
          FVIAnchorAlloc(cspec, PermVectorCopy(perm),
-                        control->fvi_parms.structure);
+                        control->fvi_parms.structure,
+                        control->fvi_parms.set_features);
       state->processed_pos_eqns->fvindex =
          FVIAnchorAlloc(cspec, PermVectorCopy(perm),
-                        control->fvi_parms.structure);
+                        control->fvi_parms.structure,
+                        control->fvi_parms.set_features);
       state->processed_neg_units->fvindex =
          FVIAnchorAlloc(cspec, PermVectorCopy(perm),
-                        control->fvi_parms.structure);
+                        control->fvi_parms.structure,
+                        control->fvi_parms.set_features);
       if(state->watchlist)
       {
          state->watchlist->fvindex =
             FVIAnchorAlloc(cspec, PermVectorCopy(perm),
-                        control->fvi_parms.structure);
+                        control->fvi_parms.structure,
+                        control->fvi_parms.set_features);
          //ClauseSetNewTerms(state->watchlist, state->terms);
       }
    }
@@ -1453,7 +1458,8 @@ void fvi_param_init(ProofState_p state, ProofControl_p control)
                                            0,0,0);
    state->definition_store->def_clauses->fvindex =
       FVIAnchorAlloc(state->def_store_cspec, perm,
-                     control->fvi_parms.structure);
+                     control->fvi_parms.structure,
+                        control->fvi_parms.set_features);
 }
 
 

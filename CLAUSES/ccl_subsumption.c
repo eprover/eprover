@@ -1969,7 +1969,7 @@ static Clause_p clause_set_subsumes_clause_gen(ClauseSet_p set,
    if(set->fvindex && (set->fvindex->structure == FVISetTree))
    {
       bool is_temp;
-      FeatureSet_p fset = ClauseGetFeatureSet(sub_candidate, &is_temp);
+      FeatureSet_p fset = ClauseGetFeatureSet(sub_candidate, set->fvindex, &is_temp);
 
       res = fs_find_subsuming_clause(set->fvindex->fsindex,
                                      sub_candidate, fset, subsumes);
@@ -2116,7 +2116,7 @@ static long clauseset_find_subsumed_clauses_gen(ClauseSet_p set,
    if(set->fvindex && (set->fvindex->structure == FVISetTree))
    {
       bool is_temp;
-      FeatureSet_p fset = ClauseGetFeatureSet(subsumer, &is_temp);
+      FeatureSet_p fset = ClauseGetFeatureSet(subsumer, set->fvindex, &is_temp);
 
       fs_find_subsumed_clauses(set->fvindex->fsindex,
                                subsumer, fset, res, subsumes);
@@ -2229,7 +2229,7 @@ static Clause_p clauseset_find_first_subsumed_clause_gen(ClauseSet_p set,
    if(set->fvindex && (set->fvindex->structure == FVISetTree))
    {
       bool is_temp;
-      FeatureSet_p fset = ClauseGetFeatureSet(subsumer, &is_temp);
+      FeatureSet_p fset = ClauseGetFeatureSet(subsumer, set->fvindex, &is_temp);
 
       res = fs_find_first_subsumed_clause(set->fvindex->fsindex,
                                           subsumer, fset, subsumes);
@@ -2339,7 +2339,7 @@ Clause_p ClauseSetFindVariantClause(ClauseSet_p set,
 
    if(set->fvindex->structure == FVISetTree)
    {
-      FeatureSet_p fset = ClauseGetFeatureSet(clause, &is_temp);
+      FeatureSet_p fset = ClauseGetFeatureSet(clause, set->fvindex, &is_temp);
 
       res = fs_find_variant_clause(set->fvindex->fsindex, clause, fset);
       if(is_temp)

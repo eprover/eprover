@@ -11,10 +11,31 @@
   are implicitly 0. Unlike feature vectors (ccl_freqvectors), there
   is no limit on the number of symbols.
 
-  The features are those of the dense "All" feature vectors: the
-  number of positive and negative literals, and for each function
-  symbol its number of occurrences and maximal depth in positive and
-  negative literals.
+  Which features are computed is selected by a FeatureSetType:
+
+  FSAllFeatures: the features of the dense "All" feature vectors,
+    i.e. the number of positive and negative literals, and for each
+    function symbol its number of occurrences and maximal depth in
+    positive and negative literals.
+  FSAllMinDepthFeatures: the above plus, for each symbol and sign,
+    its minimal depth (see below).
+  FSPlainFeatures: only the maximal and minimal depths. Unlike
+    literal and symbol counts, these are compatible with plain (set)
+    subsumption, where several literals of the subsumer may be mapped
+    to the same literal.
+
+  Minimal depth: instantiation keeps the depth of existing
+  occurrences and can only add new ones, and a subsumed clause
+  contains (an instance of) all literals of the subsumer, so the
+  minimal depth of a symbol in the subsumed clause is at most that in
+  the subsumer. To get a feature that can only grow, the value is
+  FS_MINDEPTH_BASE-depth (at least 1), and 0 if the symbol does not
+  occur. There is one exception: a positive unit equation s=t also
+  subsumes u[s']=u[t'] for instances s', t' (LiteralSubsumesClause()),
+  which moves its symbols deeper. Therefore positive minimal depths
+  are only taken from positive non-equational literals (a predicate
+  literal only ever subsumes a predicate literal, at the top), and a
+  positive unit equation has no minimal depth features at all.
 
   Copyright 2026 by the author.
   This code is released under the GNU General Public Licence and
@@ -45,16 +66,26 @@
 
 typedef enum
 {
-   FSNegFreq  = 0,
-   FSPosFreq  = 1,
-   FSPosDepth = 2,
-   FSNegDepth = 3
+   FSAllFeatures,
+   FSAllMinDepthFeatures,
+   FSPlainFeatures
+}FeatureSetType;
+
+typedef enum
+{
+   FSNegFreq     = 0,
+   FSPosFreq     = 1,
+   FSPosDepth    = 2,
+   FSNegDepth    = 3,
+   FSPosMinDepth = 4,
+   FSNegMinDepth = 5
 }FSSymbolFeature;
 
 #define FS_POS_LITS        0
 #define FS_NEG_LITS        1
 #define FS_LIT_FEATURES    2
-#define FS_SYMBOL_FEATURES 4
+#define FS_SYMBOL_FEATURES 6
+#define FS_MINDEPTH_BASE   (1<<20)
 #define FSSymbolFeatureNo(f_code, kind) \
    (FS_LIT_FEATURES+FS_SYMBOL_FEATURES*(f_code)+(kind))
 
@@ -90,7 +121,8 @@ long         FeatureSetGetVal(FeatureSet_p set, long feature);
 void         FeatureSetAddVal(FeatureSet_p set, long feature, long value);
 void         FeatureSetMaxVal(FeatureSet_p set, long feature, long value);
 
-FeatureSet_p ClauseFeatureSetCompute(Clause_p clause);
+FeatureSet_p ClauseFeatureSetCompute(Clause_p clause, FeatureSetType type);
+FeatureSetType FeatureSetTypeParse(const char* name);
 
 bool         FeatureSetLessEqual(FeatureSet_p set1, FeatureSet_p set2);
 long         FeatureSetFirstDiff(FeatureSet_p set1, FeatureSet_p set2);

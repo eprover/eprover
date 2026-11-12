@@ -65,6 +65,7 @@ typedef struct fvindex_parms_cell
    long max_symbols;
    long symbol_slack;
    FVIStructure structure;
+   FeatureSetType set_features; /* Only for FVISetTree */
 }FVIndexParmsCell, *FVIndexParms_p;
 
 
@@ -91,13 +92,14 @@ typedef struct fv_index_cell
    (index), a feature tree over feature vectors (ftindex, see
    ccl_ftindexing.h), or a feature tree over feature sets (fsindex,
    see ccl_fsindexing.h). Feature sets do not depend on cspec and
-   perm_vector. */
+   perm_vector, set_features selects their features. */
 
 typedef struct fvi_anchor_cell
 {
    FVCollect_p  cspec;
    PermVector_p perm_vector;
    FVIStructure structure;
+   FeatureSetType set_features;
    FVIndex_p    index;        /* Only for FVITrie */
    FTIndex_p    ftindex;      /* Only for FVITree, NULL if empty */
    FSIndex_p    fsindex;      /* Only for FVISetTree, NULL if empty */
@@ -128,7 +130,8 @@ void      FVIndexFree(FVIndex_p junk);
 #define FVIAnchorCellFree(junk) SizeFree(junk, sizeof(FVIAnchorCell))
 
 FVIAnchor_p FVIAnchorAlloc(FVCollect_p cspec, PermVector_p perm,
-                           FVIStructure structure);
+                           FVIStructure structure,
+                           FeatureSetType set_features);
 void        FVIAnchorFree(FVIAnchor_p junk);
 
 #ifdef CONSTANT_MEM_ESTIMATE
@@ -151,7 +154,8 @@ void         ClauseComputeFeatures(Clause_p clause, FVIAnchor_p anchor);
 void         ClauseDropFeatures(Clause_p clause);
 FreqVector_p ClauseGetFeatureVector(Clause_p clause, FVIAnchor_p anchor,
                                     bool *is_temp);
-FeatureSet_p ClauseGetFeatureSet(Clause_p clause, bool *is_temp);
+FeatureSet_p ClauseGetFeatureSet(Clause_p clause, FVIAnchor_p anchor,
+                                 bool *is_temp);
 #ifndef NDEBUG
 bool         ClauseFeaturesAreValid(Clause_p clause, FVIAnchor_p anchor);
 #endif

@@ -466,7 +466,7 @@ int main(int argc, char* argv[])
    perm = PermVectorCompute(clauses,
                             cspec,
                             false);
-   def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm, FVITrie);
+   def_store->def_clauses->fvindex = FVIAnchorAlloc(cspec, perm, FVITrie, FSAllFeatures);
 
    SpecFeaturesCompute(&features, clauses, NULL, NULL, terms);
 
