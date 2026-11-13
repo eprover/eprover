@@ -121,7 +121,7 @@ static double get_default_eval(AnnoSet_p annoset,double evalweights[])
 
 static double rec_get_highest_weight(TSM_p tsm)
 {
-   double tmp, res = 1000000000000.0; /* Large enough */
+   double tmp, res = 0.0;
    int i,j;
    TSA_p tsa;
 
@@ -158,7 +158,7 @@ static double rec_get_highest_weight(TSM_p tsm)
 
 static double level_get_highest_weight(TSM_p tsm)
 {
-   double res = 1000000000000.0; /* Large enough */
+   double res = 0.0;
    int i;
    TSA_p tsa;
 
@@ -189,7 +189,7 @@ static double level_get_highest_weight(TSM_p tsm)
 
 static double get_highest_weight(TSMAdmin_p admin)
 {
-   double res = 100000000.0,tmp; /* Large enough */
+   double res = 0.0, tmp;
    PStackPointer i;
 
    assert(admin);
