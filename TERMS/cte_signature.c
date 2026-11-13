@@ -64,9 +64,9 @@ static void sig_print_operator(FILE* out, Sig_p sig, FunCode op, bool comments)
       }
       else
       {
-               fprintf(stdout,"(no type)");
+         fprintf(out,"(no type)");
       }
-      fprintf(stdout,"\n");
+      fprintf(out,"\n");
    }
    else
    {
