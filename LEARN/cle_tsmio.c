@@ -107,120 +107,6 @@ static double get_default_eval(AnnoSet_p annoset,double evalweights[])
 }
 
 
-/*-----------------------------------------------------------------------
-//
-// Function: rec_get_highest_weight()
-//
-//   Return the highest eval_weight in a recursive tsm.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static double rec_get_highest_weight(TSM_p tsm)
-{
-   double tmp, res = 0.0;
-   int i,j;
-   TSA_p tsa;
-
-   assert(tsm);
-
-   for(i=0; i<=tsm->maxindex;i++)
-   {
-      tsa = PDArrayElementP(tsm->tsas, i);
-      if(tsa)
-      {
-    res = MAX(res, tsa->eval_weight);
-    for(j=0; j<tsa->arity; j++)
-    {
-       tmp = rec_get_highest_weight(tsa->arg_tsms[j]);
-       res = MAX(res, tmp);
-    }
-      }
-   }
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: level_get_highest_weight()
-//
-//   Return the highest eval_weight in a sinlge-level tsm.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static double level_get_highest_weight(TSM_p tsm)
-{
-   double res = 0.0;
-   int i;
-   TSA_p tsa;
-
-   assert(tsm);
-
-   for(i=0; i<=tsm->maxindex;i++)
-   {
-      tsa = PDArrayElementP(tsm->tsas, i);
-      if(tsa)
-      {
-    res = MAX(res, tsa->eval_weight);
-      }
-   }
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: get_highest_weight()
-//
-//   Return the highest eval_weight in a tsm.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static double get_highest_weight(TSMAdmin_p admin)
-{
-   double res = 0.0, tmp;
-   PStackPointer i;
-
-   assert(admin);
-
-   switch(admin->tsmtype)
-   {
-   case TSMTypeFlat:
-    res = level_get_highest_weight(admin->tsm);
-    break;
-   case TSMTypeRecursive:
-    res = rec_get_highest_weight(admin->tsm);
-    break;
-   case TSMTypeRecurrent:
-    res = level_get_highest_weight(admin->tsm);
-    break;
-   case TSMTypeRecurrentLocal:
-    for(i=0; i<PStackGetSP(admin->tsmstack); i++)
-    {
-       tmp =
-          level_get_highest_weight(PStackElementP(admin->tsmstack,i));
-       res = MAX(res, tmp);
-    }
-    break;
-   default:
-    assert(false && "Not a valid tsm type");
-    break;
-   }
-   return res;
-}
-
-
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -357,7 +243,6 @@ TSMAdmin_p TSMFromKB(bool flat_patterns, double evalweights[], char*
    admin = TSMAdminAlloc(sig, tsmtype);
    TSMAdminBuildTSM(admin, flatset, indextype, indexdepth, subst);
    admin->unmapped_eval   = eval_default;
-   admin->unmapped_weight =  get_highest_weight(admin);
 
    FlatAnnoSetFree(flatset);
    bank->sig = NULL;

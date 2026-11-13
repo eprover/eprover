@@ -341,7 +341,9 @@ static double compute_list_entropy(FlatAnnoTerm_p list, long *count,
 // Function: tsm_rec_eval()
 //
 //   Recursivly evaluate a term with a tsm. Return the weighted sum of
-//   all found evaluations in *res and the weight directly.
+//   all found evaluations in *res and the weight directly. In a
+//   recurrent tsm, the arguments of an unmapped term are still
+//   evaluated (with the same tsm).
 //
 // Global Variables: -
 //
@@ -377,59 +379,11 @@ static double tsm_rec_eval(TSMAdmin_p admin, double *res,  TSM_p tsm,
    }
    else
    {
+      int i;
+
       eval_weight = admin->unmapped_weight;
       *res += admin->unmapped_eval * admin->unmapped_weight;
-   }
-   return eval_weight;
-}
 
-
-/*-----------------------------------------------------------------------
-//
-// Function: tsm_rec_eval_no_weight()
-//
-//   Recursivly evaluate a term with a tsm. Return the sum of
-//   all found evaluations in *res and the number of matched nodes
-//   directly.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static double tsm_rec_eval_no_weight(TSMAdmin_p admin, double *res,
-                                     TSM_p tsm, Term_p term, PatternSubst_p subst)
-{
-   long  key;
-   TSA_p tsa;
-   double eval_weight = 1;
-   int i;
-
-   key = TSMIndexFind(tsm->index, term, subst);
-
-   if((key!=-1) && (tsa = PDArrayElementP(tsm->tsas, key)))
-   {
-
-      assert(tsa->arity == term->arity);
-      *res += tsa->eval;
-
-      if(admin->tsmtype != TSMTypeFlat)
-      {
-         for(i=0; i<term->arity; i++)
-         {
-            eval_weight+= tsm_rec_eval(admin, res, tsa->arg_tsms[i],
-                                       term->args[i], subst );
-         }
-      }
-   }
-   else
-   {
-      if(admin->tsmtype == TSMTypeRecursive)
-      {
-         eval_weight = TermWeight(term,1,1);
-      }
-      *res += eval_weight*admin->unmapped_eval;
       if(admin->tsmtype == TSMTypeRecurrent)
       {
          for(i=0; i<term->arity; i++)
@@ -441,7 +395,6 @@ static double tsm_rec_eval_no_weight(TSMAdmin_p admin, double *res,
    }
    return eval_weight;
 }
-
 
 
 /*-----------------------------------------------------------------------
@@ -502,6 +455,120 @@ static void tsmcomplete(TSMAdmin_p admin, TSM_p tsm, FlatAnnoSet_p set)
    }
    PDArrayFree(partition);
 }
+
+/*-----------------------------------------------------------------------
+//
+// Function: rec_get_highest_weight()
+//
+//   Return the highest eval_weight in a recursive tsm.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static double rec_get_highest_weight(TSM_p tsm)
+{
+   double tmp, res = 0.0;
+   int i,j;
+   TSA_p tsa;
+
+   assert(tsm);
+
+   for(i=0; i<=tsm->maxindex;i++)
+   {
+      tsa = PDArrayElementP(tsm->tsas, i);
+      if(tsa)
+      {
+    res = MAX(res, tsa->eval_weight);
+    for(j=0; j<tsa->arity; j++)
+    {
+       tmp = rec_get_highest_weight(tsa->arg_tsms[j]);
+       res = MAX(res, tmp);
+    }
+      }
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: level_get_highest_weight()
+//
+//   Return the highest eval_weight in a sinlge-level tsm.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static double level_get_highest_weight(TSM_p tsm)
+{
+   double res = 0.0;
+   int i;
+   TSA_p tsa;
+
+   assert(tsm);
+
+   for(i=0; i<=tsm->maxindex;i++)
+   {
+      tsa = PDArrayElementP(tsm->tsas, i);
+      if(tsa)
+      {
+    res = MAX(res, tsa->eval_weight);
+      }
+   }
+   return res;
+}
+
+/*-----------------------------------------------------------------------
+//
+// Function: get_highest_weight()
+//
+//   Return the highest eval_weight in a tsm.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static double get_highest_weight(TSMAdmin_p admin)
+{
+   double res = 0.0, tmp;
+   PStackPointer i;
+
+   assert(admin);
+
+   switch(admin->tsmtype)
+   {
+   case TSMTypeFlat:
+    res = level_get_highest_weight(admin->tsm);
+    break;
+   case TSMTypeRecursive:
+    res = rec_get_highest_weight(admin->tsm);
+    break;
+   case TSMTypeRecurrent:
+    res = level_get_highest_weight(admin->tsm);
+    break;
+   case TSMTypeRecurrentLocal:
+    for(i=0; i<PStackGetSP(admin->tsmstack); i++)
+    {
+       tmp =
+          level_get_highest_weight(PStackElementP(admin->tsmstack,i));
+       res = MAX(res, tmp);
+    }
+    break;
+   default:
+    assert(false && "Not a valid tsm type");
+    break;
+   }
+   return res;
+}
+
 
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
@@ -898,7 +965,8 @@ void TSMAdminFree(TSMAdmin_p junk)
 //
 // Function: TSMAdminBuildTSM()
 //
-//   Given a set of flatly annotated terms, build a TSM.
+//   Given a set of flatly annotated terms, build a TSM. Also set
+//   admin->unmapped_weight to the highest weight of a TSM node.
 //
 // Global Variables: -
 //
@@ -982,6 +1050,7 @@ void TSMAdminBuildTSM(TSMAdmin_p admin, FlatAnnoSet_p set, IndexType
          break;
    }
    FlatAnnoSetFree(flatset);
+   admin->unmapped_weight = get_highest_weight(admin);
    /* TSMIndexPrint(stdout, admin->tsm->index,0); */
    /* TSMPrintRek(stdout, admin, admin->tsm, 0); */
    /* TSMPrintFlat(stdout, admin->tsm); */
@@ -1209,7 +1278,7 @@ double TSMEvalTerm(TSMAdmin_p admin, Term_p term, PatternSubst_p subst)
    double  res = 0.0;
    double  eval_weight;
 
-   eval_weight = tsm_rec_eval_no_weight(admin, &res, admin->tsm, term, subst);
+   eval_weight = tsm_rec_eval(admin, &res, admin->tsm, term, subst);
    if(eval_weight == 0.0)
    {
       return admin->limit;
