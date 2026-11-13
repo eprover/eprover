@@ -74,11 +74,12 @@ static long term_collect_idx_subterms(Term_p term, OrdSet_p *rest,
    {
       res++;
    }
-   if(!lambda_demod && !TermIsLambda(term))
+   if(lambda_demod || !TermIsLambda(term))
    {
       for(i=0; i<term->arity; i++)
       {
-         res += term_collect_idx_subterms(term->args[i], rest, full, false, true);
+         res += term_collect_idx_subterms(term->args[i], rest, full, false,
+                                          lambda_demod);
       }
    }
    return res;

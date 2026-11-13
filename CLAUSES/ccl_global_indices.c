@@ -323,10 +323,6 @@ void GlobalIndicesInsertClauseSet(GlobalIndices_p indices,
 
    // fprintf(GlobalOut, "GlobalIndicesInsertClauseSet(%p, %p)\n", indices, set);
 
-   if(!indices->bw_rw_index)
-   {
-      return;
-   }
    for(handle=set->anchor->succ; handle!=set->anchor; handle=handle->succ)
    {
       GlobalIndicesInsertClause(indices, handle, lambda_demod);
