@@ -361,7 +361,7 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
       CommentPrint(out, " No weights!\n");
    }
    CommentPrint(out, " -----------------------------------------------\n");
-   if(ocb->precedence)
+   if(ocb->precedence || ocb->prec_weights)
    {
       CommentPrint(out, " Precedence Matrix:\n"COMCHAR"       ");
       for(j=1; j<=ocb->sig_size; j++)
@@ -571,7 +571,7 @@ FunCode OCBFindMinConst(OCB_p ocb, Type_p type)
          if(SigIsFunConst(ocb->sig, i) &&
             !SigIsSpecial(ocb->sig, i) &&
             (SigGetType(ocb->sig,i) == type) &&
-            (!cand || (OCBFunCompare(ocb, i, cand)==to_greater)))
+            (!cand || (OCBFunCompare(ocb, cand, i)==to_greater)))
          {
             cand = i;
          }

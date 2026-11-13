@@ -88,20 +88,21 @@ void print_prec_array(FILE* out, Sig_p sig, FCodeFeatureArray_p array)
 static void compute_precedence_from_array(OCB_p ocb, FCodeFeatureArray_p
                                           array)
 {
-   FunCode i, last;
+   FunCode i, f, last;
 
    assert(ocb->sig_size == array->size-1);
    if(ocb->prec_weights)
    {
       for(i = SIG_TRUE_CODE+1; i<=ocb->sig_size; i++)
       {
-         if((SigFindArity(ocb->sig, i)==0) &&
-            !SigIsPredicate(ocb->sig, i) &&
-            !SigQueryFuncProp(ocb->sig, i, FPSpecial))
+         f = array->array[i].symbol;
+         if((SigFindArity(ocb->sig, f)==0) &&
+            !SigIsPredicate(ocb->sig, f) &&
+            !SigQueryFuncProp(ocb->sig, f, FPSpecial))
          {
-            OCBCondSetMinConst(ocb, SigGetType(ocb->sig, i), i);
+            OCBCondSetMinConst(ocb, SigGetType(ocb->sig, f), f);
          }
-         ocb->prec_weights[array->array[i].symbol] = i;
+         ocb->prec_weights[f] = i;
       }
       ocb->prec_weights[SIG_TRUE_CODE] = (LONG_MIN/2);
    }
