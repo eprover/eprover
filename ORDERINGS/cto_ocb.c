@@ -571,7 +571,7 @@ FunCode OCBFindMinConst(OCB_p ocb, Type_p type)
          if(SigIsFunConst(ocb->sig, i) &&
             !SigIsSpecial(ocb->sig, i) &&
             (SigGetType(ocb->sig,i) == type) &&
-            (!cand || (OCBFunCompare(ocb, i, cand)==to_greater)))
+            (!cand || (OCBFunCompare(ocb, cand, i)==to_greater)))
          {
             cand = i;
          }
