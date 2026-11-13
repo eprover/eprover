@@ -159,7 +159,8 @@ Version 3.2.5 -> 3.5 Countess Grey
 - Fixed the backward-rewriting index (FP7 etc.), which since 2022 only
   held terms up to depth 1, so clauses rewritable deeper were missed.
   Fixed the choice of the minimal constant for unbound RHS variables
-  in demodulation.
+  in demodulation. Non-indexed plain paramodulation (NoIndex) missed
+  some inferences and performed some unnecessary ones.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

@@ -288,6 +288,7 @@ Clause_p ClausePlainParamodConstruct(ParamodInfo_p ol_desc)
 
             pm_lit = EqnAlloc(new_lhs, new_rhs, ol_desc->bank,
                               EqnIsPositive(ol_desc->into_pos->literal));
+            EqnSetProp(pm_lit, EPIsPMIntoLit);
             pm_lit =  EqnListAppend(&pm_lit, into_copy);
             EqnListLambdaNormalize(pm_lit);
             EqnListRemoveResolved(&pm_lit);
@@ -515,137 +516,13 @@ Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc,
 
 /*-----------------------------------------------------------------------
 //
-// Function: ComputeOverlap()
-//
-//   Given an equation and a term position, overlap the designated
-//   side of the equation into the subterm, i.e. given s[t], u=v,
-//   return sigma(s[v]) if sigma = mgu(t,u) and sigma(u) !< sigma(v).
-//
-//   If the operation is successful, subst will contain the mgu, and
-//   the pointer to the new term, inserted into bank, will be
-//   returned. Otherwise, subst will be unchanged and NULL will be
-//   returned.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations, changes substitution, may
-                     change term bank.
-//
-/----------------------------------------------------------------------*/
-
-Term_p ComputeOverlap(OCB_p ocb, ClausePos_p from, Term_p
-            into, TermPos_p pos,  Subst_p subst, VarBank_p
-            freshvars)
-{
-   TB_p bank = ClauseGetBank(from->clause);
-   Term_p        new_rside = NULL, sub_into, max_side, rep_side;
-   PStackPointer oldstate;
-   UnificationResult  unify_res;
-
-   assert(from->side == LeftSide || !EqnIsOriented(from->literal));
-   assert(EqnIsPositive(from->literal));
-   assert(TermPosIsTopPos(from->pos));
-
-   sub_into = TermPosGetSubterm(into, pos);
-
-   assert(!TermIsFreeVar(sub_into));
-
-   max_side = ClausePosGetSide(from);
-   rep_side = ClausePosGetOtherSide(from);
-
-   oldstate = PStackGetSP(subst);
-
-   unify_res = SubstMguComplete(max_side, sub_into, subst);
-
-   /* If unification succeeded and potentially prefix of into term has been unified */
-   if(!UnifFailed(unify_res)
-         && CheckHOUnificationConstraints(unify_res, RightTerm, max_side, sub_into))
-   {
-      if(!EqnIsOriented(from->literal)
-          && TOGreater(ocb, rep_side, max_side, DEREF_ALWAYS,
-                  DEREF_ALWAYS))
-      {
-         SubstBacktrackToPos(subst, oldstate);
-      }
-      else
-      {
-         /* We need to get consistent variables _before_ inserting the
-            newly generated term into the term bank ! */
-         SubstNormTerm(into, subst, freshvars, bank->sig);
-         SubstNormTerm(rep_side, subst, freshvars, bank->sig);
-         new_rside = TBTermPosReplace(bank, rep_side, pos,
-                       DEREF_ALWAYS, 0, sub_into);
-      }
-   }
-   return new_rside;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: EqnOrderedParamod()
-//
-//   Overlap the equation described by into from the one described by
-//   into and compute the critical pair, if one exists. Return a
-//   pointer to a critical pair, if it exists, NULL othewise. If a cp
-//   exists, subst will contain the substitution.
-//
-// Global Variables: -
-//
-// Side Effects    : As for ComputeOverlap()
-//
-/----------------------------------------------------------------------*/
-
-Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
-          ClausePos_p into, Subst_p subst, VarBank_p
-          freshvars)
-{
-   Term_p        new_lside, new_rside, lside, rside;
-   PStackPointer oldstate;
-   Eqn_p         new_cp = NULL;
-
-   assert(from->side == LeftSide || !EqnIsOriented(from->literal));
-   assert(EqnIsPositive(from->literal));
-   assert(TermPosIsTopPos(from->pos));
-   assert(into->side == LeftSide || !EqnIsOriented(into->literal));
-
-   lside = ClausePosGetSide(into);
-   rside = ClausePosGetOtherSide(into);
-   oldstate = PStackGetSP(subst);
-
-   new_lside = ComputeOverlap(ocb, from, lside, into->pos,
-               subst, freshvars);
-   if(new_lside)
-   {
-      if((!EqnIsOriented(into->literal))
-    && TOGreater(ocb, rside, lside, DEREF_ALWAYS, DEREF_ALWAYS))
-      {
-    SubstBacktrackToPos(subst, oldstate);
-      }
-      else
-      {
-    SubstNormTerm(rside, subst, freshvars, bank->sig);
-    new_rside = TBInsert(bank, rside, DEREF_ALWAYS);
-
-    /* Optimize away trivial paramods... */
-    if(!EqnIsPositive(into->literal) || (new_lside != new_rside))
-    {
-       new_cp = EqnAlloc(new_lside, new_rside, bank,
-               EqnIsPositive(into->literal));
-       EqnSetProp(new_cp, EPIsPMIntoLit);
-    }
-      }
-   }
-   return new_cp;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: ClauseOrderedParamod()
 //
-//   Given two clauses, try to perform an ordered paramodulation
-//   step. Return the clause if it works, NULL otherwise.
+//   Given two clause positions, try to perform an ordered
+//   paramodulation step from from into into. All ordering
+//   constraints are checked under the unifier before any variables
+//   are renamed (renaming only some of them would make unrelated
+//   variables equal). Return the clause if it works, NULL otherwise.
 //
 // Global Variables: -
 //
@@ -654,91 +531,69 @@ Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
 /----------------------------------------------------------------------*/
 
 Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
-               ClausePos_p into, VarBank_p freshvars)
+                              ClausePos_p into, VarBank_p freshvars)
 {
-   Clause_p  new_clause = NULL;
-   Eqn_p     new_literals, into_copy, from_copy;
-   Subst_p   subst;
+   Clause_p          new_clause = NULL;
+   Term_p            from_term, into_term;
+   Subst_p           subst;
+   UnificationResult unify_res;
+   ParamodInfoCell   pminfo;
 
    assert(EqnIsMaximal(from->literal));
    assert(!EqnIsOriented(from->literal)||(from->side==LeftSide));
+   assert(!EqnIsOriented(into->literal)||(into->side==LeftSide));
+   assert(EqnIsPositive(from->literal));
+   assert(TermPosIsTopPos(from->pos));
    assert(!TermIsFreeVar(ClausePosGetSide(from))||
-     EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
+          EqnIsEquLit(into->literal)||!TermPosIsTopPos(into->pos));
 
-   /*{
-      ClausePos_p tmp1, tmp2;
-      CompactPos  ctmp1, ctmp2;
-
-      printf("\nO:");
-      ClausePosPrint(stdout, from);
-      printf("(%ld)->(%ld)", PackClausePos(from),PackClausePos(into));
-      ClausePosPrint(stdout, into);
-      printf("\n");
-
-      ctmp1 = PackClausePos(from);
-      ctmp2 = PackClausePos(into);
-      tmp1 = UnpackClausePos(ctmp1, from->clause);
-      tmp2 = UnpackClausePos(ctmp2, into->clause);
-
-      printf("T:");
-      ClausePosPrint(stdout, tmp1);
-      printf("(%ld)->(%ld)", ctmp1, ctmp2);
-      ClausePosPrint(stdout, tmp2);
-      printf("\n");
-
-      ClausePosFree(tmp1);
-      ClausePosFree(tmp2);
-      }*/
+   from_term = ClausePosGetSide(from);
+   into_term = ClausePosGetSubterm(into);
+   assert(!TermIsFreeVar(into_term));
 
    subst = SubstAlloc();
-   VarBankResetVCounts(freshvars);
-   new_literals = EqnOrderedParamod(bank, ocb, from, into, subst,
-                freshvars);
-   if(new_literals)
-   {
-      if(((EqnIsPositive(into->literal)&&
+   unify_res = SubstMguComplete(from_term, into_term, subst);
+
+   if(!UnifFailed(unify_res)
+      &&
+      CheckHOUnificationConstraints(unify_res, RightTerm,
+                                    from_term, into_term)
+      &&
+      (EqnIsOriented(from->literal) ||
+       !TOGreater(ocb, ClausePosGetOtherSide(from), from_term,
+                  DEREF_ALWAYS, DEREF_ALWAYS))
+      &&
+      (EqnIsOriented(into->literal) ||
+       !TOGreater(ocb, ClausePosGetOtherSide(into), ClausePosGetSide(into),
+                  DEREF_ALWAYS, DEREF_ALWAYS))
+      &&
+      ((EqnIsPositive(into->literal) &&
+        EqnListEqnIsStrictlyMaximal(ocb,
+                                    into->clause->literals,
+                                    into->literal))
+       ||
+       (EqnIsNegative(into->literal) &&
+        EqnListEqnIsMaximal(ocb,
+                            into->clause->literals,
+                            into->literal)))
+      &&
       EqnListEqnIsStrictlyMaximal(ocb,
-                   into->clause->literals,
-                   into->literal))
-     ||
-     (EqnIsNegative(into->literal)/* &&
-      EqnListEqnIsMaximal(ocb,
-           into->clause->literals,
-           into->literal)*/))
-    &&
-    EqnListEqnIsStrictlyMaximal(ocb,
-                 from->clause->literals,
-                 from->literal)
-    /* &&
-            check_paramod_ordering_constraint(ocb, from, into)*/)
-      {
-    NormSubstEqnListExcept(into->clause->literals, into->literal,
-            subst, freshvars);
-    NormSubstEqnListExcept(from->clause->literals, from->literal,
-            subst, freshvars);
-    new_literals->next = NULL;
+                                  from->clause->literals,
+                                  from->literal))
+   {
+      pminfo.bank        = bank;
+      pminfo.ocb         = ocb;
+      pminfo.freshvars   = freshvars;
+      pminfo.new_orig    = NULL;
+      pminfo.from        = from->clause;
+      pminfo.from_pos    = from;
+      pminfo.from_cpos   = PackClausePos(from);
+      pminfo.into        = into->clause;
+      pminfo.into_pos    = into;
+      pminfo.into_cpos   = PackClausePos(into);
+      pminfo.subst_is_ho = SubstHasHOBinding(subst);
 
-    into_copy = EqnListCopyOptExcept(into->clause->literals,
-                   into->literal);
-    from_copy = EqnListCopyOptExcept(from->clause->literals,
-                   from->literal);
-
-    EqnListDelProp(into_copy, EPFromClauseLit);
-    EqnListSetProp(from_copy, EPFromClauseLit);
-         EqnSetProp(new_literals, EPFromClauseLit);
-
-    into_copy = EqnListAppend(&into_copy, from_copy);
-    EqnListDelProp(into_copy, EPIsPMIntoLit);
-    new_literals =  EqnListAppend(&new_literals, into_copy);
-
-    EqnListRemoveResolved(&new_literals);
-    EqnListRemoveDuplicates(new_literals);
-    new_clause = ClauseAlloc(new_literals);
-      }
-      else
-      {
-    EqnFree(new_literals);
-      }
+      new_clause = ClausePlainParamodConstruct(&pminfo);
    }
    SubstDelete(subst);
 

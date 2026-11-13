@@ -81,14 +81,6 @@ Clause_p ClauseParamodConstruct(ParamodInfo_p ol_desc,
                                 ParamodulationType pm_type);
 
 
-Term_p ComputeOverlap(OCB_p ocb, ClausePos_p from, Term_p
-            into, TermPos_p pos,  Subst_p subst, VarBank_p
-            freshvars);
-
-Eqn_p  EqnOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p from,
-          ClausePos_p into, Subst_p subst, VarBank_p
-          freshvars);
-
 Clause_p ClauseOrderedParamod(TB_p bank, OCB_p ocb, ClausePos_p
                from,ClausePos_p into, VarBank_p
                freshvars);
