@@ -416,11 +416,48 @@ static long compute_pos_into_pm(ParamodInfo_p pminfo,
 
 /*-----------------------------------------------------------------------
 //
+// Function: into_pos_eligible()
+//
+//   Return true if pos (in pminfo->into) satisfies the ordering
+//   constraints for an into-position under the current substitution.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool into_pos_eligible(ParamodInfo_p pminfo, ClausePos_p pos)
+{
+   Term_p max_side = ClausePosGetSide(pos);
+   Term_p min_side = ClausePosGetOtherSide(pos);
+
+   return (EqnIsOriented(pos->literal) ||
+           !TOGreater(pminfo->ocb, min_side, max_side,
+                      DEREF_ALWAYS, DEREF_ALWAYS))
+      &&
+      ((EqnIsPositive(pos->literal) &&
+        EqnListEqnIsStrictlyMaximal(pminfo->ocb,
+                                    pminfo->into->literals,
+                                    pos->literal))
+       ||
+       (EqnIsNegative(pos->literal) &&
+        EqnListEqnIsMaximal(pminfo->ocb,
+                            pminfo->into->literals,
+                            pos->literal)));
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: compute_from_pm_pos_clause()
 //
-//   Compute all paramodulations into pminfo->into* from the clause
-//   and positions described by from_clause_pos. Return number of such
-//   clauses.
+//   Compute all paramodulations into pminfo->into from the clause
+//   and positions described by from_clause_pos. The into-positions
+//   are the ones in into_cpos/into_pos selected by eligible (all
+//   positions of the same term). A simultaneous paramodulant replaces
+//   all occurrences of the term, so it is the same for all of
+//   them and only computed once. Return number of clauses generated.
 //
 // Global Variables: -
 //
@@ -431,6 +468,9 @@ static long compute_pos_into_pm(ParamodInfo_p pminfo,
 static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                        ParamodulationType type,
                                        ClauseTPos_p from_clause_pos,
+                                       PStack_p into_cpos,
+                                       PStack_p into_pos,
+                                       PStack_p eligible,
                                        ClauseSet_p store)
 {
    long res = 0;
@@ -439,20 +479,20 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
    Term_p    lside, rside;
    Clause_p  clause;
    ParamodulationType pm_type;
+   PStackPointer i, k;
 
    pminfo->from = from_clause_pos->clause;
+   if(pminfo->new_orig == pminfo->from)
+   {
+      /* Optimization for the case that from and into are the same
+       * - these are already handled in the "into" case */
+      return 0;
+   }
 
    iterstack = NumTreeTraverseInit(from_clause_pos->pos);
    while ((cell = NumTreeTraverseNext(iterstack)))
    {
-      clause = NULL;
       pminfo->from_cpos = cell->key;
-      if(pminfo->new_orig == pminfo->from)
-      {
-         /* Optimization for the case that from and into are the same
-          * - these are already handled in the "into" case */
-         break;
-      }
       pminfo->from_pos  = UnpackClausePos(cell->key, pminfo->from);
       pm_type = sim_paramod_q(pminfo->ocb, pminfo->from_pos, type);
       lside = ClausePosGetSide(pminfo->from_pos);
@@ -465,48 +505,52 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
                                       pminfo->from->literals,
                                       pminfo->from_pos->literal)))
       {
-         /* printf(COMCHAR" compute_from_pm_pos_clause\n");  */
-         clause = ClauseParamodConstruct(pminfo, pm_type);
-         if(clause)
+         for(i=0; i<PStackGetSP(eligible); i++)
          {
-            ClauseSetInsert(store, clause);
-            res++;
-            update_clause_info(clause, pminfo->from, pminfo->new_orig);
-            DocClauseCreationDefault(clause,
-                                     pm_type?inf_sim_paramod:inf_paramod,
-                                     pminfo->new_orig,
-                                     pminfo->from);
-            DerivationCode dc = pm_type?DCSimParamod:DCParamod;
-            if(pminfo->subst_is_ho)
+            k = PStackElementInt(eligible, i);
+            pminfo->into_cpos = PStackElementInt(into_cpos, k);
+            pminfo->into_pos  = PStackElementP(into_pos, k);
+
+            clause = ClauseParamodConstruct(pminfo, pm_type);
+            if(clause)
             {
-               dc = DPSetIsHO(dc);
+               ClauseSetInsert(store, clause);
+               res++;
+               update_clause_info(clause, pminfo->from, pminfo->new_orig);
+               DocClauseCreationDefault(clause,
+                                        pm_type?inf_sim_paramod:inf_paramod,
+                                        pminfo->new_orig,
+                                        pminfo->from);
+               DerivationCode dc = pm_type?DCSimParamod:DCParamod;
+               if(pminfo->subst_is_ho)
+               {
+                  dc = DPSetIsHO(dc);
+               }
+               ClausePushDerivation(clause, dc,
+                                    pminfo->new_orig, pminfo->from);
+               if(pm_type != ParamodPlain)
+               {
+                  break;
+               }
             }
-            ClausePushDerivation(clause, dc,
-                                 pminfo->new_orig, pminfo->from);
          }
       }
       ClausePosFree(pminfo->from_pos);
-      /* Unfortunately, this optimization is wrong here - we iterate
-         over positions in the from-clause!
-         if(clause && sim_pm)
-         {
-         break;
-         }*/
    }
    NumTreeTraverseExit(iterstack);
+   pminfo->into_pos = NULL;
 
    return res;
 }
 
 
-
-
 /*-----------------------------------------------------------------------
 //
-// Function: compute_from_pm_pos_term()
+// Function: compute_pos_from_pm_term()
 //
-//   Compute all paramodulations into clause with clause|pos = term,
-//   term is the LHS for the overlap, from clauses in from_clauses.
+//   Compute all paramodulations into pminfo->into at the positions
+//   into_cpos/into_pos (all occurrences of olterm, the LHS for the
+//   overlap) from clauses in from_clauses.
 //
 // Global Variables: -
 //
@@ -514,101 +558,62 @@ static long compute_from_pm_pos_clause(ParamodInfo_p pminfo,
 //
 /----------------------------------------------------------------------*/
 
-long compute_pos_from_pm_term(ParamodInfo_p pminfo,
-                              ParamodulationType type,
-                              Term_p olterm,
-                              SubtermOcc_p from_clauses,
-                              ClauseSet_p store)
+static long compute_pos_from_pm_term(ParamodInfo_p pminfo,
+                                     ParamodulationType type,
+                                     Term_p olterm,
+                                     SubtermOcc_p from_clauses,
+                                     PStack_p into_cpos,
+                                     PStack_p into_pos,
+                                     ClauseSet_p store)
 {
    long             res = 0;
    PStack_p         iterstack;
    PObjTree_p       cell;
    Subst_p          subst = SubstAlloc();
-   Term_p           max_side, min_side;
+   PStack_p         eligible = PStackAlloc();
+   PStackPointer    k;
 
-   /*printf("\n@f %ld\n", DebugCount); */
    CSUIterator_p unif_iter =
       CSUIterInit(olterm, from_clauses->term, subst, pminfo->bank);
    while(NextCSUElement(unif_iter))
    {
-      max_side = ClausePosGetSide(pminfo->into_pos);
-      min_side = ClausePosGetOtherSide(pminfo->into_pos);
       pminfo->subst_is_ho = SubstHasHOBinding(subst);
 
-      if((EqnIsOriented(pminfo->into_pos->literal) ||
-          !TOGreater(pminfo->ocb, min_side, max_side, DEREF_ALWAYS,
-                     DEREF_ALWAYS))
-         &&
-         ((EqnIsPositive(pminfo->into_pos->literal)&&
-           EqnListEqnIsStrictlyMaximal(pminfo->ocb,
-                                       pminfo->into->literals,
-                                       pminfo->into_pos->literal))
-          ||
-          (EqnIsNegative(pminfo->into_pos->literal) &&
-           EqnListEqnIsMaximal(pminfo->ocb,
-                               pminfo->into->literals,
-                               pminfo->into_pos->literal))))
+      PStackReset(eligible);
+      for(k=0; k<PStackGetSP(into_pos); k++)
       {
-         /* printf("compute_pos_from_pm_term() oc ok\n"); */
-         /* Iterate over all the into-clauses   */
+         if(into_pos_eligible(pminfo, PStackElementP(into_pos, k)))
+         {
+            PStackPushInt(eligible, k);
+         }
+      }
+      if(!PStackEmpty(eligible))
+      {
+         /* Iterate over all the from-clauses   */
          iterstack = PTreeTraverseInit(from_clauses->pl.pos.clauses);
          while ((cell = PTreeTraverseNext(iterstack)))
          {
-            res += compute_from_pm_pos_clause(pminfo, type, cell->key, store);
+            res += compute_from_pm_pos_clause(pminfo, type, cell->key,
+                                              into_cpos, into_pos,
+                                              eligible, store);
          }
          PTreeTraverseExit(iterstack);
       }
    }
    CSUIterDestroy(unif_iter);
    SubstDelete(subst);
+   PStackFree(eligible);
    return res;
 }
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: compute_pos_from_termtree()
-//
-//   Compute all paramodulations into clause with pminfo->into|pos = term,
-//   term is the LHS for the overlap, from clauses in from_tree.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations.
-//
-/----------------------------------------------------------------------*/
-
-static long compute_pos_from_pm_termtree(ParamodInfo_p pminfo,
-                                         ParamodulationType type,
-                                         Term_p olterm,
-                                         SubtermTree_p from_tree,
-                                         ClauseSet_p store)
-{
-   long          res = 0;
-   PStack_p      iterstack;
-   PObjTree_p    cell;
-
-   iterstack = PTreeTraverseInit(from_tree);
-   while ((cell = PTreeTraverseNext(iterstack)))
-   {
-      res += compute_pos_from_pm_term(pminfo, type,
-                                      olterm, cell->key, store);
-   }
-   PTreeTraverseExit(iterstack);
-
-   return res;
-}
-
 
 
 /*-----------------------------------------------------------------------
 //
 // Function: compute_pos_from_pm()
 //
-//   Compute all paramodulations into clause with pminfo->into|pos =
-//   term, term is the LHS for the overlap, from clauses in
-//   from_index.
+//   Compute all paramodulations into pminfo->into at the positions
+//   into_cpos/into_pos (all occurrences of olterm, the LHS for the
+//   overlap) from clauses in from_index.
 //
 // Global Variables: -
 //
@@ -619,20 +624,29 @@ static long compute_pos_from_pm_termtree(ParamodInfo_p pminfo,
 static long compute_pos_from_pm(ParamodInfo_p pminfo,
                                 ParamodulationType type,
                                 Term_p olterm,
+                                PStack_p into_cpos,
+                                PStack_p into_pos,
                                 OverlapIndex_p from_index,
                                 ClauseSet_p store)
 {
    long          res = 0;
    SubtermTree_p termtree;
    PStack_p      candidates = PStackAlloc();
+   PStack_p      iterstack;
+   PObjTree_p    cell;
 
    FPIndexFindUnifiable(from_index, olterm, candidates);
 
    while(!PStackEmpty(candidates))
    {
       termtree = PStackPopP(candidates);
-      res += compute_pos_from_pm_termtree(pminfo, type,
-                                           olterm, termtree, store);
+      iterstack = PTreeTraverseInit(termtree);
+      while ((cell = PTreeTraverseNext(iterstack)))
+      {
+         res += compute_pos_from_pm_term(pminfo, type, olterm, cell->key,
+                                         into_cpos, into_pos, store);
+      }
+      PTreeTraverseExit(iterstack);
    }
 
    PStackFree(candidates);
@@ -864,7 +878,10 @@ long ComputeIntoParamodulants(ParamodInfo_p pminfo,
 // Function: ComputeFromParamodulants()
 //
 //   Compute all paramodulants from clauses in from_index into
-//   clause.
+//   clause. The into-positions are grouped by term, so that each
+//   distinct term is looked up and unified only once, and
+//   simultaneous paramodulants (which replace all occurrences of the
+//   term) are generated only once.
 //
 // Global Variables: -
 //
@@ -878,90 +895,64 @@ long ComputeFromParamodulants(ParamodInfo_p pminfo,
                               OverlapIndex_p from_index,
                               ClauseSet_p store)
 {
-   long res = 0;
+   long          res = 0;
    PStack_p      pos_stack = PStackAlloc();
+   PStack_p      into_cpos = PStackAlloc();
+   PStack_p      into_pos  = PStackAlloc();
    Term_p        olterm;
    CompactPos    pos;
+   ClausePos_p   cpos;
+   PStackPointer i, j;
 
    ClauseCollectIntoTermsPos(clause, pos_stack);
    pminfo->into = clause;
 
-   while(!PStackEmpty(pos_stack))
+   /* pos_stack holds (term, position) pairs. Process them from the
+      top, collecting all positions of each term the first time it
+      is met. Processed entries are marked by a NULL term. */
+   for(i = PStackGetSP(pos_stack)-2; i >= 0; i -= 2)
    {
-      pos    = PStackPopInt(pos_stack);
-      olterm = PStackPopP(pos_stack);
-      pminfo->into_cpos  = pos;
-      pminfo->into_pos   = UnpackClausePos(pos, clause);
-
-      /* Positive/positive top level has already been done in the
-         into-case.*/
-      if(EqnIsNegative(pminfo->into_pos->literal)||
-         !ClausePosIsTop(pminfo->into_pos))
+      olterm = PStackElementP(pos_stack, i);
+      if(!olterm)
       {
-         res += compute_pos_from_pm(pminfo, type, olterm, from_index, store);
+         continue;
       }
-      ClausePosFree(pminfo->into_pos);
-   }
-   PStackFree(pos_stack);
-
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: ComputeFromSimParamodulants()
-//
-//   Compute all simultaneouss paramodulants from clauses in
-//   from_index into clause.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-long ComputeFromSimParamodulants(ParamodInfo_p pminfo,
-                                 ParamodulationType type,
-                                 Clause_p clause,
-                                 OverlapIndex_p from_index,
-                                 ClauseSet_p store)
-{
-   long res = 0;
-   PStack_p      pos_stack = PStackAlloc();
-   Term_p        olterm;
-   CompactPos    pos;
-
-   /*
-   // Here: Collect terms and term positions in a double tree (or
-   // tree/stack construct)
-   */
-   ClauseCollectIntoTermsPos(clause, pos_stack);
-
-   pminfo->into = clause;
-
-   /*
-   // Here: Iterate over the terms, and inside the terms over the
-   // positions.
-   */
-   while(!PStackEmpty(pos_stack))
-   {
-      pos    = PStackPopInt(pos_stack);
-      olterm = PStackPopP(pos_stack);
-      pminfo->into_cpos  = pos;
-      pminfo->into_pos   = UnpackClausePos(pos, clause);
-
-      /* Positive/positive top level has already been done in the
-         into-case.*/
-      if(EqnIsNegative(pminfo->into_pos->literal)||
-         !ClausePosIsTop(pminfo->into_pos))
+      for(j = i; j >= 0; j -= 2)
       {
-         res += compute_pos_from_pm(pminfo, type, olterm, from_index, store);
+         if(PStackElementP(pos_stack, j) != olterm)
+         {
+            continue;
+         }
+         PStackAssignP(pos_stack, j, NULL);
+         pos  = PStackElementInt(pos_stack, j+1);
+         cpos = UnpackClausePos(pos, clause);
+         /* Positive/positive top level has already been done in the
+            into-case.*/
+         if(EqnIsNegative(cpos->literal) || !ClausePosIsTop(cpos))
+         {
+            PStackPushInt(into_cpos, pos);
+            PStackPushP(into_pos, cpos);
+         }
+         else
+         {
+            ClausePosFree(cpos);
+         }
       }
-      ClausePosFree(pminfo->into_pos);
+      if(!PStackEmpty(into_pos))
+      {
+         res += compute_pos_from_pm(pminfo, type, olterm,
+                                    into_cpos, into_pos,
+                                    from_index, store);
+      }
+      while(!PStackEmpty(into_pos))
+      {
+         ClausePosFree(PStackPopP(into_pos));
+      }
+      PStackReset(into_cpos);
    }
+   PStackFree(into_pos);
+   PStackFree(into_cpos);
    PStackFree(pos_stack);
-
    return res;
 }
 
