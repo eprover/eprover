@@ -1472,8 +1472,9 @@ Term_p PatternTranslateSig(Term_p term, PatternSubst_p subst, Sig_p
 //
 // Function: PatternSubstGetOriginalSymbol()
 //
-//   Given a symbol f, return the original FunCode. Return 0 if f_code
-//   does not match any known symbol.
+//   Given a (normalized) symbol f, return the original FunCode. Return
+//   0 if f does not match any known symbol. Variables that have not
+//   been renamed (e.g. alternate variables) are returned unchanged.
 //
 // Global Variables: -
 //
@@ -1496,23 +1497,20 @@ FunCode PatternSubstGetOriginalSymbol(PatternSubst_p subst, FunCode f)
       }
       return 0;
    }
+   else if(f > NORM_VAR_INIT)
+   {
+      return f; /* Not renamed (e.g. alternate variable) */
+   }
    else
    {
-      if(VarFCodeIsAltCode(f))
+      for(i=1; i<subst->var_subst->size; i++)
       {
-         return f;
-      }
-      else
-      {
-         for(i=0; i<subst->fun_subst->size; i++)
+         if(PDArrayElementInt(subst->var_subst, i)==f)
          {
-            if(PDArrayElementInt(subst->var_subst, i)==f)
-            {
-               return i;
-            }
+            return -i;
          }
-         return 0;
       }
+      return 0;
    }
 }
 
