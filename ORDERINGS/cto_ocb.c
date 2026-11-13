@@ -361,7 +361,7 @@ void OCBDebugPrint(FILE* out, OCB_p ocb)
       CommentPrint(out, " No weights!\n");
    }
    CommentPrint(out, " -----------------------------------------------\n");
-   if(ocb->precedence)
+   if(ocb->precedence || ocb->prec_weights)
    {
       CommentPrint(out, " Precedence Matrix:\n"COMCHAR"       ");
       for(j=1; j<=ocb->sig_size; j++)
