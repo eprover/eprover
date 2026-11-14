@@ -46,7 +46,7 @@ void     ClauseMoveSimplified(GlobalIndices_p gindices,
                               ClauseSet_p archive,
                               bool lambda_demod);
 
-bool     RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from,
+bool     RemoveRewritableClauses(OCB_p ocb, ClauseSet_p *from,
                                  ClauseSet_p into,
                                  ClauseSet_p archive,
                                  Clause_p new_demod, SysDate nf_date,

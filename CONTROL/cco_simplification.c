@@ -38,6 +38,40 @@
 
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: move_rewritable_clauses()
+//
+//   Move all clauses on stack to into (archiving the originals), in
+//   ascending order of their permanent identifiers. The order does
+//   not depend on the way the clauses were found, so the search does
+//   not depend on the backward-rewriting index type.
+//
+// Global Variables: -
+//
+// Side Effects    : Changes clause sets, empties stack.
+//
+/----------------------------------------------------------------------*/
+
+static void move_rewritable_clauses(PStack_p stack, ClauseSet_p into,
+                                    ClauseSet_p archive,
+                                    GlobalIndices_p gindices,
+                                    bool lambda_demod)
+{
+   PStackPointer i;
+   Clause_p      handle;
+
+   PStackSort(stack, ClauseCmpByPermId);
+   for(i=0; i<PStackGetSP(stack); i++)
+   {
+      handle = PStackElementP(stack, i);
+      ClauseDelProp(handle, CPRWDetected);
+      ClauseMoveSimplified(gindices, handle, into, archive, lambda_demod);
+   }
+   PStackReset(stack);
+}
+
+
 /*---------------------------------------------------------------------*/
 /*                         Exported Functions                          */
 /*---------------------------------------------------------------------*/
@@ -80,31 +114,31 @@ void ClauseMoveSimplified(GlobalIndices_p gindices,
 //
 // Function: RemoveRewritableClauses()
 //
-//   Remove all clauses which can be rewritten with new_demod.
+//   Remove all clauses in the NULL-terminated array of sets from
+//   which can be rewritten with new_demod. Return true if any clause
+//   was found.
 //
 // Global Variables: -
 //
-// Side Effects    : As specified...
+// Side Effects    : Changes clause sets
 //
 /----------------------------------------------------------------------*/
 
-bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
+bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p *from, ClauseSet_p into,
                              ClauseSet_p archive,
                              Clause_p new_demod, SysDate nf_date,
                              GlobalIndices_p gindices,
                              bool lambda_demod)
 {
    PStack_p stack = PStackAlloc();
-   Clause_p handle;
-   bool     res;
+   bool     res = false;
 
-   res = FindRewritableClauses(ocb, from, stack, new_demod, nf_date);
-   while(!PStackEmpty(stack))
+   for(; *from; from++)
    {
-      handle = PStackPopP(stack);
-
-      ClauseMoveSimplified(gindices, handle, into, archive, lambda_demod);
+      res = FindRewritableClauses(ocb, *from, stack, new_demod, nf_date)
+         || res;
    }
+   move_rewritable_clauses(stack, into, archive, gindices, lambda_demod);
    PStackFree(stack);
 
    return res;
@@ -116,11 +150,11 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p from, ClauseSet_p into,
 // Function: RemoveRewritableClausesIndexed()
 //
 //   Remove all clauses in gindices->bw_rw_index which can be
-//   rewritten with new_demod.
+//   rewritten with new_demod. Return true if any clause was found.
 //
 // Global Variables: -
 //
-// Side Effects    : As specified...
+// Side Effects    : Changes clause sets
 //
 /----------------------------------------------------------------------*/
 
@@ -130,18 +164,11 @@ bool RemoveRewritableClausesIndexed(OCB_p ocb, ClauseSet_p into,
                                     GlobalIndices_p gindices, bool lambda_demod)
 {
    PStack_p stack = PStackAlloc();
-   Clause_p handle;
    bool     res;
 
    res = FindRewritableClausesIndexed(ocb, gindices->bw_rw_index,
                                       stack, new_demod, nf_date);
-   while(!PStackEmpty(stack))
-   {
-      handle = PStackPopP(stack);
-      // printf(COMCHAR" XXX RWRemoving %p from %p with index %p (flag %d): ", handle, handle->set, gindices, ClauseQueryProp(handle, CPIsGlobalIndexed)); ClausePrint(stdout, handle, true); printf("\n");
-      ClauseDelProp(handle, CPRWDetected);
-      ClauseMoveSimplified(gindices, handle, into, archive, lambda_demod);
-   }
+   move_rewritable_clauses(stack, into, archive, gindices, lambda_demod);
    PStackFree(stack);
 
    return res;

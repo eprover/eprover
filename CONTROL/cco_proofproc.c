@@ -190,34 +190,17 @@ eliminate_backward_rewritten_clauses(ProofState_p
       }
       else
       {
-         min_rw = RemoveRewritableClauses(control->ocb,
-                                          state->processed_pos_rules,
+         ClauseSet_p sets[] = {state->processed_pos_rules,
+                               state->processed_pos_eqns,
+                               state->processed_neg_units,
+                               state->processed_non_units,
+                               NULL};
+
+         min_rw = RemoveRewritableClauses(control->ocb, sets,
                                           state->tmp_store,
                                           state->archive,
                                           clause, *date, &(state->gindices),
-                                          control->heuristic_parms.lambda_demod)
-            ||min_rw;
-         min_rw = RemoveRewritableClauses(control->ocb,
-                                          state->processed_pos_eqns,
-                                          state->tmp_store,
-                                          state->archive,
-                                          clause, *date, &(state->gindices),
-                                          control->heuristic_parms.lambda_demod)
-            ||min_rw;
-         min_rw = RemoveRewritableClauses(control->ocb,
-                                          state->processed_neg_units,
-                                          state->tmp_store,
-                                          state->archive,
-                                          clause, *date, &(state->gindices),
-                                          control->heuristic_parms.lambda_demod)
-            ||min_rw;
-         min_rw = RemoveRewritableClauses(control->ocb,
-                                          state->processed_non_units,
-                                          state->tmp_store,
-                                          state->archive,
-                                          clause, *date, &(state->gindices),
-                                          control->heuristic_parms.lambda_demod)
-            ||min_rw;
+                                          control->heuristic_parms.lambda_demod);
       }
       state->backward_rewritten_lit_count+=
          (state->tmp_store->literals-old_lit_count);
@@ -470,7 +453,9 @@ void simplify_watchlist(ProofState_p state, ProofControl_p control,
    }
    else
    {
-      RemoveRewritableClauses(control->ocb, state->watchlist,
+      ClauseSet_p sets[] = {state->watchlist, NULL};
+
+      RemoveRewritableClauses(control->ocb, sets,
                               tmp_set, state->archive,
                               clause, clause->date,
                               &(state->wlindices),
