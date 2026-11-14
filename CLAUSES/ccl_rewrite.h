@@ -91,9 +91,9 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
               bool lambda_demod, ClauseSet_p step_archive,
               PStack_p step_sides);
 
-bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
-            PStack_p results, Clause_p
-            new_demod, SysDate nf_date);
+bool FindRewritableClauses(OCB_p ocb, ClauseSet_p *sets,
+                           PStack_p results, Clause_p new_demod,
+                           bool lambda_demod);
 
 long FindRewritableClausesIndexed(OCB_p ocb, SubtermIndex_p index,
                                   PStack_p stack, Clause_p new_demod,
