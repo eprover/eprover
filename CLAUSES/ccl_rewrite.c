@@ -170,331 +170,6 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_is_top_rewritable()
-//
-//   Return true if the term is rewritable with new_demod at the top
-//   position, false otherwise.
-//
-// Global Variables: -
-//
-// Side Effects    : Temporary variable bindings (backtracked)
-//
-/----------------------------------------------------------------------*/
-
-static RWResultType term_is_top_rewritable(TB_p bank, OCB_p ocb,
-                                           Term_p term, Clause_p
-                                           new_demod, bool restricted_rw)
-{
-   Subst_p      subst = SubstAlloc();
-   Eqn_p        eqn;
-   RWResultType res   = RWNotRewritable;
-
-   assert(new_demod->pos_lit_no == 1);
-   assert(new_demod->neg_lit_no == 0);
-   assert(!TermIsFreeVar(term));
-
-   eqn = new_demod->literals;
-
-   /* printf("Checking term: ");
-      TBPrintTermFull(stdout, eqn->bank, term);
-      printf("\n");
-      printf("with demod clause %ld: ", new_demod->ident);
-      ClausePrint(stdout, new_demod, true);
-      printf("\n");*/
-   BWRWMatchAttempts++;
-   int remains =  0;
-   if(SubstMatchComplete(eqn->lterm, term, subst))
-   {
-      BWRWMatchSuccesses++;
-      assert(problemType == PROBLEM_FO || !remains);
-      if((EqnIsOriented(eqn)
-          || instance_is_rule(ocb, EqnGetBank(eqn), eqn->lterm, eqn->rterm, subst)))
-      {
-         if(!EqnIsOriented(eqn) || /* Only a performance hack */
-            !SubstIsRenaming(subst))
-         {
-            res = RWAlwaysRewritable;
-            TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
-         }
-         else
-         {
-            res = RWLimitedRewritable;
-            TermCellSetProp(term, TPIsRewritable);
-         }
-         if(!TermIsRewritten(term) || (res == RWAlwaysRewritable))
-         {
-            Term_p repl = TBInsertInstantiated(bank, eqn->rterm);
-            if(problemType == PROBLEM_HO)
-            {
-               repl = MakeRewrittenTerm(term, repl, remains, bank);
-               if(remains)
-               {
-                  repl = TBTermTopInsert(bank, repl);
-               }
-            }
-            if(repl == term)
-            {
-               TermCellDelProp(term, TPIsRRewritable|TPIsRewritable);
-               res = RWNotRewritable;
-            }
-            else
-            {
-               TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
-               RewriteUncached++;
-            }
-         }
-      }
-      SubstBacktrack(subst);
-   }
-   if(!((res == RWAlwaysRewritable)||
-        (!restricted_rw&&res==RWLimitedRewritable))
-      &&
-      !EqnIsOriented(eqn))
-   {
-      BWRWMatchAttempts++;
-      if(SubstMatchComplete(eqn->rterm, term, subst))
-      {
-         BWRWMatchSuccesses++;
-         if(instance_is_rule(ocb, EqnGetBank(eqn), eqn->rterm, eqn->lterm, subst))
-          /* If instance is rule -> subst is no renaming! */
-         {
-            assert(!SubstIsRenaming(subst));
-            TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
-            res = RWAlwaysRewritable;
-
-            Term_p repl = TBInsertInstantiated(bank, eqn->lterm);
-            if(problemType == PROBLEM_HO)
-            {
-               repl = MakeRewrittenTerm(term, repl, remains, bank);
-               if(remains)
-               {
-                  repl = TBTermTopInsert(bank, repl);
-               }
-            }
-
-            if(repl == term)
-            {
-               TermCellDelProp(term, TPIsRRewritable|TPIsRewritable);
-               res = RWNotRewritable;
-            }
-            else
-            {
-               TermAddRWLink(term, repl, new_demod, ClauseIsSOS(new_demod), res);
-               RewriteUncached++;
-            }
-         }
-      }
-   }
-   SubstDelete(subst);
-   return res;
-}
-
-/*-----------------------------------------------------------------------
-//
-// Function: term_is_rewritable()
-//
-//   Return true if the term is rewritable with new_demod, false
-//   otherwise. Set nf_date[0,1] on non-rewritable terms to nf_date
-//   (i.e. assumes thate term is in normal for with respect to earlier
-//   systems).
-//
-//   I keep this like it is for the moment despite the new
-//   rewriting. We may loose a few cycles by not immediately adding a
-//   rewrite link if we detected a possible rewrite step, but on the
-//   other hand we may have fewer intermediate term cells this way,
-//   since the actual rewriting is performed later. The most elegant
-//   option would probably be to add the rewrite link in
-//   term_is_top_rewritable() only, but to avoid propagating it up!
-//   --> TODO!
-//
-// Global Variables: -
-//
-// Side Effects    : Changes nf_dates of terms, may set TPIsRewritable
-//                   flag.
-//
-/----------------------------------------------------------------------*/
-
-static bool term_is_rewritable(TB_p bank, OCB_p ocb, Term_p term, Clause_p
-                               new_demod, SysDate nf_date,
-                               bool restricted_rw)
-{
-   int i;
-   bool res = false;
-   RWResultType topres;
-
-   /*printf("term_is_rewritable(");
-     TermPrint(stdout, term, ocb->sig, DEREF_NEVER);
-     printf(")...\n"); */
-
-   if(TermIsFreeVar(term))
-   {
-      return false;
-   }
-   if(TermCellQueryProp(term, TPIsRRewritable) ||
-      (!restricted_rw &&
-       TermCellQueryProp(term, TPIsRewritable)))
-   {
-      return true;
-   }
-
-   /* assert(!TermIsRewritten(term));*/
-
-   if(SysDateEqual(term->rw_data.nf_date[RewriteAdr(FullRewrite)], nf_date))
-   {
-      return false;
-   }
-   if(!TermIsLambda(term))
-   {
-      for(i=0; i<term->arity; i++)
-      {
-         if(term_is_rewritable(bank, ocb, term->args[i], new_demod, nf_date, false))
-         {
-            res = true;
-            break;
-         }
-      }
-   }
-   if(res)
-   {
-      TermCellSetProp(term, TPIsRewritable|TPIsRRewritable);
-      return true;
-   }
-   topres = term_is_top_rewritable(bank, ocb, term, new_demod, restricted_rw);
-   /* Properties set in term_is_top_rewritable! */
-   switch(topres)
-   {
-   case RWLimitedRewritable:
-         return !restricted_rw;
-   case RWAlwaysRewritable:
-         return true;
-   default:
-         /* Nothing to do, see below. */
-         break;
-   }
-   if(!TermCellIsAnyPropSet(term,
-                            TPIsRewritable|TPIsRRewritable|
-                            TPIsRewritten|TPIsRRewritten)
-      &&!restricted_rw)
-   {
-      term->rw_data.nf_date[RewriteAdr(RuleRewrite)] =
-         term->rw_data.nf_date[RewriteAdr(FullRewrite)] = nf_date;
-   }
-   /* printf("...term_is_rewritable() = false (no match)\n");*/
-   return false;
-}
-
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: eqn_has_rw_side()
-//
-//   Return NoSide, MaxSide, MinSide depending on wether
-//   eqn does or doesn't have a rewritable (maximal) side.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes nf_dates of terms.
-//
-/----------------------------------------------------------------------*/
-
-static EqnSide eqn_has_rw_side(OCB_p ocb, Eqn_p eqn, Clause_p
-                               new_demod, SysDate nf_date)
-{
-   bool resl, resr;
-   bool restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
-
-   /* printf("restricted_rw: %d\n", restricted_rw); */
-   resl = term_is_rewritable(EqnGetBank(eqn), ocb, eqn->lterm, new_demod, nf_date,
-                             restricted_rw);
-   resr = term_is_rewritable(EqnGetBank(eqn), ocb, eqn->rterm, new_demod, nf_date,
-                             false);
-
-   if(resl)
-   {
-      return MaxSide;
-   }
-   else if(resr)
-   {
-      /* printf("resr %d\n",EqnIsOriented(eqn)); */
-      return EqnIsOriented(eqn)?MinSide:MaxSide;
-   }
-   return NoSide;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: clause_is_rewritable()
-//
-//   Return true if clause is rewriteable with new_demod.
-//
-// Global Variables: -
-//
-// Side Effects    : Changes nf_dates of terms.
-//
-/----------------------------------------------------------------------*/
-
-static bool clause_is_rewritable(OCB_p ocb, Clause_p clause,
-                                 Clause_p new_demod, SysDate
-                                 nf_date)
-{
-   Eqn_p handle;
-   EqnSide tmp;
-   bool res = false;
-
-   for(handle = clause->literals; handle; handle = handle->next)
-   {
-      tmp = eqn_has_rw_side(ocb, handle, new_demod, nf_date);
-      if(tmp != NoSide)
-      {
-         res = true;
-      }
-   }
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: find_rewritable_clauses()
-//
-//   A non-index-using implementation of
-//   FindRewritableClause(). Returns true if any clause
-//   is rewritable
-//
-// Global Variables: -
-//
-// Side Effects    : Changes nf_dates of terms.
-//
-/----------------------------------------------------------------------*/
-
-static bool find_rewritable_clauses(OCB_p ocb, ClauseSet_p set,
-                                    PStack_p results, Clause_p
-                                    new_demod, SysDate nf_date)
-{
-   Clause_p handle;
-   bool     res = false, tmp;
-
-   assert(new_demod->pos_lit_no == 1);
-   assert(new_demod->neg_lit_no == 0);
-
-   for(handle = set->anchor->succ; handle != set->anchor; handle =
-          handle->succ)
-   {
-      tmp = clause_is_rewritable(ocb, handle, new_demod, nf_date);
-      if(tmp)
-      {
-         PStackPushP(results, handle);
-         res = true;
-      }
-   }
-   return res;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: replace_term()
 //
 //   Replace all subterms stored in the rw_sys by their respective
@@ -1127,35 +802,31 @@ long clause_tree_push(PStack_p stack, OrdSet_p clausetree)
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_find_rw_clauses()
+// Function: term_bw_rw_check()
 //
-//   Push all clauses stored at termocc that are rewritable with
-//   lterm->rterm onto stack. Return number if there is at least one.
+//   Check if term is rewritable with the demodulator demod, used in
+//   the direction lterm->rterm (oriented tells if this direction is
+//   known to be ordered). Return RWAlwaysRewritable if it is,
+//   RWLimitedRewritable if it is only rewritable if not at the top
+//   of a maximal side of a positive oriented literal (the step would
+//   be a renaming), RWNotRewritable otherwise.
 //
 // Global Variables: -
 //
-// Side Effects    : Sets properties and links in affected terms and
-//                   clauses. May set the normal-form date even if
-//                   this single traverse does not establish
-//                   non-rewritability, i.e. assumes that always all
-//                   possible directions will be used.
+// Side Effects    : Sets properties and rewrite links in term.
 //
 /----------------------------------------------------------------------*/
 
-static long term_find_rw_clauses(Clause_p demod,
-                                 OCB_p ocb,
-                                 SubtermOcc_p termocc,
-                                 PStack_p stack,
-                                 Term_p lterm,
-                                 Term_p rterm,
-                                 bool oriented,
-                                 SysDate nf_date)
+static RWResultType term_bw_rw_check(Clause_p demod,
+                                     OCB_p ocb,
+                                     Term_p term,
+                                     Term_p lterm,
+                                     Term_p rterm,
+                                     bool oriented)
 {
    Eqn_p eqn = demod->literals;
    RWResultType rwres = RWNotRewritable;
-   long    res = 0;
    Subst_p subst = SubstAlloc();
-   Term_p  term = termocc->term;
 
    assert(!TermIsFreeVar(term));
 
@@ -1172,14 +843,11 @@ static long term_find_rw_clauses(Clause_p demod,
          {
             TermCellSetProp(term, TPIsRRewritable|TPIsRewritable);
             rwres = RWAlwaysRewritable;
-            res += clause_tree_push(stack, termocc->pl.occs.rw_full);
-            res += clause_tree_push(stack, termocc->pl.occs.rw_rest);
          }
          else
          {
             TermCellSetProp(term, TPIsRewritable);
             rwres = RWLimitedRewritable;
-            res += clause_tree_push(stack, termocc->pl.occs.rw_full);
          }
          if(!TermIsRewritten(term) || (rwres == RWAlwaysRewritable))
          {
@@ -1209,6 +877,47 @@ static long term_find_rw_clauses(Clause_p demod,
          of the state of the subterms. */
    }
    SubstDelete(subst);
+   return rwres;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: term_find_rw_clauses()
+//
+//   Push all clauses stored at termocc that are rewritable with
+//   lterm->rterm onto stack. Return number of new clauses.
+//
+// Global Variables: -
+//
+// Side Effects    : Sets properties and links in affected terms and
+//                   clauses.
+//
+/----------------------------------------------------------------------*/
+
+static long term_find_rw_clauses(Clause_p demod,
+                                 OCB_p ocb,
+                                 SubtermOcc_p termocc,
+                                 PStack_p stack,
+                                 Term_p lterm,
+                                 Term_p rterm,
+                                 bool oriented,
+                                 SysDate nf_date)
+{
+   long res = 0;
+
+   switch(term_bw_rw_check(demod, ocb, termocc->term, lterm, rterm, oriented))
+   {
+   case RWAlwaysRewritable:
+         res += clause_tree_push(stack, termocc->pl.occs.rw_full);
+         res += clause_tree_push(stack, termocc->pl.occs.rw_rest);
+         break;
+   case RWLimitedRewritable:
+         res += clause_tree_push(stack, termocc->pl.occs.rw_full);
+         break;
+   default:
+         break;
+   }
    return res;
 }
 
@@ -1295,6 +1004,147 @@ static long find_rewritable_clauses_indexed(Clause_p demod,
                                   nf_date);
    }
    PStackFree(termtrees);
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: term_bw_rw_status()
+//
+//   Return the backward-rewriting status of term with respect to
+//   demod (see term_bw_rw_check()), trying both directions of an
+//   unoriented demodulator.
+//
+// Global Variables: -
+//
+// Side Effects    : Via term_bw_rw_check()
+//
+/----------------------------------------------------------------------*/
+
+static RWResultType term_bw_rw_status(Clause_p demod, OCB_p ocb,
+                                      Term_p term)
+{
+   Eqn_p        eqn = demod->literals;
+   RWResultType res, tmp;
+
+   res = term_bw_rw_check(demod, ocb, term, eqn->lterm, eqn->rterm,
+                          EqnIsOriented(eqn));
+   if(!EqnIsOriented(eqn))
+   {
+      tmp = term_bw_rw_check(demod, ocb, term, eqn->rterm, eqn->lterm,
+                             false);
+      res = MAX(res, tmp);
+   }
+   return res;
+}
+
+
+/* Encoding of the per-term cache entries of term_is_bw_rewritable():
+   0 is "not yet visited", otherwise BW_VISITED | status, plus
+   BW_BELOW if a proper subterm is rewritable. */
+
+#define BW_VISITED 4
+#define BW_BELOW   8
+#define BW_STATUS  3
+
+/*-----------------------------------------------------------------------
+//
+// Function: term_is_bw_rewritable()
+//
+//   Check all subterms of term that the backward-rewriting index
+//   would hold (see term_collect_idx_subterms() in
+//   ccl_subterm_index.c) and return true if one of them is
+//   rewritable with demod. If restricted, term itself is the maximal
+//   side of a positive oriented literal and must be rewritable with
+//   a non-renaming instance. Each term is checked only once per
+//   demodulator: the results for term and its subterms are cached
+//   in cache, indexed by the term entry number.
+//
+// Global Variables: -
+//
+// Side Effects    : Via term_bw_rw_status(), extends cache.
+//
+/----------------------------------------------------------------------*/
+
+static bool term_is_bw_rewritable(Clause_p demod, OCB_p ocb, Term_p term,
+                                  bool restricted, bool lambda_demod,
+                                  PDArray_p cache)
+{
+   RWResultType status = RWNotRewritable;
+   bool         below = false, indexed;
+   long         cached;
+   int          i;
+
+   if(TermIsFreeVar(term))
+   {
+      return false;
+   }
+   indexed = !lambda_demod || TermIsDBClosed(term);
+   cached  = indexed?PDArrayElementInt(cache, term->entry_no):0;
+   if(cached)
+   {
+      status = cached & BW_STATUS;
+      below  = cached & BW_BELOW;
+   }
+   else
+   {
+      if(lambda_demod || !TermIsLambda(term))
+      {
+         for(i=0; i<term->arity; i++)
+         {
+            /* No short-cut, all subterms are checked as with the index */
+            below = term_is_bw_rewritable(demod, ocb, term->args[i], false,
+                                          lambda_demod, cache) || below;
+         }
+      }
+      if(indexed)
+      {
+         status = term_bw_rw_status(demod, ocb, term);
+         PDArrayAssignInt(cache, term->entry_no,
+                          BW_VISITED | status | (below?BW_BELOW:0));
+      }
+   }
+   if(below)
+   {
+      return true;
+   }
+   return restricted?(status == RWAlwaysRewritable):
+      (status != RWNotRewritable);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: clause_is_bw_rewritable()
+//
+//   Return true if clause is rewritable with demod. This checks
+//   exactly the subterms the backward-rewriting index would hold for
+//   clause, and all of them, so that the side effects on the terms are
+//   the same as with the index.
+//
+// Global Variables: -
+//
+// Side Effects    : Via term_bw_rw_status()
+//
+/----------------------------------------------------------------------*/
+
+static bool clause_is_bw_rewritable(Clause_p demod, OCB_p ocb,
+                                    Clause_p clause, bool lambda_demod,
+                                    PDArray_p cache)
+{
+   Eqn_p handle;
+   bool  res = false, restricted;
+
+   for(handle = clause->literals; handle; handle = handle->next)
+   {
+      restricted = EqnIsMaximal(handle) && EqnIsPositive(handle) &&
+         EqnIsOriented(handle);
+      res = term_is_bw_rewritable(demod, ocb, handle->lterm, restricted,
+                                  lambda_demod, cache) || res;
+      res = term_is_bw_rewritable(demod, ocb, handle->rterm, false,
+                                  lambda_demod, cache) || res;
+   }
    return res;
 }
 
@@ -1468,22 +1318,44 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
 //
 // Function: FindRewritableClauses()
 //
-//   New version - find all clauses that are rewritable with
-//   new_demod.
+//   Find all clauses in the NULL-terminated array sets that are
+//   rewritable with new_demod and push them onto results. Return
+//   true if there is at least one. This scans all clauses, but
+//   performs exactly the same checks (with the same side effects on
+//   the terms) as FindRewritableClausesIndexed(), so that the search
+//   does not depend on whether an index is used.
 //
 // Global Variables: -
 //
-// Side Effects    : Changes nf_dates of terms, may add rewrite
-//                   links.
+// Side Effects    : Sets properties and rewrite links in terms.
 //
 /----------------------------------------------------------------------*/
 
-bool FindRewritableClauses(OCB_p ocb, ClauseSet_p set,
-                           PStack_p results, Clause_p
-                           new_demod, SysDate nf_date)
+bool FindRewritableClauses(OCB_p ocb, ClauseSet_p *sets,
+                           PStack_p results, Clause_p new_demod,
+                           bool lambda_demod)
 {
-   return find_rewritable_clauses(ocb, set, results, new_demod,
-                                  nf_date);
+   Clause_p  handle;
+   PDArray_p cache = PDArrayAlloc(1024, 0);
+   bool      res = false;
+
+   assert(ClauseIsDemodulator(new_demod));
+
+   for(; *sets; sets++)
+   {
+      for(handle = (*sets)->anchor->succ; handle != (*sets)->anchor;
+          handle = handle->succ)
+      {
+         if(clause_is_bw_rewritable(new_demod, ocb, handle, lambda_demod,
+                                    cache))
+         {
+            PStackPushP(results, handle);
+            res = true;
+         }
+      }
+   }
+   PDArrayFree(cache);
+   return res;
 }
 
 
