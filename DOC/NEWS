@@ -161,6 +161,8 @@ Version 3.2.5 -> 3.5 Countess Grey
   Fixed the choice of the minimal constant for unbound RHS variables
   in demodulation. Non-indexed plain paramodulation (NoIndex) missed
   some inferences and performed some unnecessary ones.
+- Backward rewriting now gives the same search for every
+  rw_bw_index_type, including NoIndex (which is slower).
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 
