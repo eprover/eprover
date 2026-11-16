@@ -28,6 +28,7 @@ Changes
 #define CIO_OUTPUT
 
 #include <stdio.h>
+#include <signal.h>
 #include <clb_dstrings.h>
 
 /*---------------------------------------------------------------------*/
@@ -46,6 +47,7 @@ Changes
 extern long  OutputLevel;
 extern FILE* GlobalOut;
 extern int   GlobalOutFD;
+extern volatile sig_atomic_t OutPipeBroken;
 
 #define      InitOutput() GlobalOut=stdout;GlobalOutFD=STDOUT_FILENO
 void         OpenGlobalOut(char* outname);

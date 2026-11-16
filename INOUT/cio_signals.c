@@ -180,6 +180,29 @@ void ESigTermSchedHandler(int mysignal)
 }
 
 
+/*-----------------------------------------------------------------------
+//
+// Function: ESigPipeHandler()
+//
+//   Record a caught SIGPIPE. The failed write then returns EPIPE,
+//   and the process continues, so that it can still terminate its
+//   own subprocesses.
+//
+// Global Variables: OutPipeBroken
+//
+// Side Effects    : Sets OutPipeBroken
+//
+/----------------------------------------------------------------------*/
+
+void ESigPipeHandler(int mysignal)
+{
+   if(mysignal == SIGPIPE)
+   {
+      OutPipeBroken = 1;
+   }
+}
+
+
 
 
 /*---------------------------------------------------------------------*/

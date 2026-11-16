@@ -129,7 +129,8 @@ Version 3.2.5 -> 3.5 Countess Grey
 - Fixed a hang in scheduling mode: after a result was found, eprover
   could wait forever for a strategy process that was blocked writing
   its (large) output into the pipe to the parent. The parent now
-  closes the pipe before it terminates the process.
+  closes the pipe before it terminates the process. A strategy process
+  that finds its pipe closed exits without an error message.
 - Fixed a crash of ConjectureStrucDistanceWeight on HO problems: it
   compared the arguments of terms with the same head but different
   numbers of arguments (partial applications) pairwise, reading past

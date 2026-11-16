@@ -36,6 +36,9 @@ Changes
 long  OutputLevel = 1;
 FILE* GlobalOut;
 int   GlobalOutFD = STDOUT_FILENO;
+/* Set (by ESigPipeHandler()) when a strategy process writes to the
+   pipe after its parent has closed it. */
+volatile sig_atomic_t OutPipeBroken = 0;
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -121,8 +124,11 @@ FILE* OutOpen(char* name)
 //   Close the file, checking for errors. If stdout, just flush
 //   it. Error messages are bound to be short, but errors should only
 //   result from program errors or extremely obscure circumstances.
+//   An error on stdout is not reported if the pipe to the parent
+//   process was broken: the parent has closed it because it no longer
+//   needs our output (see EGPCtrlCleanup()).
 //
-// Global Variables: -
+// Global Variables: OutPipeBroken
 //
 // Side Effects    : Closes file
 //
@@ -131,7 +137,7 @@ FILE* OutOpen(char* name)
 void OutClose(FILE* file)
 {
    fflush(file);
-   if(ferror(file))
+   if(ferror(file) && !(file == stdout && OutPipeBroken))
    {
       Error("Output stream to be closed reports error (probably "
             "broken pipe, file system full or quota exceeded)",

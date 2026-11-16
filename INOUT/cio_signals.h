@@ -66,6 +66,7 @@ void ESignalSetup(int mysignal);
 void ESignalHandler(int mysignal);
 
 void ESigTermSchedHandler(int mysignal);
+void ESigPipeHandler(int mysignal);
 
 
 #endif

@@ -177,8 +177,9 @@ EGPCtrl_p EGPCtrlCreate(char *name, int cores, rlim_t cpu_limit)
       signal(SIGTERM, SIG_DFL);
       /* If the parent closes the pipe (see EGPCtrlCleanup()), writes
          fail with EPIPE, and the child can still terminate its own
-         subprocesses before it exits. */
-      signal(SIGPIPE, SIG_IGN);
+         subprocesses before it exits. The handler only records the
+         broken pipe, so that OutClose() does not report it. */
+      signal(SIGPIPE, ESigPipeHandler);
       dup2(pipefd[1], STDOUT_FILENO);
       close(pipefd[0]);
       close(pipefd[1]);
