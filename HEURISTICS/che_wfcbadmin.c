@@ -29,106 +29,61 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
-char* WeightFunParseFunNames[]=
+typedef struct
 {
-   "Clauseweight",
-   "ClauseLMaxWeight",
-   "ClauseCMaxWeight",
-   "Uniqweight",
-   "Defaultweight",
-   "DAGweight",
-   "RDAGweight",
-   "RDAGweight2",
-   "RDAGweight3",
-   "Refinedweight",
-   "Refinedweight2",
-   "Diversityweight",
-   "PNRefinedweight",
-   "TPTPTypeweight",
-   "Sigweight",
-   "NLweight",
-   "RandomWeight",
-   "SymbolTypeweight",
-   "Depthweight",
-   "WLessDWeight",
-   "Proofweight",
-   "Orientweight",
-   "OrientLMaxWeight",
-   "Simweight",
-   "FIFOWeight",
-   "LIFOWeight",
-   "StaggeredWeight",
-   "ClauseWeightAge",
-   "TSMWeight",
-   "TSMRWeight",
-   "ConjectureSymbolWeight",
-   "ConjectureGeneralSymbolWeight",
-   "ConjectureRelativeSymbolWeight",
-   "ConjectureRelativeTypeSymbolWeight",
-   "ConjectureTypeBasedWeight",
-   "RelevanceLevelWeight",
-   "RelevanceLevelWeight2",
-   "FunWeight",
-   "SymOffsetWeight",
-   "ConjectureRelativeTermWeight",
-   "ConjectureTermTfIdfWeight",
-   "ConjectureLevDistanceWeight",
-   "ConjectureTreeDistanceWeight",
-   "ConjectureTermPrefixWeight",
-   "ConjectureStrucDistanceWeight",
-   "GDWeight",
-   NULL
-};
+   char              *name;
+   WeightFunParseFun parse;
+}WeightFunParseAssocCell;
 
-static WeightFunParseFun parse_fun_array[]=
+static WeightFunParseAssocCell weight_fun_parse_table[] =
 {
-   ClauseWeightParse,
-   LMaxWeightParse,
-   CMaxWeightParse,
-   UniqWeightParse, /* NOTE2ME:  did not change it */
-   DefaultWeightParse, /* NOTE2ME:  did not change it */
-   DAGWeightParse,
-   RDAGWeightParse,
-   RDAGWeight2Parse,
-   RDAGWeight3Parse,
-   ClauseRefinedWeightParse,
-   ClauseRefinedWeight2Parse,
-   DiversityWeightParse,
-   PNRefinedWeightParse,
-   TPTPTypeWeightParse,
-   SigWeightParse,
-   NLWeightParse,
-   RandWeightParse,
-   SymTypeWeightParse,
-   DepthWeightParse,
-   WeightLessDepthParse,
-   ProofWeightParse,
-   ClauseOrientWeightParse,
-   OrientLMaxWeightParse,
-   SimWeightParse,
-   FIFOEvalParse,  /* NOTE2ME:  did not change it */
-   LIFOEvalParse, /* NOTE2ME:  did not change it */
-   StaggeredWeightParse, /* NOTE2ME:  did not change it */
-   ClauseWeightAgeParse,
-   TSMWeightParse /* NOTE2ME:  did not change it */,
-   TSMRWeightParse /* NOTE2ME:  did not change it */,
-   ConjectureSymbolWeightParse,
-   ConjectureGeneralSymbolWeightParse,
-   ConjectureRelativeSymbolWeightParse,
-   ConjectureRelativeSymbolTypeWeightParse,
-   ConjectureTypeBasedWeightParse,
-   RelevanceLevelWeightParse,
-   RelevanceLevelWeightParse2,
-   FunWeightParse,
-   SymOffsetWeightParse,
-   ConjectureRelativeTermWeightParse,
-   ConjectureTermTfIdfWeightParse,
-   ConjectureLevDistanceWeightParse,
-   ConjectureTreeDistanceWeightParse,
-   ConjectureTermPrefixWeightParse,
-   ConjectureStrucDistanceWeightParse,
-   GDClauseWeightParse,
-   (WeightFunParseFun)NULL
+   {"Clauseweight",                       ClauseWeightParse},
+   {"ClauseLMaxWeight",                   LMaxWeightParse},
+   {"ClauseCMaxWeight",                   CMaxWeightParse},
+   {"Uniqweight",                         UniqWeightParse},
+   {"Defaultweight",                      DefaultWeightParse},
+   {"DAGweight",                          DAGWeightParse},
+   {"RDAGweight",                         RDAGWeightParse},
+   {"RDAGweight2",                        RDAGWeight2Parse},
+   {"RDAGweight3",                        RDAGWeight3Parse},
+   {"Refinedweight",                      ClauseRefinedWeightParse},
+   {"Refinedweight2",                     ClauseRefinedWeight2Parse},
+   {"Diversityweight",                    DiversityWeightParse},
+   {"PNRefinedweight",                    PNRefinedWeightParse},
+   {"TPTPTypeweight",                     TPTPTypeWeightParse},
+   {"Sigweight",                          SigWeightParse},
+   {"NLweight",                           NLWeightParse},
+   {"RandomWeight",                       RandWeightParse},
+   {"SymbolTypeweight",                   SymTypeWeightParse},
+   {"Depthweight",                        DepthWeightParse},
+   {"WLessDWeight",                       WeightLessDepthParse},
+   {"Proofweight",                        ProofWeightParse},
+   {"Orientweight",                       ClauseOrientWeightParse},
+   {"OrientLMaxWeight",                   OrientLMaxWeightParse},
+   {"Simweight",                          SimWeightParse},
+   {"FIFOWeight",                         FIFOEvalParse},
+   {"LIFOWeight",                         LIFOEvalParse},
+   {"StaggeredWeight",                    StaggeredWeightParse},
+   {"ClauseWeightAge",                    ClauseWeightAgeParse},
+   {"TSMWeight",                          TSMWeightParse},
+   {"TSMRWeight",                         TSMRWeightParse},
+   {"ConjectureSymbolWeight",             ConjectureSymbolWeightParse},
+   {"ConjectureGeneralSymbolWeight",      ConjectureGeneralSymbolWeightParse},
+   {"ConjectureRelativeSymbolWeight",     ConjectureRelativeSymbolWeightParse},
+   {"ConjectureRelativeTypeSymbolWeight", ConjectureRelativeSymbolTypeWeightParse},
+   {"ConjectureTypeBasedWeight",          ConjectureTypeBasedWeightParse},
+   {"RelevanceLevelWeight",               RelevanceLevelWeightParse},
+   {"RelevanceLevelWeight2",              RelevanceLevelWeightParse2},
+   {"FunWeight",                          FunWeightParse},
+   {"SymOffsetWeight",                    SymOffsetWeightParse},
+   {"ConjectureRelativeTermWeight",       ConjectureRelativeTermWeightParse},
+   {"ConjectureTermTfIdfWeight",          ConjectureTermTfIdfWeightParse},
+   {"ConjectureLevDistanceWeight",        ConjectureLevDistanceWeightParse},
+   {"ConjectureTreeDistanceWeight",       ConjectureTreeDistanceWeightParse},
+   {"ConjectureTermPrefixWeight",         ConjectureTermPrefixWeightParse},
+   {"ConjectureStrucDistanceWeight",      ConjectureStrucDistanceWeightParse},
+   {"GDWeight",                           GDClauseWeightParse},
+   {NULL,                                 NULL}
 };
 
 
@@ -281,7 +236,7 @@ WFCB_p WFCBAdminFindWFCB(WFCBAdmin_p set, char* name)
 //   Given a name of a weight function, return a parse function for
 //   it.
 //
-// Global Variables: WeightFunParseFunNames
+// Global Variables: weight_fun_parse_table
 //
 // Side Effects    : -
 //
@@ -289,15 +244,16 @@ WFCB_p WFCBAdminFindWFCB(WFCBAdmin_p set, char* name)
 
 WeightFunParseFun GetWeightFunParseFun(char* name)
 {
-   int index;
+   WeightFunParseAssocCell *entry;
 
    assert(name);
 
-   index = StringIndex(name, WeightFunParseFunNames);
-
-   if(index>=0)
+   for(entry = weight_fun_parse_table; entry->name; entry++)
    {
-      return parse_fun_array[index];
+      if(strcmp(name, entry->name) == 0)
+      {
+         return entry->parse;
+      }
    }
    return (WeightFunParseFun)NULL;
 }

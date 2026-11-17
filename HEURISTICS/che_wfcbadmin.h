@@ -66,8 +66,6 @@ typedef struct wfcbadmincell
 #define WFCBAdminCellAlloc() (WFCBAdminCell*)SizeMalloc(sizeof(WFCBAdminCell))
 #define WFCBAdminCellFree(junk)         SizeFree(junk, sizeof(WFCBAdminCell))
 
-extern char* WeightFunParseFunNames[];
-
 WFCBAdmin_p WFCBAdminAlloc(void);
 void        WFCBAdminFree(WFCBAdmin_p junk);
 long        WFCBAdminAddWFCB(WFCBAdmin_p set, char* name, WFCB_p wfcb);
