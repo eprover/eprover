@@ -887,6 +887,55 @@ static bool eqn_list_rec_plain_subsume(Eqn_p patterns, Eqn_p targets,
 
 /*-----------------------------------------------------------------------
 //
+// Function: plain_class_weights_compatible()
+//
+//   Return true if, for every class of literals (see
+//   EqnSubsumeQOrderCompare(): sign, equational or not, predicate
+//   symbol) occurring in patterns, targets (without except) has a
+//   literal of that class at least as heavy as the heaviest one of
+//   patterns. This is necessary for plain subsumption, since an
+//   instance is never lighter than its pattern. Both lists are
+//   sorted with ClauseSubsumeOrderSortLits() (by class, then by
+//   decreasing weight), so the heaviest literal of a class is its
+//   first one, and a single merge-like pass without any matching
+//   suffices.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool plain_class_weights_compatible(Eqn_p patterns, Eqn_p targets,
+                                           Eqn_p except)
+{
+   Eqn_p prev = NULL;
+
+   for(; patterns; prev = patterns, patterns = patterns->next)
+   {
+      if(prev && !EqnSubsumeQOrderCompare(prev, patterns))
+      {
+         continue; /* Not the heaviest literal of its class */
+      }
+      while(targets &&
+            ((targets == except) ||
+             (EqnSubsumeQOrderCompare(targets, patterns) > 0)))
+      {
+         targets = targets->next;
+      }
+      if(!targets ||
+         (EqnSubsumeQOrderCompare(targets, patterns) < 0) ||
+         (EqnStandardWeight(targets) < EqnStandardWeight(patterns)))
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: plain_subsumption_possible()
 //
 //   Return true if every literal of patterns on its own has an
@@ -1688,9 +1737,13 @@ bool ClausePlainSubsumesClauseExcept(Clause_p subsumer,
    {
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
+   assert(ClauseIsSubsumeOrdered(subsumer));
    assert(ClauseIsSubsumeOrdered(sub_candidate));
    subst = SubstAlloc();
-   res = plain_subsumption_possible(subsumer->literals,
+   res = plain_class_weights_compatible(subsumer->literals,
+                                        sub_candidate->literals,
+                                        except)
+      && plain_subsumption_possible(subsumer->literals,
                                     sub_candidate->literals,
                                     except, subst)
       && eqn_list_rec_plain_subsume(subsumer->literals,
