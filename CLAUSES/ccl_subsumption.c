@@ -715,15 +715,118 @@ static bool plain_lit_matches(Eqn_p pattern, Eqn_p target, bool swap,
 
 /*-----------------------------------------------------------------------
 //
+// Function: plain_lit_check()
+//
+//   Cheap necessary conditions (as in eqn_list_rec_subsume()) for
+//   target to be an instance of pattern: both literals are in the
+//   same class (sign, equational or not, predicate symbol), an
+//   instance is never lighter than its pattern, and an instance of
+//   an oriented equation is oriented. The literals of the target
+//   clause are sorted with ClauseSubsumeOrderSortLits() (by class,
+//   then by decreasing weight), so the search can stop at the first
+//   target of a later class or of the same class but lighter than
+//   pattern.
+//
+//   Return PlainLitTry if target has to be tried, PlainLitSkip if it
+//   can be skipped, and PlainLitStop if no later target can match
+//   either.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+typedef enum
+{
+   PlainLitTry,
+   PlainLitSkip,
+   PlainLitStop
+}PlainLitRes;
+
+static PlainLitRes plain_lit_check(Eqn_p pattern, Eqn_p target)
+{
+   int cmpres = EqnSubsumeQOrderCompare(target, pattern);
+
+   if(cmpres < 0)
+   {
+      return PlainLitStop;
+   }
+   if(cmpres > 0)
+   {
+      return PlainLitSkip;
+   }
+   if(EqnStandardWeight(target) < EqnStandardWeight(pattern))
+   {
+      return PlainLitStop;
+   }
+   if(EqnIsOriented(pattern) && !EqnIsOriented(target))
+   {
+      return PlainLitSkip;
+   }
+   return PlainLitTry;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: plain_lit_has_instance()
+//
+//   Return true if some literal of targets other than except is an
+//   instance of pattern (with an empty substitution). subst is
+//   unchanged.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool plain_lit_has_instance(Eqn_p pattern, Eqn_p targets,
+                                   Eqn_p except, Subst_p subst)
+{
+   Eqn_p         target;
+   PlainLitRes   check;
+   PStackPointer state = PStackGetSP(subst);
+
+   for(target = targets; target; target = target->next)
+   {
+      if(target == except)
+      {
+         continue;
+      }
+      check = plain_lit_check(pattern, target);
+      if(check == PlainLitStop)
+      {
+         break;
+      }
+      if(check == PlainLitSkip)
+      {
+         continue;
+      }
+      if(plain_lit_matches(pattern, target, false, subst) ||
+         (EqnIsEquLit(pattern) && !EqnIsOriented(pattern) &&
+          plain_lit_matches(pattern, target, true, subst)))
+      {
+         SubstBacktrackToPos(subst, state);
+         return true;
+      }
+   }
+   return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: eqn_list_rec_plain_subsume()
 //
 //   Return true if subst can be extended to a substitution that maps
 //   every literal of patterns onto some literal of targets other than
 //   except (which may be NULL). Several patterns may be mapped onto
 //   the same target (plain (set) subsumption, not multiset
-//   subsumption). Equations are matched in both orientations. On
-//   failure, subst is unchanged. On success, the caller has to
-//   backtrack subst.
+//   subsumption). Unoriented equations are matched in both
+//   orientations. On failure, subst is unchanged. On success, the
+//   caller has to backtrack subst.
 //
 // Global Variables: -
 //
@@ -735,6 +838,7 @@ static bool eqn_list_rec_plain_subsume(Eqn_p patterns, Eqn_p targets,
                                        Eqn_p except, Subst_p subst)
 {
    Eqn_p         target;
+   PlainLitRes   check;
    PStackPointer state = PStackGetSP(subst);
 
    if(!patterns)
@@ -743,11 +847,20 @@ static bool eqn_list_rec_plain_subsume(Eqn_p patterns, Eqn_p targets,
    }
    for(target = targets; target; target = target->next)
    {
-      if((target == except) ||
-         !PropsAreEquiv(patterns, target, EPIsPositive|EPIsEquLiteral))
+      if(target == except)
       {
          continue;
       }
+      check = plain_lit_check(patterns, target);
+      if(check == PlainLitStop)
+      {
+         break;
+      }
+      if(check == PlainLitSkip)
+      {
+         continue;
+      }
+      assert(PropsAreEquiv(patterns, target, EPIsPositive|EPIsEquLiteral));
       if(plain_lit_matches(patterns, target, false, subst))
       {
          if(eqn_list_rec_plain_subsume(patterns->next, targets, except,
@@ -757,7 +870,7 @@ static bool eqn_list_rec_plain_subsume(Eqn_p patterns, Eqn_p targets,
          }
          SubstBacktrackToPos(subst, state);
       }
-      if(EqnIsEquLit(patterns) &&
+      if(EqnIsEquLit(patterns) && !EqnIsOriented(patterns) &&
          plain_lit_matches(patterns, target, true, subst))
       {
          if(eqn_list_rec_plain_subsume(patterns->next, targets, except,
@@ -769,6 +882,35 @@ static bool eqn_list_rec_plain_subsume(Eqn_p patterns, Eqn_p targets,
       }
    }
    return false;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: plain_subsumption_possible()
+//
+//   Return true if every literal of patterns on its own has an
+//   instance among the literals of targets other than except. This
+//   is necessary for plain subsumption, and much cheaper to refute
+//   than the full test, which backtracks over all combinations.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool plain_subsumption_possible(Eqn_p patterns, Eqn_p targets,
+                                       Eqn_p except, Subst_p subst)
+{
+   for(; patterns; patterns = patterns->next)
+   {
+      if(!plain_lit_has_instance(patterns, targets, except, subst))
+      {
+         return false;
+      }
+   }
+   return true;
 }
 
 
@@ -1521,7 +1663,9 @@ bool ClauseMultiSetSubsumesClause(Clause_p subsumer, Clause_p sub_candidate)
 //   may be NULL). Several literals of subsumer may be mapped onto the
 //   same literal (plain or set subsumption, as opposed to multiset
 //   subsumption). Without except, a unit subsumer is tested with
-//   UnitClauseSubsumesClause(), as in multiset subsumption.
+//   UnitClauseSubsumesClause(), as in multiset subsumption. The
+//   literals of sub_candidate have to be sorted with
+//   ClauseSubsumeOrderSortLits().
 //
 // Global Variables: -
 //
@@ -1544,8 +1688,12 @@ bool ClausePlainSubsumesClauseExcept(Clause_p subsumer,
    {
       return UnitClauseSubsumesClause(subsumer, sub_candidate);
    }
+   assert(ClauseIsSubsumeOrdered(sub_candidate));
    subst = SubstAlloc();
-   res = eqn_list_rec_plain_subsume(subsumer->literals,
+   res = plain_subsumption_possible(subsumer->literals,
+                                    sub_candidate->literals,
+                                    except, subst)
+      && eqn_list_rec_plain_subsume(subsumer->literals,
                                     sub_candidate->literals,
                                     except, subst);
    SubstDelete(subst);
