@@ -936,12 +936,100 @@ static bool plain_class_weights_compatible(Eqn_p patterns, Eqn_p targets,
 
 /*-----------------------------------------------------------------------
 //
+// Function: plain_lit_is_ground()
+//
+//   Return true if lit is ground. Only literals with shared terms are
+//   recognized (the property is maintained by the term bank). For
+//   those, an instance is the literal itself.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool plain_lit_is_ground(Eqn_p lit)
+{
+   return TermIsShared(lit->lterm) && TermIsShared(lit->rterm) &&
+      EqnIsGround(lit);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: plain_ground_lits_present()
+//
+//   Return true if every ground literal of patterns occurs in targets
+//   (other than except). A ground literal is its only instance, so
+//   this is necessary for plain subsumption, and it needs no
+//   matching: shared terms are identical if and only if they are
+//   the same cell. Unoriented equations are compared in both
+//   orientations. Both lists are sorted with
+//   ClauseSubsumeOrderSortLits().
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool plain_ground_lits_present(Eqn_p patterns, Eqn_p targets,
+                                      Eqn_p except)
+{
+   Eqn_p       target;
+   PlainLitRes check;
+
+   for(; patterns; patterns = patterns->next)
+   {
+      if(!plain_lit_is_ground(patterns))
+      {
+         continue;
+      }
+      for(target = targets; target; target = target->next)
+      {
+         if(target == except)
+         {
+            continue;
+         }
+         check = plain_lit_check(patterns, target);
+         if(check == PlainLitStop)
+         {
+            target = NULL;
+            break;
+         }
+         if(check == PlainLitSkip)
+         {
+            continue;
+         }
+         assert(TermIsShared(target->lterm) && TermIsShared(target->rterm));
+         if(((patterns->lterm == target->lterm) &&
+             (patterns->rterm == target->rterm)) ||
+            (EqnIsEquLit(patterns) && !EqnIsOriented(patterns) &&
+             (patterns->lterm == target->rterm) &&
+             (patterns->rterm == target->lterm)))
+         {
+            break;
+         }
+      }
+      if(!target)
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: plain_subsumption_possible()
 //
 //   Return true if every literal of patterns on its own has an
 //   instance among the literals of targets other than except. This
 //   is necessary for plain subsumption, and much cheaper to refute
 //   than the full test, which backtracks over all combinations.
+//   Ground literals are skipped, they are checked by
+//   plain_ground_lits_present().
 //
 // Global Variables: -
 //
@@ -954,6 +1042,10 @@ static bool plain_subsumption_possible(Eqn_p patterns, Eqn_p targets,
 {
    for(; patterns; patterns = patterns->next)
    {
+      if(plain_lit_is_ground(patterns))
+      {
+         continue; /* Checked by plain_ground_lits_present() */
+      }
       if(!plain_lit_has_instance(patterns, targets, except, subst))
       {
          return false;
@@ -1743,6 +1835,9 @@ bool ClausePlainSubsumesClauseExcept(Clause_p subsumer,
    res = plain_class_weights_compatible(subsumer->literals,
                                         sub_candidate->literals,
                                         except)
+      && plain_ground_lits_present(subsumer->literals,
+                                   sub_candidate->literals,
+                                   except)
       && plain_subsumption_possible(subsumer->literals,
                                     sub_candidate->literals,
                                     except, subst)
