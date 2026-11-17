@@ -412,6 +412,147 @@ static bool check_subsumption_possibility(Clause_p subsumer, Clause_p
 
 /*-----------------------------------------------------------------------
 //
+// Function: subsume_lit_check()
+//
+//   Cheap necessary conditions (also used in eqn_list_rec_subsume())
+//   for target to be an instance of pattern: both literals are in the
+//   same class (sign, equational or not, predicate symbol), an
+//   instance is never lighter than its pattern, and an instance of
+//   an oriented equation is oriented. The literals of the target
+//   clause are sorted with ClauseSubsumeOrderSortLits() (by class,
+//   then by decreasing weight), so the search can stop at the first
+//   target of a later class or of the same class but lighter than
+//   pattern.
+//
+//   Return SubsumeLitTry if target has to be tried, SubsumeLitSkip
+//   if it can be skipped, and SubsumeLitStop if no later target can
+//   match either.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+typedef enum
+{
+   SubsumeLitTry,
+   SubsumeLitSkip,
+   SubsumeLitStop
+}SubsumeLitRes;
+
+static SubsumeLitRes subsume_lit_check(Eqn_p pattern, Eqn_p target)
+{
+   int cmpres = EqnSubsumeQOrderCompare(target, pattern);
+
+   if(cmpres < 0)
+   {
+      return SubsumeLitStop;
+   }
+   if(cmpres > 0)
+   {
+      return SubsumeLitSkip;
+   }
+   if(EqnStandardWeight(target) < EqnStandardWeight(pattern))
+   {
+      return SubsumeLitStop;
+   }
+   if(EqnIsOriented(pattern) && !EqnIsOriented(target))
+   {
+      return SubsumeLitSkip;
+   }
+   return SubsumeLitTry;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: lit_is_shared_ground()
+//
+//   Return true if lit is ground. Only literals with shared terms are
+//   recognized (the property is maintained by the term bank). For
+//   those, an instance is the literal itself.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool lit_is_shared_ground(Eqn_p lit)
+{
+   return TermIsShared(lit->lterm) && TermIsShared(lit->rterm) &&
+      EqnIsGround(lit);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: ground_lits_present()
+//
+//   Return true if every ground literal of patterns occurs in targets
+//   (other than except). A ground literal is its only instance, so
+//   this is necessary for plain and multiset subsumption, and it
+//   needs no matching: shared terms are identical if and only if they are
+//   the same cell. Unoriented equations are compared in both
+//   orientations. Both lists are sorted with
+//   ClauseSubsumeOrderSortLits().
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+static bool ground_lits_present(Eqn_p patterns, Eqn_p targets,
+                                Eqn_p except)
+{
+   Eqn_p         target;
+   SubsumeLitRes check;
+
+   for(; patterns; patterns = patterns->next)
+   {
+      if(!lit_is_shared_ground(patterns))
+      {
+         continue;
+      }
+      for(target = targets; target; target = target->next)
+      {
+         if(target == except)
+         {
+            continue;
+         }
+         check = subsume_lit_check(patterns, target);
+         if(check == SubsumeLitStop)
+         {
+            target = NULL;
+            break;
+         }
+         if(check == SubsumeLitSkip)
+         {
+            continue;
+         }
+         assert(TermIsShared(target->lterm) && TermIsShared(target->rterm));
+         if(((patterns->lterm == target->lterm) &&
+             (patterns->rterm == target->rterm)) ||
+            (EqnIsEquLit(patterns) && !EqnIsOriented(patterns) &&
+             (patterns->lterm == target->rterm) &&
+             (patterns->rterm == target->lterm)))
+         {
+            break;
+         }
+      }
+      if(!target)
+      {
+         return false;
+      }
+   }
+   return true;
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: eqn_list_rec_subsume()
 //
 //   Try to find a subset of sub_cand_list such that
@@ -654,6 +795,12 @@ static bool clause_subsumes_clause(Clause_p subsumer, Clause_p
       PERF_CTR_EXIT(SubsumeTimer);
       return false;
    }
+   if(!ground_lits_present(subsumer->literals, sub_candidate->literals,
+                           NULL))
+   {
+      PERF_CTR_EXIT(SubsumeTimer);
+      return false;
+   }
    if(((sub_candidate->pos_lit_no >=3) ||
        (sub_candidate->neg_lit_no >=3))&&
       !check_subsumption_possibility(subsumer, sub_candidate))
@@ -715,61 +862,6 @@ static bool plain_lit_matches(Eqn_p pattern, Eqn_p target, bool swap,
 
 /*-----------------------------------------------------------------------
 //
-// Function: plain_lit_check()
-//
-//   Cheap necessary conditions (as in eqn_list_rec_subsume()) for
-//   target to be an instance of pattern: both literals are in the
-//   same class (sign, equational or not, predicate symbol), an
-//   instance is never lighter than its pattern, and an instance of
-//   an oriented equation is oriented. The literals of the target
-//   clause are sorted with ClauseSubsumeOrderSortLits() (by class,
-//   then by decreasing weight), so the search can stop at the first
-//   target of a later class or of the same class but lighter than
-//   pattern.
-//
-//   Return PlainLitTry if target has to be tried, PlainLitSkip if it
-//   can be skipped, and PlainLitStop if no later target can match
-//   either.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-typedef enum
-{
-   PlainLitTry,
-   PlainLitSkip,
-   PlainLitStop
-}PlainLitRes;
-
-static PlainLitRes plain_lit_check(Eqn_p pattern, Eqn_p target)
-{
-   int cmpres = EqnSubsumeQOrderCompare(target, pattern);
-
-   if(cmpres < 0)
-   {
-      return PlainLitStop;
-   }
-   if(cmpres > 0)
-   {
-      return PlainLitSkip;
-   }
-   if(EqnStandardWeight(target) < EqnStandardWeight(pattern))
-   {
-      return PlainLitStop;
-   }
-   if(EqnIsOriented(pattern) && !EqnIsOriented(target))
-   {
-      return PlainLitSkip;
-   }
-   return PlainLitTry;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: plain_lit_has_instance()
 //
 //   Return true if some literal of targets other than except is an
@@ -786,7 +878,7 @@ static bool plain_lit_has_instance(Eqn_p pattern, Eqn_p targets,
                                    Eqn_p except, Subst_p subst)
 {
    Eqn_p         target;
-   PlainLitRes   check;
+   SubsumeLitRes   check;
    PStackPointer state = PStackGetSP(subst);
 
    for(target = targets; target; target = target->next)
@@ -795,12 +887,12 @@ static bool plain_lit_has_instance(Eqn_p pattern, Eqn_p targets,
       {
          continue;
       }
-      check = plain_lit_check(pattern, target);
-      if(check == PlainLitStop)
+      check = subsume_lit_check(pattern, target);
+      if(check == SubsumeLitStop)
       {
          break;
       }
-      if(check == PlainLitSkip)
+      if(check == SubsumeLitSkip)
       {
          continue;
       }
@@ -838,7 +930,7 @@ static bool eqn_list_rec_plain_subsume(Eqn_p patterns, Eqn_p targets,
                                        Eqn_p except, Subst_p subst)
 {
    Eqn_p         target;
-   PlainLitRes   check;
+   SubsumeLitRes   check;
    PStackPointer state = PStackGetSP(subst);
 
    if(!patterns)
@@ -851,12 +943,12 @@ static bool eqn_list_rec_plain_subsume(Eqn_p patterns, Eqn_p targets,
       {
          continue;
       }
-      check = plain_lit_check(patterns, target);
-      if(check == PlainLitStop)
+      check = subsume_lit_check(patterns, target);
+      if(check == SubsumeLitStop)
       {
          break;
       }
-      if(check == PlainLitSkip)
+      if(check == SubsumeLitSkip)
       {
          continue;
       }
@@ -936,92 +1028,6 @@ static bool plain_class_weights_compatible(Eqn_p patterns, Eqn_p targets,
 
 /*-----------------------------------------------------------------------
 //
-// Function: plain_lit_is_ground()
-//
-//   Return true if lit is ground. Only literals with shared terms are
-//   recognized (the property is maintained by the term bank). For
-//   those, an instance is the literal itself.
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static bool plain_lit_is_ground(Eqn_p lit)
-{
-   return TermIsShared(lit->lterm) && TermIsShared(lit->rterm) &&
-      EqnIsGround(lit);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: plain_ground_lits_present()
-//
-//   Return true if every ground literal of patterns occurs in targets
-//   (other than except). A ground literal is its only instance, so
-//   this is necessary for plain subsumption, and it needs no
-//   matching: shared terms are identical if and only if they are
-//   the same cell. Unoriented equations are compared in both
-//   orientations. Both lists are sorted with
-//   ClauseSubsumeOrderSortLits().
-//
-// Global Variables: -
-//
-// Side Effects    : -
-//
-/----------------------------------------------------------------------*/
-
-static bool plain_ground_lits_present(Eqn_p patterns, Eqn_p targets,
-                                      Eqn_p except)
-{
-   Eqn_p       target;
-   PlainLitRes check;
-
-   for(; patterns; patterns = patterns->next)
-   {
-      if(!plain_lit_is_ground(patterns))
-      {
-         continue;
-      }
-      for(target = targets; target; target = target->next)
-      {
-         if(target == except)
-         {
-            continue;
-         }
-         check = plain_lit_check(patterns, target);
-         if(check == PlainLitStop)
-         {
-            target = NULL;
-            break;
-         }
-         if(check == PlainLitSkip)
-         {
-            continue;
-         }
-         assert(TermIsShared(target->lterm) && TermIsShared(target->rterm));
-         if(((patterns->lterm == target->lterm) &&
-             (patterns->rterm == target->rterm)) ||
-            (EqnIsEquLit(patterns) && !EqnIsOriented(patterns) &&
-             (patterns->lterm == target->rterm) &&
-             (patterns->rterm == target->lterm)))
-         {
-            break;
-         }
-      }
-      if(!target)
-      {
-         return false;
-      }
-   }
-   return true;
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: plain_subsumption_possible()
 //
 //   Return true if every literal of patterns on its own has an
@@ -1029,7 +1035,7 @@ static bool plain_ground_lits_present(Eqn_p patterns, Eqn_p targets,
 //   is necessary for plain subsumption, and much cheaper to refute
 //   than the full test, which backtracks over all combinations.
 //   Ground literals are skipped, they are checked by
-//   plain_ground_lits_present().
+//   ground_lits_present().
 //
 // Global Variables: -
 //
@@ -1042,9 +1048,9 @@ static bool plain_subsumption_possible(Eqn_p patterns, Eqn_p targets,
 {
    for(; patterns; patterns = patterns->next)
    {
-      if(plain_lit_is_ground(patterns))
+      if(lit_is_shared_ground(patterns))
       {
-         continue; /* Checked by plain_ground_lits_present() */
+         continue; /* Checked by ground_lits_present() */
       }
       if(!plain_lit_has_instance(patterns, targets, except, subst))
       {
@@ -1835,9 +1841,9 @@ bool ClausePlainSubsumesClauseExcept(Clause_p subsumer,
    res = plain_class_weights_compatible(subsumer->literals,
                                         sub_candidate->literals,
                                         except)
-      && plain_ground_lits_present(subsumer->literals,
-                                   sub_candidate->literals,
-                                   except)
+      && ground_lits_present(subsumer->literals,
+                             sub_candidate->literals,
+                             except)
       && plain_subsumption_possible(subsumer->literals,
                                     sub_candidate->literals,
                                     except, subst)
