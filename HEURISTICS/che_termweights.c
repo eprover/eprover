@@ -485,10 +485,10 @@ NumTree_p TBCountTermFreqs(TB_p bank)
 {
    PStack_p stack = PStackAlloc();
    Term_p term;
-   int i;
+   long i;
    NumTree_p freqs = NULL;
 
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
+   for(i=0; i<TermCellStoreSize(&(bank->term_store)); i++)
    {
       PStackPushP(stack, bank->term_store.store[i]);
       while(!PStackEmpty(stack))

@@ -19,6 +19,8 @@ Changes
 
 <1> Mon Oct  5 01:09:50 MEST 1998
     New
+<2> Wed Nov 18 2026
+    Growing hash array.
 
 -----------------------------------------------------------------------*/
 
@@ -39,6 +41,78 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: tcs_bucket_alloc()
+//
+//   Allocate and return an array of size empty term cell trees.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static Term_p* tcs_bucket_alloc(long size)
+{
+   Term_p *res = SizeMalloc(size*sizeof(Term_p));
+   long   i;
+
+   for(i=0; i<size; i++)
+   {
+      res[i] = NULL;
+   }
+   return res;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: tcs_grow()
+//
+//   Double the number of buckets of the store and move all cells
+//   into the new array. The old trees are taken apart, and each cell
+//   is inserted into its new tree on its own.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations, changes store
+//
+/----------------------------------------------------------------------*/
+
+static void tcs_grow(TermCellStore_p store)
+{
+   Term_p   *old_store = store->store;
+   long     old_size   = store->size;
+   long     i;
+   PStack_p stack = PStackAlloc();
+   Term_p   cell, existing;
+
+   store->size  = 2*old_size;
+   store->mask  = store->size-1;
+   store->store = tcs_bucket_alloc(store->size);
+
+   for(i=0; i<old_size; i++)
+   {
+      PStackPushP(stack, old_store[i]);
+      while(!PStackEmpty(stack))
+      {
+         cell = PStackPopP(stack);
+         if(cell)
+         {
+            PStackPushP(stack, cell->lson);
+            PStackPushP(stack, cell->rson);
+            existing = TermTreeInsert(
+               &(store->store[TermCellHash(cell, store->mask)]), cell);
+            UNUSED(existing); assert(!existing);
+         }
+      }
+   }
+   PStackFree(stack);
+   SizeFree(old_store, old_size*sizeof(Term_p));
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -95,14 +169,11 @@ static void collect_unmarked_termcells(PStack_p res_stack, Term_p tree,
 
 void TermCellStoreInit(TermCellStore_p store)
 {
-   int i;
-
-   store->entries = 0;
+   store->entries   = 0;
    store->arg_count = 0;
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
-   {
-      store->store[i] = NULL;
-   }
+   store->size      = TERM_STORE_INIT_SIZE;
+   store->mask      = TERM_STORE_INIT_SIZE-1;
+   store->store     = tcs_bucket_alloc(store->size);
 }
 
 /*-----------------------------------------------------------------------
@@ -119,13 +190,16 @@ void TermCellStoreInit(TermCellStore_p store)
 
 void TermCellStoreExit(TermCellStore_p store)
 {
-   int i;
+   long i;
 
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
+   for(i=0; i<store->size; i++)
    {
       TermTreeFree(store->store[i]);
-      store->store[i] = NULL;
    }
+   SizeFree(store->store, store->size*sizeof(Term_p));
+   store->store = NULL;
+   store->size  = 0;
+   store->mask  = 0;
 }
 
 
@@ -143,7 +217,7 @@ void TermCellStoreExit(TermCellStore_p store)
 
 Term_p  TermCellStoreFind(TermCellStore_p store, Term_p term)
 {
-   return TermTreeFind(&(store->store[TermCellHash(term)]), term);
+   return TermTreeFind(&(store->store[TermCellHash(term, store->mask)]), term);
 
 }
 
@@ -164,11 +238,16 @@ Term_p  TermCellStoreInsert(TermCellStore_p store, Term_p term)
 {
    Term_p ret;
 
-   ret = TermTreeInsert(&(store->store[TermCellHash(term)]), term);
+   ret = TermTreeInsert(&(store->store[TermCellHash(term, store->mask)]),
+                        term);
    if(!ret)
    {
       store->entries++;
       store->arg_count+=term->arity;
+      if(store->entries > TERM_STORE_MAX_LOAD*store->size)
+      {
+         tcs_grow(store);
+      }
    }
    return ret;
 }
@@ -188,7 +267,7 @@ Term_p  TermCellStoreInsert(TermCellStore_p store, Term_p term)
 Term_p  TermCellStoreExtract(TermCellStore_p store, Term_p term)
 {
    Term_p ret;
-   ret = TermTreeExtract(&(store->store[TermCellHash(term)]), term);
+   ret = TermTreeExtract(&(store->store[TermCellHash(term, store->mask)]), term);
    if(ret)
    {
       store->entries--;
@@ -216,7 +295,7 @@ bool TermCellStoreDelete(TermCellStore_p store, Term_p term)
    bool ret;
    int  arity = term->arity; /* term may be freed below */
 
-   ret = TermTreeDelete(&(store->store[TermCellHash(term)]), term);
+   ret = TermTreeDelete(&(store->store[TermCellHash(term, store->mask)]), term);
 
    if(ret)
    {
@@ -242,9 +321,9 @@ bool TermCellStoreDelete(TermCellStore_p store, Term_p term)
 
 void TermCellStoreSetProp(TermCellStore_p store, TermProperties props)
 {
-   int i;
+   long i;
 
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
+   for(i=0; i<store->size; i++)
    {
       TermTreeSetProp(store->store[i], props);
    }
@@ -264,9 +343,9 @@ void TermCellStoreSetProp(TermCellStore_p store, TermProperties props)
 
 void TermCellStoreDelProp(TermCellStore_p store, TermProperties props)
 {
-   int i;
+   long i;
 
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
+   for(i=0; i<store->size; i++)
    {
       TermTreeDelProp(store->store[i], props);
    }
@@ -288,9 +367,9 @@ void TermCellStoreDelProp(TermCellStore_p store, TermProperties props)
 long TermCellStoreCountNodes(TermCellStore_p store)
 {
    long res = 0;
-   int i;
+   long i;
 
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
+   for(i=0; i<store->size; i++)
    {
       res+=TermTreeNodes(store->store[i]);
    }
@@ -317,11 +396,11 @@ long TermCellStoreCountNodes(TermCellStore_p store)
 long TermCellStoreGCSweep(TermCellStore_p store, TermProperties gc_state)
 {
    long recovered = 0;
-   int i;
+   long i;
    PStack_p del_stack = PStackAlloc();
    Term_p cell;
 
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
+   for(i=0; i<store->size; i++)
    {
       collect_unmarked_termcells(del_stack, store->store[i], gc_state);
       while(!PStackEmpty(del_stack))
@@ -351,11 +430,11 @@ long TermCellStoreGCSweep(TermCellStore_p store, TermProperties gc_state)
 
 void TermCellStorePrintDistrib(FILE* out, TermCellStore_p store)
 {
-   int i;
+   long i;
 
-   for(i=0; i<TERM_STORE_HASH_SIZE; i++)
+   for(i=0; i<store->size; i++)
    {
-      CommentPrint(out, " Hash %4d: %6ld\n", i, TermTreeNodes(store->store[i]));
+      CommentPrint(out, " Hash %4ld: %6ld\n", i, TermTreeNodes(store->store[i]));
    }
 }
 

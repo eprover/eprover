@@ -7,10 +7,10 @@ Author: Stephan Schulz
 Contents
 
   Abstract interface for storing term cells, implemented by a
-  combination of a hashed array and term cell trees. Use
-  (term->f_code^term->args[1])&TERM_STORE_HASH_MASK  as
-  hash if args != NULL, otherwise use
-  term->f_code&TERM_STORE_HASH_MASK.
+  combination of a hashed array and term cell trees. The hash
+  combines f_code and the addresses of the first two arguments. The
+  array starts small and doubles whenever the average tree would
+  exceed TERM_STORE_MAX_LOAD cells.
 
   Copyright 1998, 1999 by the author.
   This code is released under the GNU General Public Licence and
@@ -25,6 +25,8 @@ Changes
 <2> Thu Apr 11 10:08:26 CEST 2002
     Support for mark-and-sweep garbage collection (the sweep pass) for
     term cells
+<3> Wed Nov 18 2026
+    Growing hash array instead of a fixed one with 32768 entries.
 
 -----------------------------------------------------------------------*/
 
@@ -38,14 +40,18 @@ Changes
 /*                    Data type declarations                           */
 /*---------------------------------------------------------------------*/
 
-#define TERM_STORE_HASH_SIZE (8192*4)
-#define TERM_STORE_HASH_MASK (TERM_STORE_HASH_SIZE-1)
+/* Initial number of hash buckets (a power of 2), and the average
+   number of cells per bucket at which the array is doubled. */
+#define TERM_STORE_INIT_SIZE 1024
+#define TERM_STORE_MAX_LOAD  1
 
 typedef struct termcellstore
 {
-   long   entries;
-   long   arg_count;
-   Term_p store[TERM_STORE_HASH_SIZE];
+   long    entries;
+   long    arg_count;
+   long    size;     /* Number of buckets, a power of 2 */
+   long    mask;     /* size-1 */
+   Term_p* store;    /* Array of size term cell trees */
 }TermCellStoreCell, *TermCellStore_p;
 
 
@@ -57,11 +63,13 @@ typedef struct termcellstore
 #define tcs_arity1hash(term) (tcs_arity0hash(term)^(((intptr_t)(term)->args[0])>>3))
 #define tcs_aritynhash(term) (tcs_arity1hash(term)^(((intptr_t)(term)->args[1])>>4))
 
-#define TermCellHash(term)\
+#define TermCellHash(term, mask)\
 ((((term)->arity == 0)?\
   tcs_arity0hash(term):\
   (((term)->arity == 1)?tcs_arity1hash(term):tcs_aritynhash(term)))\
-   &TERM_STORE_HASH_MASK)
+   &(mask))
+
+#define TermCellStoreSize(store) ((store)->size)
 
 void    TermCellStoreInit(TermCellStore_p store);
 void    TermCellStoreExit(TermCellStore_p store);

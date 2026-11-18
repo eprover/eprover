@@ -164,6 +164,9 @@ Version 3.2.5 -> 3.5 Countess Grey
   some inferences and performed some unnecessary ones.
 - Backward rewriting now gives the same search for every
   rw_bw_index_type, including NoIndex (which is slower).
+- The term bank hash table now grows with the number of terms (it had
+  a fixed size of 32768 buckets). Search results are unchanged, but
+  problems with large term banks run up to 40% faster.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 
