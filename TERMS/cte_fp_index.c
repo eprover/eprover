@@ -33,6 +33,15 @@ Changes
 PERF_CTR_DEFINE(IndexUnifTimer);
 PERF_CTR_DEFINE(IndexMatchTimer);
 
+/* Index nodes visited during retrieval of unifiable and matchable
+   terms (any index type), and those visited by the
+   discrimination-tree retrieval (NPDT) while skipping an indexed
+   subterm that corresponds to a variable in the query. */
+unsigned long FPIndexUnifNodes      = 0;
+unsigned long FPIndexUnifSkipNodes  = 0;
+unsigned long FPIndexMatchNodes     = 0;
+unsigned long FPIndexMatchSkipNodes = 0;
+
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
 /*---------------------------------------------------------------------*/
@@ -201,6 +210,7 @@ static long fp_index_rek_find_unif(FPTree_p index, IndexFP_p key,
    {
       return 0;
    }
+   FPIndexUnifNodes++;
    if(current == key[0])
    {
       PStackPushP(collect, index->payload);
@@ -316,6 +326,7 @@ static long fp_index_rek_find_matchable(FPTree_p index, IndexFP_p key,
    {
       return 0;
    }
+   FPIndexMatchNodes++;
    if(current == key[0])
    {
       PStackPushP(collect, index->payload);
@@ -755,6 +766,8 @@ long dt_index_rek_find_matchable(FPTree_p index,
    {
       return 0;
    }
+   FPIndexMatchNodes++;
+   FPIndexMatchSkipNodes += (skip_term != 0);
    if(skip_term)
    {
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX);
@@ -839,6 +852,8 @@ static long dt_index_rek_find_unifiable(FPTree_p index,
    {
       return 0;
    }
+   FPIndexUnifNodes++;
+   FPIndexUnifSkipNodes += (skip_term != 0);
    if(skip_term)
    {
       iter = IntMapIterAlloc(index->f_alternatives, BELOW_VAR, LONG_MAX);

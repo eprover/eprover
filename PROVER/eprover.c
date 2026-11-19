@@ -480,6 +480,14 @@ static void print_proof_stats(ProverRun_p run)
                    PMUnifAttempts);
       CommentPrint(GlobalOut, " PM unification successes             : %ld\n",
                    PMUnifSuccesses);
+      CommentPrint(GlobalOut, " Index nodes visited (unification)    : %ld\n",
+                   FPIndexUnifNodes);
+      CommentPrint(GlobalOut, " ...of these skipping subterms (NPDT) : %ld\n",
+                   FPIndexUnifSkipNodes);
+      CommentPrint(GlobalOut, " Index nodes visited (matching)       : %ld\n",
+                   FPIndexMatchNodes);
+      CommentPrint(GlobalOut, " ...of these skipping subterms (NPDT) : %ld\n",
+                   FPIndexMatchSkipNodes);
       CommentPrint(GlobalOut, " Condensation attempts                : %ld\n",
                    CondensationAttempts);
       CommentPrint(GlobalOut, " Condensation successes               : %ld\n",

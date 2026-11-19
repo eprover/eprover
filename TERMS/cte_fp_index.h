@@ -87,6 +87,11 @@ typedef void (*FPLeafPayloadPrint)(FILE* out, PObjTree_p payload, Sig_p sig);
 PERF_CTR_DECL(IndexUnifTimer);
 PERF_CTR_DECL(IndexMatchTimer);
 
+extern unsigned long FPIndexUnifNodes;
+extern unsigned long FPIndexUnifSkipNodes;
+extern unsigned long FPIndexMatchNodes;
+extern unsigned long FPIndexMatchSkipNodes;
+
 
 #define FPTreeCellAlloc() (FPTreeCell*)SizeMalloc(sizeof(FPTreeCell))
 #define FPTreeCellFree(junk)         SizeFree(junk, sizeof(FPTreeCell))
