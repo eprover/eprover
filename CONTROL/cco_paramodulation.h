@@ -38,6 +38,9 @@
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+extern unsigned long PMUnifAttempts;
+extern unsigned long PMUnifSuccesses;
+
 
 long ComputeClauseClauseParamodulants(OCB_p ocb, Clause_p
                                       clause, Clause_p parent_alias,

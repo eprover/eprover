@@ -167,6 +167,11 @@ Version 3.2.5 -> 3.5 Countess Grey
 - The term bank hash table now grows with the number of terms (it had
   a fixed size of 32768 buckets). Search results are unchanged, but
   problems with large term banks run up to 40% faster.
+- Paramodulation partners and backward-rewriting candidates are now
+  processed in order of their term numbers, so the search no longer
+  depends on the choice of fingerprint index (pm_from_index_type,
+  pm_into_index_type, rw_bw_index_type). --print-statistics reports
+  paramodulation unification attempts and successes.
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

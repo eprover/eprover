@@ -476,6 +476,10 @@ static void print_proof_stats(ProverRun_p run)
                    BWRWMatchAttempts);
       CommentPrint(GlobalOut, " BW rewrite match successes           : %ld\n",
                    BWRWMatchSuccesses);
+      CommentPrint(GlobalOut, " PM unification attempts              : %ld\n",
+                   PMUnifAttempts);
+      CommentPrint(GlobalOut, " PM unification successes             : %ld\n",
+                   PMUnifSuccesses);
       CommentPrint(GlobalOut, " Condensation attempts                : %ld\n",
                    CondensationAttempts);
       CommentPrint(GlobalOut, " Condensation successes               : %ld\n",

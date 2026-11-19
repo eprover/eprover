@@ -80,6 +80,7 @@ void         SubtermOccFree(SubtermOcc_p soc);
 void         SubtermPosFree(SubtermOcc_p soc);
 
 int CmpSubtermCells(const void *soc1, const void *soc2);
+int CmpSubtermOccRefs(const void *e1, const void *e2);
 
 void         SubtermBWTreeFree(SubtermTree_p root);
 void         SubtermBWTreeFreeWrapper(void *junk);

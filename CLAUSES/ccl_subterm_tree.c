@@ -208,6 +208,28 @@ int CmpSubtermCells(const void *soc1, const void *soc2)
 
 /*-----------------------------------------------------------------------
 //
+// Function: CmpSubtermOccRefs()
+//
+//   Compare two PStack elements holding SubtermOcc_p cells as
+//   CmpSubtermCells() does (for PStackSort()). Used to process
+//   candidates collected from several index leaves in an order that
+//   does not depend on the index.
+//
+// Global Variables: -
+//
+// Side Effects    : -
+//
+/----------------------------------------------------------------------*/
+
+int CmpSubtermOccRefs(const void *e1, const void *e2)
+{
+   return CmpSubtermCells(((const IntOrP*)e1)->p_val,
+                          ((const IntOrP*)e2)->p_val);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: SubtermBWTreeFree()
 //
 //   Free a subterm tree.

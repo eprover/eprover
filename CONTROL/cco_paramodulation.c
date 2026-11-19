@@ -30,6 +30,11 @@ Changes
 /*                        Global Variables                             */
 /*---------------------------------------------------------------------*/
 
+/* Unification attempts with candidates from the paramodulation
+   indices, and those that found at least one unifier. */
+unsigned long PMUnifAttempts  = 0;
+unsigned long PMUnifSuccesses = 0;
+
 
 /*---------------------------------------------------------------------*/
 /*                      Forward Declarations                           */
@@ -39,6 +44,50 @@ Changes
 /*---------------------------------------------------------------------*/
 /*                         Internal Functions                          */
 /*---------------------------------------------------------------------*/
+
+/*-----------------------------------------------------------------------
+//
+// Function: find_unifiable_occs()
+//
+//   Push the subterm occurrences (SubtermOcc_p) of all terms in index
+//   that may unify with term onto occs, sorted by
+//   CmpSubtermOccRefs(). The index returns them grouped by
+//   fingerprint, in an order that depends on the fingerprint
+//   function. Sorting makes the order of paramodulation partners (and
+//   hence the search) independent of it. Term entry numbers are
+//   canonical, since backward rewriting creates new terms in an
+//   index-independent order, too (see
+//   find_rewritable_clauses_indexed() in ccl_rewrite.c).
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void find_unifiable_occs(OverlapIndex_p index, Term_p term,
+                                PStack_p occs)
+{
+   PStack_p      candidates = PStackAlloc();
+   PStack_p      iterstack;
+   SubtermTree_p termtree;
+   PObjTree_p    cell;
+
+   FPIndexFindUnifiable(index, term, candidates);
+   while(!PStackEmpty(candidates))
+   {
+      termtree = PStackPopP(candidates);
+      iterstack = PTreeTraverseInit(termtree);
+      while((cell = PTreeTraverseNext(iterstack)))
+      {
+         PStackPushP(occs, cell->key);
+      }
+      PTreeTraverseExit(iterstack);
+   }
+   PStackFree(candidates);
+   PStackSort(occs, CmpSubtermOccRefs);
+}
+
 
 
 /*-----------------------------------------------------------------------
@@ -287,11 +336,11 @@ static long compute_into_pm_pos_clause(ParamodInfo_p pminfo,
 //
 /----------------------------------------------------------------------*/
 
-long compute_pos_into_pm_term(ParamodInfo_p pminfo,
-                              ParamodulationType type,
-                              Term_p olterm,
-                              SubtermOcc_p into_clauses,
-                              ClauseSet_p store)
+static long compute_pos_into_pm_term(ParamodInfo_p pminfo,
+                                     ParamodulationType type,
+                                     Term_p olterm,
+                                     SubtermOcc_p into_clauses,
+                                     ClauseSet_p store)
 {
    long               res = 0;
    PStack_p           iterstack;
@@ -299,12 +348,15 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
    Subst_p            subst = SubstAlloc();
    Term_p             max_side, rep_side;
    ParamodulationType sim_pm;
+   bool               unified = false;
 
    /*printf("\n@i %ld\n", DebugCount); */
+   PMUnifAttempts++;
    CSUIterator_p unif_iter =
       CSUIterInit(olterm, into_clauses->term, subst, pminfo->bank);
    while(NextCSUElement(unif_iter))
    {
+      unified = true;
       max_side = ClausePosGetSide(pminfo->from_pos);
       rep_side = ClausePosGetOtherSide(pminfo->from_pos);
       pminfo->subst_is_ho = SubstHasHOBinding(subst);
@@ -329,46 +381,11 @@ long compute_pos_into_pm_term(ParamodInfo_p pminfo,
          PTreeTraverseExit(iterstack);
       }
    }
+   PMUnifSuccesses += unified;
    CSUIterDestroy(unif_iter);
    SubstDelete(subst);
    return res;
 }
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: compute_pos_into_termtree()
-//
-//   Compute all paramodulations from clause with clause|pos = term,
-//   term is the LHS for the overlap, into clauses in into_tree.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations.
-//
-/----------------------------------------------------------------------*/
-
-static long compute_pos_into_pm_termtree(ParamodInfo_p pminfo,
-                                         ParamodulationType type,
-                                         Term_p olterm,
-                                         SubtermTree_p into_tree,
-                                         ClauseSet_p store)
-{
-   long          res = 0;
-   PStack_p      iterstack;
-   PObjTree_p    cell;
-
-   iterstack = PTreeTraverseInit(into_tree);
-   while ((cell = PTreeTraverseNext(iterstack)))
-   {
-      res += compute_pos_into_pm_term(pminfo, type,
-                                      olterm, cell->key, store);
-   }
-   PTreeTraverseExit(iterstack);
-
-   return res;
-}
-
 
 
 /*-----------------------------------------------------------------------
@@ -391,19 +408,16 @@ static long compute_pos_into_pm(ParamodInfo_p pminfo,
                                 ClauseSet_p store)
 {
    long          res = 0;
-   SubtermTree_p termtree;
-   PStack_p      candidates = PStackAlloc();
+   PStack_p      occs = PStackAlloc();
+   PStackPointer i;
 
-   FPIndexFindUnifiable(into_index, olterm, candidates);
-
-   while(!PStackEmpty(candidates))
+   find_unifiable_occs(into_index, olterm, occs);
+   for(i=0; i<PStackGetSP(occs); i++)
    {
-      termtree = PStackPopP(candidates);
-      res += compute_pos_into_pm_termtree(pminfo, type,
-                                          olterm, termtree, store);
+      res += compute_pos_into_pm_term(pminfo, type, olterm,
+                                      PStackElementP(occs, i), store);
    }
-
-   PStackFree(candidates);
+   PStackFree(occs);
    return res;
 }
 
@@ -573,10 +587,14 @@ static long compute_pos_from_pm_term(ParamodInfo_p pminfo,
    PStack_p         eligible = PStackAlloc();
    PStackPointer    k;
 
+   bool             unified = false;
+
+   PMUnifAttempts++;
    CSUIterator_p unif_iter =
       CSUIterInit(olterm, from_clauses->term, subst, pminfo->bank);
    while(NextCSUElement(unif_iter))
    {
+      unified = true;
       pminfo->subst_is_ho = SubstHasHOBinding(subst);
 
       PStackReset(eligible);
@@ -600,6 +618,7 @@ static long compute_pos_from_pm_term(ParamodInfo_p pminfo,
          PTreeTraverseExit(iterstack);
       }
    }
+   PMUnifSuccesses += unified;
    CSUIterDestroy(unif_iter);
    SubstDelete(subst);
    PStackFree(eligible);
@@ -630,26 +649,17 @@ static long compute_pos_from_pm(ParamodInfo_p pminfo,
                                 ClauseSet_p store)
 {
    long          res = 0;
-   SubtermTree_p termtree;
-   PStack_p      candidates = PStackAlloc();
-   PStack_p      iterstack;
-   PObjTree_p    cell;
+   PStack_p      occs = PStackAlloc();
+   PStackPointer i;
 
-   FPIndexFindUnifiable(from_index, olterm, candidates);
-
-   while(!PStackEmpty(candidates))
+   find_unifiable_occs(from_index, olterm, occs);
+   for(i=0; i<PStackGetSP(occs); i++)
    {
-      termtree = PStackPopP(candidates);
-      iterstack = PTreeTraverseInit(termtree);
-      while ((cell = PTreeTraverseNext(iterstack)))
-      {
-         res += compute_pos_from_pm_term(pminfo, type, olterm, cell->key,
-                                         into_cpos, into_pos, store);
-      }
-      PTreeTraverseExit(iterstack);
+      res += compute_pos_from_pm_term(pminfo, type, olterm,
+                                      PStackElementP(occs, i),
+                                      into_cpos, into_pos, store);
    }
-
-   PStackFree(candidates);
+   PStackFree(occs);
    return res;
 }
 
