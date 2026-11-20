@@ -180,6 +180,7 @@ typedef enum
    OPT_FVINDEX_MAXFEATURES,
    OPT_FVINDEX_SLACK,
    OPT_RW_BW_INDEX,
+   OPT_RW_BW_LEGACY_DEPTH,
    OPT_PM_FROM_INDEX,
    OPT_PM_INTO_INDEX,
    OPT_FP_INDEX,
@@ -1428,6 +1429,18 @@ OptCell opts[] =
     "of the other values run '" NAME " --pm-index=none'. FPX functions "
     "will use a fingerprint of X positions, the letters disambiguate "
     "between different fingerprints with the same sample size."},
+
+   {OPT_RW_BW_LEGACY_DEPTH,
+    '\0', "rw-bw-legacy-depth",
+    OptArg, "true",
+    "Restrict backward rewriting to the sides of literals and their "
+    "direct arguments (for lambda-demodulators only the sides). This "
+    "emulates E versions from 2022 up to 3.4, where a bug in the backward-"
+    "rewriting index caused this restriction. The built-in strategies "
+    "were tuned with it and enable it (except for the one not using the "
+    "index). Use --rw-bw-legacy-depth=false to rewrite all subterms "
+    "in automatic modes. This option is transitional and will be "
+    "removed once the strategies are retuned."},
 
    {OPT_PM_FROM_INDEX,
     '\0', "pm-from-index",

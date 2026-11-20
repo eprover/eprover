@@ -43,10 +43,14 @@ Changes
 //
 // Function: term_collect_idx_subterms()
 //
-//
 //   Collect all non-variable subterms in term either into rest or
 //   full (rest for "restricted rewriting" terms, full for the "full
 //   rewriting" terms).
+//
+//   If legacy_depth is set, emulate the restricted collection of E
+//   before 3.5 (see rw_bw_legacy_depth): only the term itself and
+//   its direct arguments (only the term itself for lambda_demod) are
+//   collected.
 //
 // Global Variables: -
 //
@@ -56,11 +60,12 @@ Changes
 
 static long term_collect_idx_subterms(Term_p term, OrdSet_p *rest,
                                       OrdSet_p *full, bool restricted,
-                                      bool lambda_demod)
+                                      bool lambda_demod, bool legacy_depth)
 {
    long res = 0;
    int i;
    OrdSet_p *tree;
+   bool recurse, arg_lambda_demod;
 
    if(TermIsFreeVar(term))
    {
@@ -69,17 +74,29 @@ static long term_collect_idx_subterms(Term_p term, OrdSet_p *rest,
 
    tree = restricted?rest:full;
 
-   if((!lambda_demod || TermIsDBClosed(term)) && 
+   if((!lambda_demod || TermIsDBClosed(term)) &&
        OrdSetStore(tree, term))
    {
       res++;
    }
-   if(lambda_demod || !TermIsLambda(term))
+   if(legacy_depth)
+   {
+      /* rw_bw_legacy_depth: the arguments are collected as with
+         lambda_demod, i.e. without further recursion. */
+      recurse          = !lambda_demod && !TermIsLambda(term);
+      arg_lambda_demod = true;
+   }
+   else
+   {
+      recurse          = lambda_demod || !TermIsLambda(term);
+      arg_lambda_demod = lambda_demod;
+   }
+   if(recurse)
    {
       for(i=0; i<term->arity; i++)
       {
          res += term_collect_idx_subterms(term->args[i], rest, full, false,
-                                          lambda_demod);
+                                          arg_lambda_demod, legacy_depth);
       }
    }
    return res;
@@ -100,14 +117,17 @@ static long term_collect_idx_subterms(Term_p term, OrdSet_p *rest,
 //
 /----------------------------------------------------------------------*/
 
-static long eqn_collect_idx_subterms(Eqn_p eqn, OrdSet_p *rest, 
-                                     OrdSet_p *full, bool lambda_demod)
+static long eqn_collect_idx_subterms(Eqn_p eqn, OrdSet_p *rest,
+                                     OrdSet_p *full, bool lambda_demod,
+                                     bool legacy_depth)
 {
    long res = 0;
    bool restricted_rw = EqnIsMaximal(eqn) && EqnIsPositive(eqn) && EqnIsOriented(eqn);
 
-   res += term_collect_idx_subterms(eqn->lterm, rest, full, restricted_rw, lambda_demod);
-   res += term_collect_idx_subterms(eqn->rterm, rest, full, false, lambda_demod);
+   res += term_collect_idx_subterms(eqn->lterm, rest, full, restricted_rw,
+                                    lambda_demod, legacy_depth);
+   res += term_collect_idx_subterms(eqn->rterm, rest, full, false,
+                                    lambda_demod, legacy_depth);
 
    return res;
 }
@@ -257,14 +277,16 @@ bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause,
 long ClauseCollectIdxSubterms(Clause_p clause,
                               OrdSet_p *rest,
                               OrdSet_p *full,
-                              bool lambda_demod)
+                              bool lambda_demod,
+                              bool legacy_depth)
 {
    long res = 0;
    Eqn_p handle;
 
    for(handle = clause->literals; handle; handle = handle->next)
    {
-      res += eqn_collect_idx_subterms(handle, rest, full, lambda_demod);
+      res += eqn_collect_idx_subterms(handle, rest, full, lambda_demod,
+                                      legacy_depth);
    }
    return res;
 }
@@ -283,11 +305,11 @@ long ClauseCollectIdxSubterms(Clause_p clause,
 /----------------------------------------------------------------------*/
 
 void SubtermIndexInsertClause(SubtermIndex_p index, Clause_p clause,
-                              bool lambda_demod)
+                              bool lambda_demod, bool legacy_depth)
 {
    OrdSet_p rest=NULL, full=NULL;
 
-   ClauseCollectIdxSubterms(clause, &rest, &full, lambda_demod);
+   ClauseCollectIdxSubterms(clause, &rest, &full, lambda_demod, legacy_depth);
 
    subterm_index_insert_set(index, clause, rest, true);
    subterm_index_insert_set(index, clause, full, false);
@@ -309,11 +331,12 @@ void SubtermIndexInsertClause(SubtermIndex_p index, Clause_p clause,
 //
 /----------------------------------------------------------------------*/
 
-void SubtermIndexDeleteClause(SubtermIndex_p index, Clause_p clause, bool lambda_demod)
+void SubtermIndexDeleteClause(SubtermIndex_p index, Clause_p clause,
+                              bool lambda_demod, bool legacy_depth)
 {
    OrdSet_p rest=NULL, full=NULL;
 
-   ClauseCollectIdxSubterms(clause, &rest, &full, lambda_demod);
+   ClauseCollectIdxSubterms(clause, &rest, &full, lambda_demod, legacy_depth);
 
    subterm_index_delete_set(index, clause, rest, true);
    subterm_index_delete_set(index, clause, full, false);

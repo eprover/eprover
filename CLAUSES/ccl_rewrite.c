@@ -1013,22 +1013,17 @@ static long find_rewritable_clauses_indexed(Clause_p demod,
 
 
 /* Encoding of the per-term cache entries of FindRewritableClauses():
-   0 is "not yet visited", otherwise BW_VISITED | status, plus
-   BW_DONE once BW_BELOW (a proper subterm is rewritable) is known. */
+   0 is "not yet seen", otherwise BW_VISITED | status. */
 
 #define BW_VISITED 4
-#define BW_BELOW   8
-#define BW_DONE    16
 #define BW_STATUS  3
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_collect_bw_candidates()
+// Function: collect_new_bw_candidates()
 //
-//   Push all subterms of term that the backward-rewriting index
-//   would hold (see term_collect_idx_subterms() in
-//   ccl_subterm_index.c) and that are not yet in cache onto terms,
-//   and mark them in cache (indexed by entry number).
+//   Push all terms in set that are not yet in cache onto terms, and
+//   mark them in cache (indexed by entry number).
 //
 // Global Variables: -
 //
@@ -1036,34 +1031,23 @@ static long find_rewritable_clauses_indexed(Clause_p demod,
 //
 /----------------------------------------------------------------------*/
 
-static void term_collect_bw_candidates(Term_p term, bool lambda_demod,
-                                       PDArray_p cache, PStack_p terms)
+static void collect_new_bw_candidates(OrdSet_p set, PDArray_p cache,
+                                      PStack_p terms)
 {
-   bool indexed;
-   int  i;
+   OrdSetIter_p iter = OrdSetTraverseInit(set);
+   OrdSet_p     cell;
+   Term_p       term;
 
-   if(TermIsFreeVar(term))
+   while((cell = OrdSetTraverseNext(iter)))
    {
-      return;
-   }
-   indexed = !lambda_demod || TermIsDBClosed(term);
-   if(indexed)
-   {
-      if(PDArrayElementInt(cache, term->entry_no))
+      term = cell->key;
+      if(!PDArrayElementInt(cache, term->entry_no))
       {
-         return;
-      }
-      PDArrayAssignInt(cache, term->entry_no, BW_VISITED);
-      PStackPushP(terms, term);
-   }
-   if(lambda_demod || !TermIsLambda(term))
-   {
-      for(i=0; i<term->arity; i++)
-      {
-         term_collect_bw_candidates(term->args[i], lambda_demod, cache,
-                                    terms);
+         PDArrayAssignInt(cache, term->entry_no, BW_VISITED);
+         PStackPushP(terms, term);
       }
    }
+   OrdSetTraverseExit(iter);
 }
 
 
@@ -1091,99 +1075,35 @@ static int cmp_term_entry(const void *e1, const void *e2)
 
 /*-----------------------------------------------------------------------
 //
-// Function: term_is_bw_rewritable()
+// Function: set_has_bw_status()
 //
-//   Return true if one of the subterms of term that the
-//   backward-rewriting index would hold is rewritable with the
-//   demodulator. If restricted, term itself is the maximal side of a
-//   positive oriented literal and must be rewritable with a
-//   non-renaming instance. The rewriting status of all these terms
-//   must already be in cache (see FindRewritableClauses()); the
-//   result for subterms is cached there, too.
+//   Return true if a term in set has a rewriting status (from cache)
+//   of at least min_status.
 //
 // Global Variables: -
 //
-// Side Effects    : Extends cache
+// Side Effects    : -
 //
 /----------------------------------------------------------------------*/
 
-static bool term_is_bw_rewritable(Term_p term, bool restricted,
-                                  bool lambda_demod, PDArray_p cache)
+static bool set_has_bw_status(OrdSet_p set, PDArray_p cache,
+                              RWResultType min_status)
 {
-   RWResultType status = RWNotRewritable;
-   bool         below = false, indexed;
-   long         cached;
-   int          i;
+   OrdSetIter_p iter = OrdSetTraverseInit(set);
+   OrdSet_p     cell;
+   bool         res = false;
 
-   if(TermIsFreeVar(term))
+   while((cell = OrdSetTraverseNext(iter)))
    {
-      return false;
-   }
-   indexed = !lambda_demod || TermIsDBClosed(term);
-   cached  = indexed?PDArrayElementInt(cache, term->entry_no):0;
-   assert(!indexed || (cached & BW_VISITED));
-   if(cached & BW_DONE)
-   {
-      below = cached & BW_BELOW;
-   }
-   else
-   {
-      if(lambda_demod || !TermIsLambda(term))
+      if((PDArrayElementInt(cache, ((Term_p)cell->key)->entry_no)
+          & BW_STATUS) >= min_status)
       {
-         for(i=0; (i<term->arity) && !below; i++)
-         {
-            below = term_is_bw_rewritable(term->args[i], false,
-                                          lambda_demod, cache);
-         }
-      }
-      if(indexed)
-      {
-         PDArrayAssignInt(cache, term->entry_no,
-                          cached | BW_DONE | (below?BW_BELOW:0));
+         res = true;
+         break;
       }
    }
-   if(below)
-   {
-      return true;
-   }
-   status = cached & BW_STATUS;
-   return restricted?(status == RWAlwaysRewritable):
-      (status != RWNotRewritable);
-}
-
-
-/*-----------------------------------------------------------------------
-//
-// Function: clause_is_bw_rewritable()
-//
-//   Return true if clause is rewritable with the demodulator whose
-//   results are in cache (see term_is_bw_rewritable()).
-//
-// Global Variables: -
-//
-// Side Effects    : Extends cache
-//
-/----------------------------------------------------------------------*/
-
-static bool clause_is_bw_rewritable(Clause_p clause, bool lambda_demod,
-                                    PDArray_p cache)
-{
-   Eqn_p handle;
-   bool  restricted;
-
-   for(handle = clause->literals; handle; handle = handle->next)
-   {
-      restricted = EqnIsMaximal(handle) && EqnIsPositive(handle) &&
-         EqnIsOriented(handle);
-      if(term_is_bw_rewritable(handle->lterm, restricted,
-                               lambda_demod, cache) ||
-         term_is_bw_rewritable(handle->rterm, false,
-                               lambda_demod, cache))
-      {
-         return true;
-      }
-   }
-   return false;
+   OrdSetTraverseExit(iter);
+   return res;
 }
 
 
@@ -1358,10 +1278,11 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
 //
 //   Find all clauses in the NULL-terminated array sets that are
 //   rewritable with new_demod and push them onto results. Return
-//   true if there is at least one. This scans all clauses, but
-//   performs exactly the same checks (with the same side effects on
-//   the terms) as FindRewritableClausesIndexed(), so that the search
-//   does not depend on whether an index is used.
+//   true if there is at least one. This scans all clauses, but checks
+//   exactly the subterms the backward-rewriting index would hold
+//   (ClauseCollectIdxSubterms()), in the same order and with the same
+//   side effects on the terms as FindRewritableClausesIndexed(), so
+//   that the search does not depend on whether an index is used.
 //
 // Global Variables: -
 //
@@ -1371,14 +1292,16 @@ long ClauseSetComputeLINormalform(OCB_p ocb, TB_p bank, ClauseSet_p
 
 bool FindRewritableClauses(OCB_p ocb, ClauseSet_p *sets,
                            PStack_p results, Clause_p new_demod,
-                           bool lambda_demod)
+                           bool lambda_demod, bool legacy_depth)
 {
    Clause_p      handle;
    PDArray_p     cache = PDArrayAlloc(1024, 0);
    PStack_p      terms = PStackAlloc();
+   PStack_p      csets = PStackAlloc();
    ClauseSet_p   *set;
    PStackPointer i;
    Term_p        term;
+   OrdSet_p      rest, full;
    bool          res = false;
 
    assert(ClauseIsDemodulator(new_demod));
@@ -1388,11 +1311,14 @@ bool FindRewritableClauses(OCB_p ocb, ClauseSet_p *sets,
       for(handle = (*set)->anchor->succ; handle != (*set)->anchor;
           handle = handle->succ)
       {
-         for(Eqn_p lit = handle->literals; lit; lit = lit->next)
-         {
-            term_collect_bw_candidates(lit->lterm, lambda_demod, cache, terms);
-            term_collect_bw_candidates(lit->rterm, lambda_demod, cache, terms);
-         }
+         rest = NULL;
+         full = NULL;
+         ClauseCollectIdxSubterms(handle, &rest, &full, lambda_demod,
+                                  legacy_depth);
+         collect_new_bw_candidates(rest, cache, terms);
+         collect_new_bw_candidates(full, cache, terms);
+         PStackPushP(csets, rest);
+         PStackPushP(csets, full);
       }
    }
    /* Check in the same order as find_rewritable_clauses_indexed() */
@@ -1405,18 +1331,27 @@ bool FindRewritableClauses(OCB_p ocb, ClauseSet_p *sets,
    }
    PStackFree(terms);
 
+   i = 0;
    for(set = sets; *set; set++)
    {
       for(handle = (*set)->anchor->succ; handle != (*set)->anchor;
           handle = handle->succ)
       {
-         if(clause_is_bw_rewritable(handle, lambda_demod, cache))
+         rest = PStackElementP(csets, i++);
+         full = PStackElementP(csets, i++);
+         /* As in the index: restricted terms need a full rewrite,
+            all others any rewrite. */
+         if(set_has_bw_status(rest, cache, RWAlwaysRewritable) ||
+            set_has_bw_status(full, cache, RWLimitedRewritable))
          {
             PStackPushP(results, handle);
             res = true;
          }
+         OrdSetFree(rest);
+         OrdSetFree(full);
       }
    }
+   PStackFree(csets);
    PDArrayFree(cache);
    return res;
 }

@@ -133,7 +133,8 @@ bool RemoveRewritableClauses(OCB_p ocb, ClauseSet_p *from, ClauseSet_p into,
    PStack_p stack = PStackAlloc();
    bool     res;
 
-   res = FindRewritableClauses(ocb, from, stack, new_demod, lambda_demod);
+   res = FindRewritableClauses(ocb, from, stack, new_demod, lambda_demod,
+                               gindices->rw_bw_legacy_depth);
    move_rewritable_clauses(stack, into, archive, gindices, lambda_demod);
    PStackFree(stack);
 

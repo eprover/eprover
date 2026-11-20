@@ -235,6 +235,7 @@ void HeuristicParmsInitialize(HeuristicParms_p handle)
    handle->diseq_decomp_maxarity         = LONG_MAX;
 
    strcpy(handle->rw_bw_index_type, DEFAULT_RW_BW_INDEX_NAME);
+   handle->rw_bw_legacy_depth            = false;
    strcpy(handle->pm_from_index_type, DEFAULT_PM_FROM_INDEX_NAME);
    strcpy(handle->pm_into_index_type, DEFAULT_PM_INTO_INDEX_NAME);
 
@@ -442,6 +443,7 @@ void HeuristicParmsPrint(FILE* out, HeuristicParms_p handle)
    fprintf(out, "   diseq_decomp_maxarity:          %ld\n", handle->diseq_decomp_maxarity);
 
    fprintf(out, "   rw_bw_index_type:               %s\n", handle->rw_bw_index_type);
+   fprintf(out, "   rw_bw_legacy_depth:             %s\n", BOOL2STR(handle->rw_bw_legacy_depth));
    fprintf(out, "   pm_from_index_type:             %s\n", handle->pm_from_index_type);
    fprintf(out, "   pm_into_index_type:             %s\n", handle->pm_into_index_type);
 
@@ -681,6 +683,7 @@ bool HeuristicParmsParseInto(Scanner_p in,
    PARSE_INT(diseq_decomp_maxarity);
 
    PARSE_IDENT_INTO(rw_bw_index_type, MAX_PM_INDEX_NAME_LEN);
+   PARSE_BOOL(rw_bw_legacy_depth);
    PARSE_IDENT_INTO(pm_from_index_type, MAX_PM_INDEX_NAME_LEN);
    PARSE_IDENT_INTO(pm_into_index_type, MAX_PM_INDEX_NAME_LEN);
 

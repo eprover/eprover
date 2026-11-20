@@ -47,6 +47,9 @@ typedef struct global_indices_cell
    OverlapIndex_p    pm_from_index;
    OverlapIndex_p    pm_into_index;
    OverlapIndex_p    pm_negp_index;
+   bool              rw_bw_legacy_depth; /* Restricted pre-3.5 BW
+                                            rewriting, see
+                                            ClauseCollectIdxSubterms() */
 #ifdef ENABLE_LFHO
    ExtIndex_p        ext_sup_into_index;
    ExtIndex_p        ext_sup_from_index;
@@ -85,6 +88,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
                        char* rw_bw_index_type,
                        char* pm_from_index_type,
                        char* pm_into_index_type,
+                       bool  rw_bw_legacy_depth,
                        int   ext_rules_max_depth);
 
 void GlobalIndicesFreeIndices(GlobalIndices_p indices);

@@ -50,10 +50,13 @@ bool SubtermIndexDeleteOcc(SubtermIndex_p index, Clause_p clause,
 long ClauseCollectIdxSubterms(Clause_p clause,
                               OrdSet_p *rest,
                               OrdSet_p *full,
-                              bool lambda_demod);
+                              bool lambda_demod,
+                              bool legacy_depth);
 
-void SubtermIndexInsertClause(SubtermIndex_p index, Clause_p clause, bool lambda_demod);
-void SubtermIndexDeleteClause(SubtermIndex_p index, Clause_p clause, bool lambda_demod);
+void SubtermIndexInsertClause(SubtermIndex_p index, Clause_p clause,
+                              bool lambda_demod, bool legacy_depth);
+void SubtermIndexDeleteClause(SubtermIndex_p index, Clause_p clause,
+                              bool lambda_demod, bool legacy_depth);
 
 #endif
 

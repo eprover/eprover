@@ -66,6 +66,7 @@ void GlobalIndicesNull(GlobalIndices_p indices)
    indices->pm_into_index = NULL;
    indices->pm_negp_index = NULL;
    indices->pm_from_index = NULL;
+   indices->rw_bw_legacy_depth = false;
    SetExtIntoIdx(indices, NULL);
    SetExtFromIdx(indices, NULL);
 }
@@ -92,6 +93,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
                        char* rw_bw_index_type,
                        char* pm_from_index_type,
                        char* pm_into_index_type,
+                       bool  rw_bw_legacy_depth,
                        int   ext_rules_max_depth)
 {
    FPIndexFunction indexfun, from_indexfun, into_indexfun;
@@ -99,6 +101,7 @@ void GlobalIndicesInit(GlobalIndices_p indices,
    // fprintf(GlobalOut, COMCHAR" GlobalIndicesInit(%p, <>, %s, %s, %s)\n", indices, rw_bw_index_type, pm_from_index_type, pm_into_index_type);
 
    indices->sig = sig;
+   indices->rw_bw_legacy_depth = rw_bw_legacy_depth;
    indexfun = GetFPIndexFunction(rw_bw_index_type);
    strcpy(indices->rw_bw_index_type, rw_bw_index_type);
    if(indexfun)
@@ -194,6 +197,7 @@ void GlobalIndicesReset(GlobalIndices_p indices)
                      indices->rw_bw_index_type,
                      indices->pm_from_index_type,
                      indices->pm_into_index_type,
+                     indices->rw_bw_legacy_depth,
                      GetExtMaxDepth(indices));
 }
 
@@ -222,7 +226,8 @@ void GlobalIndicesInsertClause(GlobalIndices_p indices, Clause_p clause,
    if(indices->bw_rw_index)
    {
       PERF_CTR_ENTRY(BWRWIndexTimer);
-      SubtermIndexInsertClause(indices->bw_rw_index, clause, lambda_demod);
+      SubtermIndexInsertClause(indices->bw_rw_index, clause, lambda_demod,
+                               indices->rw_bw_legacy_depth);
       PERF_CTR_EXIT(BWRWIndexTimer);
    }
 
@@ -274,7 +279,8 @@ void GlobalIndicesDeleteClause(GlobalIndices_p indices, Clause_p clause, bool la
    if(indices->bw_rw_index)
    {
       PERF_CTR_ENTRY(BWRWIndexTimer);
-      SubtermIndexDeleteClause(indices->bw_rw_index, clause, lambda_demod);
+      SubtermIndexDeleteClause(indices->bw_rw_index, clause, lambda_demod,
+                               indices->rw_bw_legacy_depth);
       PERF_CTR_EXIT(BWRWIndexTimer);
    }
 

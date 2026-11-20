@@ -187,6 +187,9 @@ typedef struct heuristic_parms_cell
 
    /* Global indexing */
    char                rw_bw_index_type[MAX_PM_INDEX_NAME_LEN];
+   bool                rw_bw_legacy_depth; /* Pre-3.5 restricted BW
+                                              rewriting (literal sides
+                                              and their arguments only) */
    char                pm_from_index_type[MAX_PM_INDEX_NAME_LEN];
    char                pm_into_index_type[MAX_PM_INDEX_NAME_LEN];
 

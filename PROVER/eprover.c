@@ -949,6 +949,7 @@ static void setup_search(ProverRun_p run)
                      proofcontrol->heuristic_parms.rw_bw_index_type,
                      "NoIndex",
                      "NoIndex",
+                     proofcontrol->heuristic_parms.rw_bw_legacy_depth,
                      proofcontrol->heuristic_parms.ext_rules_max_depth);
    //printf("Alive (1)!\n");
 
@@ -2396,6 +2397,9 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_RW_BW_INDEX:
             check_fp_index_arg(arg, "--rw-bw-index");
             strcpy(h_parms->rw_bw_index_type, arg);
+            break;
+      case OPT_RW_BW_LEGACY_DEPTH:
+            h_parms->rw_bw_legacy_depth = CLStateGetBoolArg(handle, arg);
             break;
       case OPT_PM_FROM_INDEX:
             check_fp_index_arg(arg, "--pm-from-index");
