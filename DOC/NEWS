@@ -179,6 +179,11 @@ Version 3.2.5 -> 3.5 Countess Grey
   so automatic modes behave as before; default mode and user
   strategies rewrite all subterms. Transitional, to be removed when
   the strategies are retuned.
+- Fixed an incompleteness with --strong-rw-inst (strategy
+  parameter rewrite_strong_rhs_inst): an unorientable equation could
+  rewrite a variant of its own side, and later rewrite and delete
+  itself through the cached rewrite link. This could give a wrong
+  "Satisfiable" (e.g. GRP068-1).
 
 Version 3.1.0 -> 3.2.5 Puttabong Moondrop
 

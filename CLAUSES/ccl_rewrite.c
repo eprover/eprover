@@ -95,7 +95,11 @@ static void subst_complete_min_instance(OCB_p ocb, TB_p bank,
 //   Return true if lside->rside is a rule, i.e. lside>rside (for the
 //   instantiated terms) and rside contains no unbound
 //   variables. Assumes that uninstantated terms lside and rside are
-//   uncomparable!
+//   uncomparable, so a renaming is never a rule. This is tested
+//   before free variables of rside are bound to the minimal term
+//   (rewrite_strong_rhs_inst). Otherwise an unorientable equation
+//   could rewrite a variant of its own side, and the cached rewrite
+//   link would later let the equation rewrite (and delete) itself.
 //
 // Global Variables: -
 //
@@ -109,6 +113,10 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 {
    if(ocb->rewrite_strong_rhs_inst)
    {
+      if(SubstIsRenaming(subst))
+      {
+         return false;
+      }
       subst_complete_min_instance(ocb, bank, subst, rside);
    }
    else if(TermHasUnboundVariables(rside))
