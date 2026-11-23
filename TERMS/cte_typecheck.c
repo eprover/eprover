@@ -172,15 +172,22 @@ bool TypeCheckConsistent(Sig_p sig, Term_p term)
                   break;
                }
             }
-            /* Check subterms recursively */
-            for(int i=0; i < type->arity; i++)
+            /* Check subterms recursively. The arity test above
+               guarantees term->arity == type->arity-1 for arrow
+               types and 0 otherwise, so type->args[i] is an argument
+               type, never the return type. */
+            for(int i=0; i < term->arity; i++)
             {
-               PStackPushP(stack, term->args[i]);
                if(term->args[i]->type != type->args[i])
                {
                   res = false;
                   break;
                }
+               PStackPushP(stack, term->args[i]);
+            }
+            if(!res)
+            {
+               break;
             }
          }
       }
