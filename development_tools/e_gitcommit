@@ -4,9 +4,11 @@
 #
 # Write '#define ECOMMITID "<id>"' to <file>, where <id> is the git
 # commit E is built from, with "-dirty" appended if tracked files are
-# modified. Makefile.vars is ignored for this: it holds the local
-# compile options and is often modified locally. The file is only rewritten if its content changes, so
-# that dependent objects are only recompiled when the id changes.
+# modified. Makefile.vars (local compile options), development_tools/
+# and PYTHON/ (scripts that are often configured locally and are not
+# part of the prover) are ignored for this. The file is only
+# rewritten if its content changes, so that dependent objects are only
+# recompiled when the id changes.
 #
 # Outside a git checkout of E (e.g. in a distribution tarball) an
 # existing file is kept (make distrib puts one into the tarball). If
@@ -21,7 +23,9 @@ eroot=`cd "\`dirname "$0"\`/.." && pwd -P`
 if gitroot=`cd "$eroot" && git rev-parse --show-toplevel 2>/dev/null` && \
    test "`cd "$gitroot" && pwd -P`" = "$eroot" ; then
     id=`cd "$eroot" && git rev-parse HEAD`
-    if ! (cd "$eroot" && git diff --quiet HEAD -- . ':(exclude)Makefile.vars') ; then
+    if ! (cd "$eroot" && git diff --quiet HEAD -- . ':(exclude)Makefile.vars' \
+                                       ':(exclude)development_tools' \
+                                       ':(exclude)PYTHON') ; then
         id="$id-dirty"
     fi
 elif test -f "$out" ; then
