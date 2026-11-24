@@ -59,6 +59,11 @@ typedef struct termcellstore
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
+/* Note (Nov 2026): this hash spreads cells unevenly on large unit
+   equality problems (about twice the ideal average bucket size). A
+   multiplicative (Fibonacci) hash gave an ideal spread but no
+   measurable speedup (within +-2%), probably because the trees
+   adapt and this hash keeps related cells in nearby buckets. */
 #define tcs_arity0hash(term) ((term)->f_code)
 #define tcs_arity1hash(term) (tcs_arity0hash(term)^(((intptr_t)(term)->args[0])>>3))
 #define tcs_aritynhash(term) (tcs_arity1hash(term)^(((intptr_t)(term)->args[1])>>4))
