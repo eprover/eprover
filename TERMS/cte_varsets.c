@@ -241,7 +241,8 @@ void VarSetCollectVars(VarSet_p set)
 //
 // Function: VarSetUnion()
 //
-//   Make set the union of set1 and set2.
+//   Make set the union of set1 and set2. set1 and set2 are not
+//   changed, and set may be the same as either of them.
 //
 // Global Variables: -
 //
@@ -251,9 +252,11 @@ void VarSetCollectVars(VarSet_p set)
 
 void VarSetUnion(VarSet_p set, VarSet_p set1, VarSet_p set2)
 {
+   OrdSet_p res = OrdSetCopy(set1->vars);
+
+   OrdSetInsertSet(&res, set2->vars);
    VarSetReset(set);
-   set->vars = OrdSetCopy(set1->vars);
-   OrdSetMerge(&set->vars, set2->vars);
+   set->vars = res;
 }
 
 
@@ -261,17 +264,20 @@ void VarSetUnion(VarSet_p set, VarSet_p set1, VarSet_p set2)
 //
 // Function: VarSetMerge()
 //
-//   Merge the second varset into the first, destroying the former.
+//   Merge the second varset into the first, destroying the second
+//   (set1 is freed).
 //
 // Global Variables: -
 //
-// Side Effects    : -
+// Side Effects    : Memory operations
 //
 /----------------------------------------------------------------------*/
 
 void VarSetMerge(VarSet_p set, VarSet_p set1)
 {
-   OrdSetMerge(&(set->vars), set1->vars);
+   assert(set != set1);
+   OrdSetMerge(&(set->vars), set1->vars); /* Frees set1->vars */
+   set1->vars = NULL;
    VarSetFree(set1);
 }
 
@@ -311,7 +317,7 @@ VarSet_p VarSetStoreFindVarSet(VarSetStore_p *store, Term_p key)
 {
    VarSet_p dummy = VarSetAlloc(key), res;
 
-   res =  PTreeObjFindObj(store, key, varset_cmp_fun);
+   res =  PTreeObjFindObj(store, dummy, varset_cmp_fun);
 
    VarSetFree(dummy);
 
