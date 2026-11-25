@@ -64,7 +64,7 @@ long gd_term_weight(Term_p term, long vweight, long fweight,
       }
       else
       {
-         res = goal_const+goal_multiplier*(TermWeight(term, fweight, vweight));
+         res = goal_const+goal_multiplier*(TermWeight(term, vweight, fweight));
       }
    }
    else

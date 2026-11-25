@@ -289,6 +289,7 @@ double LMaxWeightCompute(void* data, Clause_p clause)
       {
          tmp = tmp*local->pos_multiplier;
       }
+      res += tmp;
    }
    return res;
 }

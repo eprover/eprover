@@ -82,6 +82,8 @@ Version 3.2.5 -> 3.5 Countess Grey
   --memory-limit now also limits the address space (RLIMIT_AS), as
   originally intended.
   The seeds of RandomWeight now take effect.
+  ClauseLMaxWeight no longer assigns weight 0 to every clause, and
+  GDWeight no longer swaps fweight and vweight for conjecture terms.
   Condensing is now complete; it missed some condensations before.
   eground now honours --miniscope-limit.
   The size limit for miniscoping is now computed correctly.
