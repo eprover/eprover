@@ -288,7 +288,10 @@ OptCell opts[] =
     "level 3 will give a full protocol including rewrite steps and "
     "level 4 will include some internal clause renamings. Levels >= 2"
     " also imply PCL2 or TSTP formats (which can be post-processed"
-    " with suitable tools)."},
+    " with suitable tools). Levels >= 2 are deprecated and no longer "
+    "actively maintained. Their output does not yield a complete proof "
+    "object, as newer inferences may be missing. Use --proof-object to "
+    "get a complete proof."},
 
    {OPT_PROOF_OBJECT,
     'p', "proof-object",
