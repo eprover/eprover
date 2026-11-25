@@ -67,7 +67,7 @@ OptCell opts[] =
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
     OptArg, "300",
-    "Limit the cpu time the prover should run. The optional argument "
+    "Limit the CPU time the prover should run. The optional argument "
     "is the CPU time in seconds."},
 
    {OPT_NOOPT,

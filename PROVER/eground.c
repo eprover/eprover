@@ -150,9 +150,8 @@ OptCell opts[] =
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP-2 format instead of E-LOP (except includes, "
-    "which are handles as in TPTP-3, as TPTP-2 include syntax"
-    " is considered harmful)."},
+    "Set TPTP-2 as the input format (but note that includes are "
+    "still handled according to TPTP-3 semantics)."},
 
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
@@ -182,10 +181,10 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
-    "is still under development, and the version implemented may not be "
-    "fully conformant at all times. It works on all TPTP 3.0.1 input "
-    "files (including includes)."},
+    "Set TPTP-3 as the input format. TPTP-3 syntax is under ongoing "
+    "development, and any given version in E may not be "
+    "fully conforming at all times. E works on all TPTP 9.2.1 FOF "
+    "and CNF files (including includes)."},
 
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
@@ -221,7 +220,7 @@ OptCell opts[] =
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
     OptArg, TFORM_RENAME_LIMIT_STR,
-    "Tune the clausification algorithm to introduces definitions for "
+    "Tune the clausification algorithm to introduce definitions for "
     "subformulae to avoid exponential blow-up. The optional argument "
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
@@ -264,34 +263,32 @@ OptCell opts[] =
     "Limit the memory the system may use. The argument is "
     "the allowed amount of memory in MB. This option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
-    "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris and GNU/Linux."},
+    "in some UNIX implementations."},
 
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
     OptArg, "300",
-    "Limit the cpu time the program should run. The optional argument "
+    "Limit the CPU time the program should run. The optional argument "
     "is the CPU time in seconds. The program will terminate immediately"
     " after reaching the time limit, regardless of internal state. This"
     " option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
-    "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris, HP-UX and GNU/Linux. As a side effect, this "
+    "in some UNIX implementations. As a side effect, this "
     "option will inhibit core file writing."},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
     OptArg, "310",
-    "Limit the cpu time spend in grounding. After the time expires,"
-    " the prover will print an partial system."},
+    "Limit the CPU time spent in grounding. After the time expires, "
+    "the program will print a partial system."},
 
    {OPT_PART_COMPLETE,
     'i', "add-one-instance",
     NoArg, NULL,
     "If the grounding procedure runs out of time or memory, try to add"
     " at least one instance of each clause to the set. This might "
-    "fail for  really large clause sets, since the reserve memory kept"
-    " for this purpose may be insufficient. "},
+    "fail for really large clause sets, since the reserve memory kept"
+    " for this purpose may be insufficient."},
 
    {OPT_GIVE_UP,
     'g', "give-up",
@@ -302,7 +299,7 @@ OptCell opts[] =
     " into more than this number of instances. If run with constraints,"
     " the program keeps a running count and will terminate if the"
     " estimated total"
-    " number of clauses would exceed this value . A value of 0 will"
+    " number of clauses would exceed this value. A value of 0 will"
     " leave this test disabled."},
 
    {OPT_CONSTRAINTS,
@@ -316,15 +313,14 @@ OptCell opts[] =
     NoArg, NULL,
     "Use local purity constraints to further restrict the number of "
     "instantiations done. Implies the previous option. Not yet "
-    "implemented! Note to self: Split clauses need to get fresh "
-    "variables if this is to work!"},
+    "implemented."},
 
    {OPT_FIX_MINISAT,
     'M', "fix-minisat",
     NoArg, NULL,
     "Fix the preamble to include only the maximum variable index, "
     "to compensate for MiniSAT's problematic interpretation of "
-    "the DIMAC syntax."},
+    "the DIMACS syntax."},
 
     {OPT_NOOPT,
     '\0', NULL,

@@ -78,7 +78,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Do a fast extract. With this option the program understands only "
     "a subset of PCL and assumes that all \"proof\" and \"final\" "
-    "steps are at the end of the protocoll."},
+    "steps are at the end of the protocol."},
 
    {OPT_PASS_COMMENTS,
     'C', "forward-comments",
@@ -89,7 +89,7 @@ OptCell opts[] =
    {OPT_COMPETITION,
     'c', "competition-framing",
     NoArg, NULL,
-    "Print special \"begin\" and \"end\"comments around the proof "
+    "Print special \"begin\" and \"end\" comments around the proof "
     "object, as required by the CASC MIX* class."},
 
    {OPT_NO_EXTRACT,
@@ -369,8 +369,8 @@ void print_help(FILE* out)
            "\n"
            "Usage: " NAME " [options] [files]\n"
            "\n"
-           "Read an PCL2 protocol and print the steps necessary for proving"
-           " the clauses in \"proof\", \"final\", or \"extract\" steps.\n"
+           "Read a PCL2 protocol and print the steps necessary for proving\n"
+           "the clauses in \"proof\", \"final\", or \"extract\" steps.\n"
            "\n");
    PrintOptions(stdout, opts, "Options\n\n");
    fprintf(out, "\n\n" E_FOOTER);

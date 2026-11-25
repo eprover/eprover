@@ -86,9 +86,7 @@ OptCell opts[] =
    {OPT_OUTPUT,
     'o', "output-file",
     ReqArg, NULL,
-    "Redirect output into the named file (this affects only some "
-    "output, as most is written to automatically generated files "
-    "based on the input and filter names."},
+    "Redirect output into the named file."},
 
    {OPT_SERVER,
     'S', "server",
@@ -99,12 +97,12 @@ OptCell opts[] =
     'P', "service-port",
     ReqArg, NULL,
     "Specify the port to use for the deduction service. The default"
-    " is to use 3666"},
+    " is 3666."},
 
    {OPT_PORT,
-    'P', "port",
+    '\0', "port",
     ReqArg, NULL,
-    "Specify the port to use for the deduction service."},
+    "Equivalent to --service-port."},
 
 
    {OPT_NOOPT,
@@ -307,41 +305,15 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-E " VERSION " \"" E_NICKNAME "\"\n\
+" NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read an problem specification, connect to the E deduction server, \n\
+Read a problem specification, connect to the E deduction server,\n\
 and try to have the problem solved.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   fprintf(out, "\n\
-Copyright (C) 2011 by Stephan Schulz, " STS_MAIL "\n\
-\n\
-You can find the latest version of E and additional information at\n"
-E_URL
-"\n\n"
-"This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n\
-the Free Software Foundation; either version 2 of the License, or\n\
-(at your option) any later version.\n\
-\n\
-This program is distributed in the hope that it will be useful,\n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
-GNU General Public License for more details.\n\
-\n\
-You should have received a copy of the GNU General Public License\n\
-along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n"
-"\n\
-The original copyright holder can be contacted as\n\
-\n"
-STS_SNAIL
-"\n");
-
+   fprintf(stdout, "\n\n" E_FOOTER);
 }
 
 

@@ -69,15 +69,18 @@ OptCell opts[] =
    {OPT_NEG_NO,
     'n', "negative-example-number",
     ReqArg, NULL,
-    "Set the (maximum) number of negative examples to pick if the "
-    "proof listing does not describe a successful proof."},
+    "Set the (maximum) number of negative examples to pick from a "
+    "proof listing that does not describe a successful proof. This "
+    "is stored in the knowledge base and used when examples are "
+    "inserted."},
 
    {OPT_NEG_PROP,
     'p', "negative-example-proportion",
     ReqArg, NULL,
     "Set the maximum number of negative examples (expressed as a "
-    "proportion of the positive examples) to pick if the proof "
-    "listing does describe a successful proof"},
+    "proportion of the positive examples) to pick from a proof "
+    "listing that does describe a successful proof. This is stored "
+    "in the knowledge base and used when examples are inserted."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -230,7 +233,7 @@ CLState_p process_options(int argc, char* argv[])
        if(neg_proportion < 0)
        {
           Error("Option -p (--negative-example-proportion)"
-           "requires positive argument.}", USAGE_ERROR);
+           " requires a positive argument.", USAGE_ERROR);
        }
        break;
      default:

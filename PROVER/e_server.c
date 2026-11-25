@@ -95,9 +95,7 @@ OptCell opts[] =
    {OPT_OUTPUT,
     'o', "output-file",
     ReqArg, NULL,
-    "Redirect output into the named file (this affects only some "
-    "output, as most is written to automatically generated files "
-    "based on the input and filter names."},
+    "Redirect output into the named file."},
 
    {OPT_SILENT,
     's', "silent",
@@ -114,7 +112,7 @@ OptCell opts[] =
     'f', "filter",
     ReqArg, NULL,
     "Specify the filter definition file. If not set, the system "
-    "will uses the built-in default."},
+    "will use the built-in default."},
 
    {OPT_PROVER,
     'p', "prover",
@@ -141,8 +139,8 @@ OptCell opts[] =
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP-2 format instead of E-LOP (but note that includes are "
-    "handled according to TPTP-3 semantics)."},
+    "Parse TPTP-2 format instead of TPTP-3 (but note that includes "
+    "are still handled according to TPTP-3 semantics)."},
 
    {OPT_TPTP_FORMAT,
     '\0', "tptp-format",
@@ -162,10 +160,7 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
-    "is still under development, and the version in E may not be "
-    "fully conforming at all times. E works on all TPTP 4.1.0 input "
-    "files (including includes)."},
+    "Parse TPTP-3 format (the default)."},
 
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",
@@ -422,6 +417,10 @@ CLState_p process_options(int argc, char* argv[])
       case OPT_LOP_FORMAT:
        parse_format = LOPFormat;
        break;
+      case OPT_TPTP_PARSE:
+      case OPT_TPTP_FORMAT:
+       parse_format = TPTPFormat;
+       break;
       case OPT_TSTP_PARSE:
       case OPT_TSTP_FORMAT:
        parse_format = TSTPFormat;
@@ -437,46 +436,20 @@ CLState_p process_options(int argc, char* argv[])
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-E " VERSION " \"" E_NICKNAME "\"\n\
+" NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read an problem specification and offer deduction in the the structure\n\
-described by the specification as a service.  All input formats (LOP,\n\
-TPTP-2 and TPTP-3 are supported for the original specification, \n\
-however, only TPTP-3 is used for the service. TPTP-3 is also the \n\
-default format. Important options allow specificatio of the filters\n\
-to use for proof attemtps, the dervice port, and the binary of the\n\
-prover to use.\n\
+Read a problem specification and offer deduction in the structure\n\
+described by the specification as a service. All input formats (LOP,\n\
+TPTP-2 and TPTP-3) are supported for the original specification,\n\
+however, only TPTP-3 is used for the service. TPTP-3 is also the\n\
+default format. Important options allow the specification of the\n\
+filters to use for proof attempts, the service port, and the binary\n\
+of the prover to use.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
-   fprintf(out, "\n\
-Copyright (C) 2011 by Stephan Schulz, " STS_MAIL "\n\
-\n\
-You can find the latest version of E and additional information at\n"
-E_URL
-"\n\n"
-"This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n\
-the Free Software Foundation; either version 2 of the License, or\n\
-(at your option) any later version.\n\
-\n\
-This program is distributed in the hope that it will be useful,\n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
-GNU General Public License for more details.\n\
-\n\
-You should have received a copy of the GNU General Public License\n\
-along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n"
-"\n\
-The original copyright holder can be contacted as\n\
-\n"
-STS_SNAIL
-"\n");
-
+   fprintf(stdout, "\n\n" E_FOOTER);
 }
 
 

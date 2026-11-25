@@ -103,7 +103,7 @@ OptCell opts[] =
     ReqArg, NULL,
     "Redirect output into the named file (this affects only some "
     "output, as most is written to automatically generated files "
-    "based on the input and filter names."},
+    "based on the input and filter names)."},
 
    {OPT_SILENT,
     's', "silent",
@@ -120,23 +120,23 @@ OptCell opts[] =
     'f', "filter",
     ReqArg, NULL,
     "Specify the filter definition file. If not set, the system "
-    "will uses the built-in default."},
+    "will use the built-in default."},
 
    {OPT_SEED_SYMBOLS,
     'S', "seed-symbols",
     OptArg, "p",
     "Enable artificial seeding of the axiom selection process and determine "
-    "which symbol classes should be used to generate different sets."
+    "which symbol classes should be used to generate different sets. "
     "The argument is a string of letters, each indicating one class of "
     "symbols to use. 'p' indicates predicate symbols, 'f' non-constant "
     "function symbols, and 'c' constants. Note that this will create "
-    "potentially multiple output files for each activated symbols."},
+    "potentially multiple output files for each activated symbol class."},
 
    {OPT_SEEDS,
     '\0', "seeds",
     ReqArg, NULL,
     "Explicitly specify the symbols that should be used as seed symbols for "
-    "axiom extraction. This overwrites --seed-subsample and --seed-symbols."},
+    "axiom extraction. This overrides --seed-subsample and --seed-symbols."},
 
    {OPT_SEED_SUBSAMPLE,
     '\0', "seed-subsample",
@@ -150,14 +150,14 @@ OptCell opts[] =
    {OPT_SEED_METHODS,
     'm', "seed-method",
     OptArg, "lda",
-    "Specify how to select seed axioms when artificially seeding is used."
+    "Specify how to select seed axioms when artificial seeding is used. "
     "The argument is a string of letters, each indicating one method to "
-    "use. The letters are: \n"
+    "use. The letters are:\n"
     "'l': use the syntactically largest axiom in which the seed symbol occurs.\n"
     "'d': use the most diverse axiom in which the seed symbol occurs, i.e. "
-    "the symbol with the largest set of different symbols.\n"
+    "the axiom with the largest set of different symbols.\n"
     "'a': use all axioms in which the seed symbol occurs.\n"
-    "For 'l' and 'd', if there are multiple candidates, use the first one."
+    "For 'l' and 'd', if there are multiple candidates, use the first one. "
     "If the option is not set, 'a' is assumed."},
 
    {OPT_DUMP_FILTER,
@@ -183,8 +183,8 @@ OptCell opts[] =
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP-2 format instead of E-LOP (but note that includes are "
-    "handled according to TPTP-3 semantics)."},
+    "Set TPTP-2 as the input format (but note that includes are "
+    "still handled according to TPTP-3 semantics)."},
 
    {OPT_TPTP_FORMAT,
     '\0', "tptp-format",
@@ -204,10 +204,10 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
-    "is still under development, and the version in E may not be "
-    "fully conforming at all times. E works on all TPTP 6.3.0 FOF "
-    "and CNF input files (including includes)."},
+    "Set TPTP-3 as the input format. TPTP-3 syntax is under ongoing "
+    "development, and any given version in E may not be "
+    "fully conforming at all times. E works on all TPTP 9.2.1 FOF "
+    "and CNF files (including includes)."},
 
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",
@@ -1092,13 +1092,13 @@ but still are likely to contain all the axioms necessary for a proof\n\
 (if one exists).\n\
 \n\
 In default mode, the program reads a problem specification and an\n\
-(optional) filter specification, and produces one reduced output file \n\
+(optional) filter specification, and produces one reduced output file\n\
 for each filter given. Note that while all standard input formats (LOP,\n\
-TPTP-2 and TPTP-3 are supported, output is only and automatically in\n\
+TPTP-2 and TPTP-3) are supported, output is only and automatically in\n\
 TPTP-3. Also note that unlike most of the other tools in the E\n\
 distribution, this program does not support pipe-based input and output,\n\
 since it uses file names generated from the input file name and filter\n\
-names to store the different result files\n\
+names to store the different result files.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);

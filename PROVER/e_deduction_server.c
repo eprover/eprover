@@ -83,8 +83,8 @@ OptCell opts[] =
    {OPT_PORT,
     'p', "port",
     ReqArg, NULL,
-    "The port on which the server will receive connections. Only effective "
-    "when interactive mode is on. If not given stdin/stdout will be used."},
+    "The port on which the server will receive connections. If not "
+    "given, the server reads jobs from stdin and writes to stdout."},
 
    {OPT_SILENT,
     's', "silent",
@@ -102,7 +102,8 @@ OptCell opts[] =
    {OPT_GLOBAL_WTCLIMIT,
     'w', "wtc-limit",
     ReqArg, NULL,
-    "Set the global wall-clock limit for each batch (if any)."},
+    "Set the wall-clock limit (in seconds) for each proof job. The "
+    "default is 30 seconds."},
 
    {OPT_SERVER_LIB,
     'L', "lib",
@@ -143,9 +144,10 @@ int main(int argc, char* argv[])
    assert(argv[0]);
 
 
-   // TODO Set a default problem time limit
-   if( !total_wtc_limit )
+   if(!total_wtc_limit)
+   {
       total_wtc_limit = 30;
+   }
 
    InitIO(NAME);
    DocOutputFormat = tstp_format;
@@ -163,6 +165,7 @@ int main(int argc, char* argv[])
    spec = BatchSpecAlloc(prover, TSTPFormat);
    spec->category = SecureStrdup("dummy");
    spec->total_wtc_limit = total_wtc_limit;
+   spec->per_prob_limit  = total_wtc_limit;
    spec->res_proof = BODesired;
 
    ctrl = StructFOFSpecAlloc();
@@ -295,10 +298,11 @@ void print_help(FILE* out)
    fprintf(out, "\n"
            NAME " " VERSION " \"" E_NICKNAME "\"\n\
 \n\
-Usage: " NAME " -p <port> [options] [files]\n\
+Usage: " NAME " [options] [prover]\n\
 \n\
 The E deduction server offers deduction services based on local or\n\
-uploaded axiom sets via network. See README.server.\n\
+uploaded axiom sets via network. The optional argument is the prover\n\
+binary to use (default: eprover). See README.server.\n\
 \n");
    PrintOptions(stdout, opts, "Options:\n\n");
    fprintf(out, "\n\n" E_FOOTER);

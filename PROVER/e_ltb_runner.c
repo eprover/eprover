@@ -104,19 +104,19 @@ OptCell opts[] =
     0, "variants27",
     NoArg,  NULL,
     "Handle different variants for each problem base name as required for "
-    "CASC-27. This is very specific hack."},
+    "CASC-27. This is a very specific hack."},
 
    {OPT_VARIANTS28,
     0, "variants28",
     NoArg,  NULL,
     "Handle different variants for each problem base name as required for "
-    "CASC-28 (without higher-order support). This is very specific hack. "},
+    "CASC-28 (without higher-order support). This is a very specific hack."},
 
    {OPT_VARIANTS28_HO,
     0, "variants28-ho",
     NoArg,  NULL,
     "Handle different variants for each problem base name as required for "
-    "CASC-28, including the TH0-variant. This is very specific hack. Note "
+    "CASC-28, including the TH0-variant. This is a very specific hack. Note "
     "that this requires eprover-ho for the third variant."},
 
    {OPT_VARIANTS28_25,
@@ -138,9 +138,9 @@ OptCell opts[] =
     'i', "interactive",
     NoArg, NULL,
     "For each batch file, enter interactive mode after processing "
-    "batch the batch problems. Interactive mode allows the processing "
-    "of additional jobs with respect to the loaded axioms set. Jobs "
-    "are entered via stdin and print to stdout."},
+    "the batch problems. Interactive mode allows the processing "
+    "of additional jobs with respect to the loaded axiom set. Jobs "
+    "are read from stdin, and the results are printed to stdout."},
 
    {OPT_SILENT,
     's', "silent",
@@ -158,7 +158,8 @@ OptCell opts[] =
    {OPT_GLOBAL_WTCLIMIT,
     'w', "wtc-limit",
     ReqArg, NULL,
-    "Set the global wall-clock limit for each batch (if any)."},
+    "Set the overall wall-clock limit (in seconds) for each batch "
+    "that does not set one itself."},
 
    {OPT_NOOPT,
     '\0', NULL,

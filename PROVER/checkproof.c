@@ -90,18 +90,18 @@ OptCell opts[] =
     " output. At the moment, level 0 only prints the result, level 1"
     " prints inference steps as they are verified, level 2 prints"
     " prover commands issued, and level 3 prints all prover output"
-    " (which may be very little)"},
+    " (which may be very little)."},
 
    {OPT_PROVERTYPE,
     'p', "prover-type",
     ReqArg, NULL,
     "Set the type of the prover to use for proof"
     " verification. Determines problem syntax, options, and check for"
-    " success. Supported options at are  'E' (the"
-    " default),'Otter' 'SPASS', and 'scheme-setheo' (not yet"
+    " success. Supported values are 'E' (the"
+    " default), 'Otter', 'SPASS', and 'scheme-setheo' (not yet"
     " implemented). SPASS support is only tested with SPASS"
     " 0.55 and may fail if the problem contains identifiers reserved "
-    "by SPASS. There have been some supple syntax changes, so more"
+    "by SPASS. There have been some subtle syntax changes, so more"
     " recent SPASS versions will probably fail as well."},
 
    {OPT_EXECUTABLE,
@@ -114,7 +114,7 @@ OptCell opts[] =
    {OPT_TIME_LIMIT,
     't', "prover-cpu-limit",
     ReqArg, NULL,
-    "Limit the CPU time prover may spend on a single step. Default is"
+    "Limit the CPU time the prover may spend on a single step. Default is"
     " 10 seconds."},
 
    {OPT_NOOPT,
@@ -314,19 +314,19 @@ NAME " " VERSION "\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read an UPCL2 protocol and verify the inferences using one of a\n\
-varity of external provers.\n\
+Read a UPCL2 protocol and verify the inferences using one of a\n\
+variety of external provers.\n\
 \n\
 This is a _very_ experimental program. Passing checkproof does\n\
 indicate that all inferences in an UPCL2 protocol are correct\n\
-(i.e. that the conclusion is logically implied by the premisses) -\n\
+(i.e. that the conclusion is logically implied by the premises) -\n\
 that is, if you believe that the transformation process and the used\n\
 prover are correct. However, checkproof will e.g. gladly show that the\n\
 empty proof protocol does not contain any buggy steps.\n\
 \n\
 If a proof protocol fails to pass this test, the proof may still be\n\
 correct. Due to e.g. incomplete strategies (this applies in particular\n\
-to Otter), build-in limits (Otter), and bugs in the prover (potentially\n\
+to Otter), built-in limits (Otter), and bugs in the prover (potentially\n\
 all systems, but observed in SPASS 0.55), a prover might fail to\n\
 verify a correct step. Moreover, due to the different strategies,\n\
 calculi, and in particular different term orderings chosen by the\n\

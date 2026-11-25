@@ -88,14 +88,14 @@ OptCell opts[] =
     ReqArg, NULL,
     "Select an output level, greater values imply more verbose "
     "output. Level 0 produces "
-    "nearly no output, level 1 produces minimal additional output."
+    "nearly no output, level 1 produces minimal additional output. "
     "Higher levels are without meaning in edpll (I think)."},
 
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP format instead of lop (does not understand includes, "
-    "as TPTP include syntax is considered harmful)."},
+    "Parse TPTP-2 format instead of E-LOP (includes are not "
+    "supported)."},
 
    {OPT_DIMACS_PRINT,
     'd', "dimacs",
@@ -109,26 +109,24 @@ OptCell opts[] =
     "Limit the memory the system may use. The argument is "
     "the allowed amount of memory in MB. This option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
-    "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris and GNU/Linux."},
+    "in some UNIX implementations."},
 
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
     OptArg, "300",
-    "Limit the cpu time the program should run. The optional argument "
+    "Limit the CPU time the program should run. The optional argument "
     "is the CPU time in seconds. The program will terminate immediately"
     " after reaching the time limit, regardless of internal state. This"
     " option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
-    "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris, HP-UX and GNU/Linux. As a side effect, this "
+    "in some UNIX implementations. As a side effect, this "
     "option will inhibit core file writing."},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
     OptArg, "310",
-    "Limit the cpu time spend in grounding. After the time expires,"
-    " the prover will print an partial system."},
+    "Set a soft CPU time limit in seconds. This is currently ignored, "
+    "only --cpu-limit has an effect."},
 
     {OPT_NOOPT,
     '\0', NULL,
@@ -364,35 +362,7 @@ Read a set of ground clauses and try to refute (or satisfy) it.\n\
 Not completed yet!\n\
 \n");
    PrintOptions(stdout, opts, "Options\n\n");
-   fprintf(out, "\n\
-Copyright (C) 2003 by Stephan Schulz, " STS_MAIL" \n\
-\n\
-This program is a part of the support structure for the E equational\n\
-theorem prover. You can find the latest version of the E distribution\n\
-as well as additional information at\n"
-E_URL
-"\n\n\
-This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n\
-the Free Software Foundation; either version 2 of the License, or\n\
-(at your option) any later version.\n\
-\n\
-This program is distributed in the hope that it will be useful,\n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
-GNU General Public License for more details.\n\
-\n\
-You should have received a copy of the GNU General Public License\n\
-along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n\
-\n\
-The original copyright holder can be contacted as\n\
-\n"
-STS_SNAIL
-"\n");
-
+   fprintf(stdout, "\n\n" E_FOOTER);
 }
 
 

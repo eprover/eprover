@@ -171,8 +171,10 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse TSTP format instead of E-LOP (not all optional "
-    "extensions are currently supported)."},
+    "Set TPTP-3 as the input format. TPTP-3 syntax is under ongoing "
+    "development, and any given version in E may not be "
+    "fully conforming at all times. E works on all TPTP 9.2.1 FOF "
+    "and CNF files (including includes)."},
 
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
@@ -225,16 +227,16 @@ OptCell opts[] =
     "Do not perform preprocessing on the initial clause set. "
     "Preprocessing currently removes tautologies and orders terms, "
     "literals and clauses in a certain (\"canonical\") way before "
-    "anything else happens. It also unfolds equational definitons (and "
+    "anything else happens. It also unfolds equational definitions (and "
     "removes them)."},
 
    {OPT_EQ_UNFOLD_LIMIT,
     '\0', "eq-unfold-limit",
     ReqArg, NULL,
     "During preprocessing, limit unfolding (and removing) of "
-    "equational definitions to those where the expanded definiton "
+    "equational definitions to those where the expanded definition "
     "is at most the given limit bigger (in terms of standard "
-    "weight) than the defined term.."},
+    "weight) than the defined term."},
 
    {OPT_EQ_UNFOLD_MAXCLAUSES,
     '\0', "eq-unfold-maxclauses",
@@ -258,7 +260,7 @@ OptCell opts[] =
     '\0', "free-numbers",
      NoArg, NULL,
      "Treat numbers (strings of decimal digits) as normal free function "
-    "symbols in the input. By default, number now are supposed to denote"
+    "symbols in the input. By default, numbers are supposed to denote"
     " domain constants and to be implicitly different from each other."},
 
    {OPT_FREE_OBJECTS,
@@ -266,13 +268,13 @@ OptCell opts[] =
      NoArg, NULL,
      "Treat object identifiers (strings in double quotes) as normal "
     "free function symbols in the input. By default, object identifiers "
-    "now represent domain objects and are implicitly different from "
+    "represent domain objects and are implicitly different from "
     "each other (and from numbers, unless those are declared to be free)."},
 
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
     OptArg, TFORM_RENAME_LIMIT_STR,
-    "Tune the clausification algorithm to introduces definitions for "
+    "Tune the clausification algorithm to introduce definitions for "
     "subformulae to avoid exponential blow-up. The optional argument "
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
@@ -326,7 +328,7 @@ OptCell opts[] =
     '\0', "gpc-absolute",
     OptArg, "true",
     "Use absolute values (not percentages) to determine if there are few, "
-    "some, or many non-ground unit clauses."},
+    "some, or many ground positive clauses."},
 
    {OPT_GPC_FEW_LIMIT,
     '\0', "gpc-few-limit",
@@ -357,7 +359,7 @@ OptCell opts[] =
    {OPT_LIT_SOME_LIMIT,
     '\0', "lit-some-limit",
     ReqArg, NULL,
-    "Set the mimumum number of literals for a specification to be "
+    "Set the minimum number of literals for a specification to be "
     "considered to be medium size with respect to this measure."},
 
    {OPT_LIT_MANY_LIMIT,
@@ -1164,7 +1166,6 @@ CLState_p process_options(int argc, char* argv[], SpecLimits_p limits)
 void print_help(FILE* out)
 {
    fprintf(out, "\n\
-\n\
 " NAME " " VERSION "\n\
 \n\
 Usage: " NAME " [options] [files]\n\
@@ -1172,35 +1173,7 @@ Usage: " NAME " [options] [files]\n\
 Read sets of clauses and classify them according to predefined criteria.\n\
 \n");
    PrintOptions(out, opts, "Options:\n\n");
-   fprintf(out, "\n\
-Copyright (C) 1998-2026 by Stephan Schulz, " STS_MAIL "\n\
-\n\
-This program is a part of the support structure for the E equational\n\
-theorem prover. You can find the latest version of the E distribution\n\
-as well as additional information at\n"
-E_URL
-"\n\
-This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n\
-the Free Software Foundation; either version 2 of the License, or\n\
-(at your option) any later version.\n\
-\n\
-This program is distributed in the hope that it will be useful,\n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
-GNU General Public License for more details.\n\
-\n\
-You should have received a copy of the GNU General Public License\n\
-along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n\
-\n\
-The original copyright holder can be contacted as\n\
-\n"
-STS_SNAIL
-"\n");
-
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

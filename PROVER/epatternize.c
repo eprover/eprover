@@ -113,8 +113,10 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse TSTP format instead of E-LOP (not all all optional "
-    "extensions are currently supported)."},
+    "Set TPTP-3 as the input format. TPTP-3 syntax is under ongoing "
+    "development, and any given version in E may not be "
+    "fully conforming at all times. E works on all TPTP 9.2.1 FOF "
+    "and CNF files (including includes)."},
 
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
@@ -151,7 +153,7 @@ OptCell opts[] =
     '\0', "free-numbers",
      NoArg, NULL,
      "Treat numbers (strings of decimal digits) as normal free function "
-    "symbols in the input. By default, number now are supposed to denote"
+    "symbols in the input. By default, numbers are supposed to denote"
     " domain constants and to be implicitly different from each other."},
 
    {OPT_FREE_OBJECTS,
@@ -159,13 +161,13 @@ OptCell opts[] =
      NoArg, NULL,
      "Treat object identifiers (strings in double quotes) as normal "
     "free function symbols in the input. By default, object identifiers "
-    "now represent domain objects and are implicitly different from "
+    "represent domain objects and are implicitly different from "
     "each other (and from numbers, unless those are declared to be free)."},
 
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
     OptArg, TFORM_RENAME_LIMIT_STR,
-    "Tune the clausification algorithm to introduces definitions for "
+    "Tune the clausification algorithm to introduce definitions for "
     "subformulae to avoid exponential blow-up. The optional argument "
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
@@ -173,7 +175,9 @@ OptCell opts[] =
    {OPT_MINISCOPE_LIMIT,
     '\0', "miniscope-limit",
     OptArg, TFORM_MINISCOPE_LIMIT_STR,
-    "Set the limit of variables to miniscope per input formula."},
+    "Set the maximal size (in subformulas) of a universally quantified "
+    "subformula that is miniscoped to move existential quantifiers out "
+    "of its scope. The built-in default is 1048576."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -416,39 +420,11 @@ void print_help(FILE* out)
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read sets of clauses/formulas, perform cnfization, then convert \n\
+Read sets of clauses/formulas, perform clausification, then convert\n\
 the clauses to patterns and print them.\n\
 \n");
    PrintOptions(out, opts, "Options:\n\n");
-   fprintf(out, "\n\
-Copyright (C) 2020-2026 by Stephan Schulz, " STS_MAIL "\n\
-\n\
-This program is a part of the support structure for the E equational\n\
-theorem prover. You can find the latest version of the E distribution\n\
-as well as additional information at\n"
-E_URL
-"\n\
-This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n\
-the Free Software Foundation; either version 2 of the License, or\n\
-(at your option) any later version.\n\
-\n\
-This program is distributed in the hope that it will be useful,\n\
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n\
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n\
-GNU General Public License for more details.\n\
-\n\
-You should have received a copy of the GNU General Public License\n\
-along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n\
-\n\
-The original copyright holder can be contacted as\n\
-\n"
-STS_SNAIL
-"\n");
-
+   fprintf(out, "\n\n" E_FOOTER);
 }
 
 

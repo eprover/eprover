@@ -86,6 +86,9 @@ Version 3.2.5 -> 3.5 Countess Grey
   eground now honours --miniscope-limit.
   The size limit for miniscoping is now computed correctly.
   e_ltb_runner and e_deduction_server can run eprover again.
+  e_deduction_server --wtc-limit now sets the time limit per job, and
+  e_server --tptp-in now selects TPTP-2 input.
+  The help texts of all programs were corrected.
   $ite and $let are now also supported in TFF terms.
   Clearer error messages for unsupported polymorphism and datatypes.
   Contextual simplify-reflect now uses plain (set) subsumption and

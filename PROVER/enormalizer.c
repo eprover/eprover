@@ -91,22 +91,22 @@ OptCell opts[] =
    {OPT_TERMSOURCE,
     't', "terms",
     ReqArg, NULL,
-    "Name of the files containing terms to be normalized. If '-' "
+    "Name of the file containing terms to be normalized. If '-' "
     "is used as the argument, terms are read from standard input."},
 
    {OPT_CLAUSESOURCE,
     'c', "clauses",
     ReqArg, NULL,
-    "Name of the files containing clauses to be normalized. If '-' "
+    "Name of the file containing clauses to be normalized. If '-' "
     "is used as the argument, clauses are read from standard input."},
 
    {OPT_FORMULASOURCE,
     'f', "formulas",
     ReqArg, NULL,
-    "Name of the files containing fomulas to be normalized. If '-' "
+    "Name of the file containing formulas to be normalized. If '-' "
     "is used as the argument, formulas are read from standard input. "
-    "Note that formula-syntax is not supported in LOP syntax, but "
-    "requires --tptp2-format or --tptp3-format"},
+    "Note that LOP has no formula syntax, so formulas require "
+    "--tptp2-format or --tptp3-format."},
 
    {OPT_OUTPUT,
     'o', "output-file",
@@ -154,9 +154,8 @@ OptCell opts[] =
    {OPT_TPTP_PARSE,
     '\0', "tptp-in",
     NoArg, NULL,
-    "Parse TPTP-2 format instead of E-LOP (except includes, "
-    "which are handles as in TPTP-3, as TPTP-2 include syntax"
-    " is considered harmful)."},
+    "Set TPTP-2 as the input format (but note that includes are "
+    "still handled according to TPTP-3 semantics)."},
 
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
@@ -186,10 +185,10 @@ OptCell opts[] =
    {OPT_TSTP_PARSE,
     '\0', "tstp-in",
     NoArg, NULL,
-    "Parse TPTP-3 format instead of E-LOP (Note that TPTP-3 syntax "
-    "is still under development, and the version implemented may not be "
-    "fully conformant at all times. It works on all TPTP 3.0.1 input "
-    "files (including includes)."},
+    "Set TPTP-3 as the input format. TPTP-3 syntax is under ongoing "
+    "development, and any given version in E may not be "
+    "fully conforming at all times. E works on all TPTP 9.2.1 FOF "
+    "and CNF files (including includes)."},
 
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
@@ -222,26 +221,24 @@ OptCell opts[] =
     "Limit the memory the system may use. The argument is "
     "the allowed amount of memory in MB. This option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
-    "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris and GNU/Linux."},
+    "in some UNIX implementations."},
 
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
     OptArg, "300",
-    "Limit the cpu time the program should run. The optional argument "
+    "Limit the CPU time the program should run. The optional argument "
     "is the CPU time in seconds. The program will terminate immediately"
     " after reaching the time limit, regardless of internal state. This"
     " option may not work "
     "everywhere, due to broken and/or strange behaviour of setrlimit() "
-    "in some UNIX implementations. It does work under all tested "
-    "versions of Solaris, HP-UX and GNU/Linux. As a side effect, this "
+    "in some UNIX implementations. As a side effect, this "
     "option will inhibit core file writing."},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
     OptArg, "310",
-    "Limit the cpu time spend in grounding. After the time expires,"
-    " the prover will print an partial system."},
+    "Set a soft CPU time limit in seconds. This is currently ignored, "
+    "only --cpu-limit has an effect."},
 
     {OPT_NOOPT,
     '\0', NULL,
@@ -748,16 +745,16 @@ void print_help(FILE* out)
 Usage: enormalizer [options] [rulefiles]\n\
 \n\
 Read a set of rewrite rules (in the form of unit clauses and/or\n\
-formulas) with a single positive literal) and sets of terms, clauses,\n\
+formulas with a single positive literal) and sets of terms, clauses,\n\
 and/or formulas (the \"normalization targets\", from files specified\n\
-with the proper options - see below) to rewrite. Rewrite rules are read\n\
-from the left to right as specified in the input, without regard to any\n\
-term ordering.\n\
+with the proper options - see below) to rewrite. Rewrite rules are\n\
+applied from left to right as written in the input, without regard to\n\
+any term ordering.\n\
 \n\
 The normalization targets are rewritten using these rewrite rules until\n\
 a normal form is reached. If the rule system is not confluent, the\n\
 results are deterministic but unspecified. If the rule system is not\n\
-terminating, rewriting might get stuck into an infinite loop. \n\
+terminating, rewriting might get stuck in an infinite loop.\n\
 \n\
 The rewrite strategy is leftmost-innermost. The order of rewrite rules\n\
 tried at each subterm is deterministic, but unspecified and\n\

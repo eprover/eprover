@@ -126,22 +126,22 @@ OptCell opts[] =
    {OPT_TPTP_PRINT,
     '\0', "tptp-out",
     NoArg, NULL,
-    "Print lemma sets in TPTP-2 format instead of lop."},
+    "Print lemma sets in TPTP-2 format instead of E-LOP."},
 
    {OPT_TPTP_FORMAT,
     '\0', "tptp-format",
     NoArg, NULL,
-    "Equivalent to --tptp-out (supplied for consistency in the E toolchain."},
+    "Equivalent to --tptp-out (supplied for consistency in the E toolchain)."},
 
    {OPT_TSTP_PRINT,
     '\0', "tstp-out",
     NoArg, NULL,
-    "Print lemma sets in TPTP-3 (TSTP) format instead of lop."},
+    "Print lemma sets in TPTP-3 (TSTP) format instead of E-LOP."},
 
    {OPT_TSTP_FORMAT,
     '\0', "tstp-format",
     NoArg, NULL,
-    "Equivalent to --tstp-out (supplied for consistency in the E toolchain."
+    "Equivalent to --tstp-out (supplied for consistency in the E toolchain)."
     " Note that this does not enable parsing of TPTP-3 proofs."},
 
    {OPT_LOP_PRINT,
@@ -177,9 +177,9 @@ OptCell opts[] =
     "Compute lemma scores once and pick the N lemmas with the highest "
     "score. These are bound to be nodes that are close to the "
     "derivation graph boundary, so they are not necessarily good for"
-    " strucuring the proof. They may be good for theory exploration, "
+    " structuring the proof. They may be good for theory exploration, "
     "though. This algorithm is also O(n) in the number of PCL steps "
-    "(well, there is a small O(log(n)) component, but its close enough), "
+    "(well, there is a small O(log(n)) component, but it's close enough), "
     "while the others may end up O(n^2) in the (unexpected) worst case."},
 
    {OPT_ABS_LEMMA_LIMIT,
@@ -234,7 +234,7 @@ OptCell opts[] =
    {OPT_LEMMA_O_GEN_W,
     'g',"generating-inference-weight",
     ReqArg, NULL,
-    "Detemine the weight to give to references in generating infences other than "
+    "Determine the weight to give to references in generating inferences other than "
     "active paramodulation inferences."},
 
    {OPT_LEMMA_ACT_SIMPL_W,
@@ -260,61 +260,61 @@ OptCell opts[] =
     ReqArg, NULL,
     "Weight factor to apply to the evaluation of Horn clauses. Use 1 to be"
     " fair, 2.5 if you think Horn clauses are 2.5 times more dandy than "
-    "non-Horn clauses. Yes, nice lemmas _are_ amatter of taste ;-)."},
+    "non-Horn clauses. Yes, nice lemmas _are_ a matter of taste ;-)."},
 
    {OPT_INITIAL_WEIGHT,
     '\0', "pcl-initial-weight",
     ReqArg, NULL,
     "Set the weight of an 'initial' pseudo-inference for computing the weight of "
-    "a PLC proof tree. This is probably best left untouched."},
+    "a PCL proof tree. This is probably best left untouched."},
 
    {OPT_QUOTE_WEIGHT,
     '\0', "pcl-quote-weight",
     ReqArg, NULL,
-    "Set the weight of a  quote  pseudo-inference for computing the weight of "
-    "a PLC proof tree. This is probably best left untouched."},
+    "Set the weight of a 'quote' pseudo-inference for computing the weight of "
+    "a PCL proof tree. This is probably best left untouched."},
 
    {OPT_PARAMOD_WEIGHT,
     '\0', "pcl-paramod-weight",
     ReqArg, NULL,
     "Set the weight of a paramodulation inference for computing the weight"
-    " of a PLC proof tree."},
+    " of a PCL proof tree."},
 
    {OPT_ERESOLUTION_WEIGHT,
     '\0', "pcl-eres-weight",
     ReqArg, NULL,
     "Set the weight of an equality resolution inference for computing the"
-    " weight of a PLC proof tree."},
+    " weight of a PCL proof tree."},
 
    {OPT_EFACTORING_WEIGHT,
     '\0', "pcl-efact-weight",
     ReqArg, NULL,
     "Set the weight of an equality factoring inference for computing the"
-    " weight of a PLC proof tree."},
+    " weight of a PCL proof tree."},
 
    {OPT_SIMPLIFYREFLECT_WEIGHT,
     '\0', "pcl-sr-weight",
     ReqArg, NULL,
     "Set the weight of a simplify-reflect inference for computing the"
-    " weight of a PLC proof tree."},
+    " weight of a PCL proof tree."},
 
    {OPT_ACRESOLUTION_WEIGHT,
     '\0', "pcl-acres-weight",
     ReqArg, NULL,
     "Set the weight of an AC resolution inference for computing the"
-    " weight of a PLC proof tree."},
+    " weight of a PCL proof tree."},
 
    {OPT_REWRITE_WEIGHT,
     '\0', "pcl-rw-weight",
     ReqArg, NULL,
     "Set the weight of a rewrite inference for computing the"
-    " weight of a PLC proof tree."},
+    " weight of a PCL proof tree."},
 
    {OPT_UREWRITE_WEIGHT,
     '\0', "pcl-urw-weight",
     ReqArg, NULL,
-    "Set the weight of a underspecified rewrite inference for computing the"
-    " weight of a PLC proof tree. Such an inference describes an"
+    "Set the weight of an underspecified rewrite inference for computing the"
+    " weight of a PCL proof tree. Such an inference describes an"
     " unspecified number of rewrite steps using the same unit clause as a"
     " rewrite rule. Normal E PCL listings should no longer contain"
     " such inferences."},
@@ -323,14 +323,14 @@ OptCell opts[] =
     '\0', "pcl-cn-weight",
     ReqArg, NULL,
     "Set the weight of a clause normalization inference for computing the"
-    " weight of a PLC proof tree. This is probably best left alone, since"
-    " most clause normalization is implicit anyways."},
+    " weight of a PCL proof tree. This is probably best left alone, since"
+    " most clause normalization is implicit anyway."},
 
    {OPT_SPLITCLAUSE_WEIGHT,
     '\0', "pcl-split-weight",
     ReqArg, NULL,
     "Set the weight of a splitting pseudo-inference for computing the"
-    " weight of a PLC proof tree."},
+    " weight of a PCL proof tree."},
 
    {OPT_NOOPT,
     '\0', NULL,
@@ -625,37 +625,10 @@ void print_help(FILE* out)
            "\n"
            "Usage: " NAME " [options] [files]\n"
            "\n"
-           "Read an UPCL2 protocol and suggest certain steps as lemmas."
+           "Read a UPCL2 protocol and suggest certain steps as lemmas."
            "\n");
    PrintOptions(stdout, opts, "Options\n\n");
-   fprintf(out, "\n\
-Copyright (C) 2003-2005 by Stephan Schulz, " STS_MAIL "\n       \
-\n                                                                      \
-This program is a part of the support structure for the E equational\n  \
-theorem prover. You can find the latest version of the E distribution\n \
-as well as additional information at\n"
-           E_URL
-           "\n\n"
-           "This program is free software; you can redistribute it and/or modify\n\
-it under the terms of the GNU General Public License as published by\n  \
-the Free Software Foundation; either version 2 of the License, or\n     \
-(at your option) any later version.\n                                   \
-\n                                                                      \
-This program is distributed in the hope that it will be useful,\n       \
-but WITHOUT ANY WARRANTY; without even the implied warranty of\n        \
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n         \
-GNU General Public License for more details.\n                          \
-\n                                                                      \
-You should have received a copy of the GNU General Public License\n     \
-along with this program (it should be contained in the top level\n      \
-directory of the distribution in the file COPYING); if not, write to\n  \
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n       \
-Boston, MA  02111-1307 USA\n                                            \
-\n                                                                      \
-The original copyright holder can be contacted as\n                     \
-\n"
-           STS_SNAIL
-           "\n");
+   fprintf(stdout, "\n\n" E_FOOTER);
 }
 
 
