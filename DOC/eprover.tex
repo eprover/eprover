@@ -47,7 +47,7 @@
 \label{sec:intro}
 
 This is a short and currently quite sketchy documentation of the
-equational theorem prover E. E is an purely equational theorem prover
+equational theorem prover E. E is a purely equational theorem prover
 for full first-order logic with equality, and, as of E~3.0, for
 monomorphic higher-order logic. It is primarily based on
 paramodulation and rewriting. This means that E reads a set of
@@ -63,9 +63,9 @@ productively by several independent groups of people. This manual
 should enable you to experiment with the prover and to use some of its
 more advanced features. Be aware that it often lags behind the
 implementation. The ultimate reference is the source code. Also, the
-help page (produced \texttt{eprover -h} and equivalent to the UNIX man
+help page (produced by \texttt{eprover -h} and equivalent to the UNIX man
 page delivered with the prover) is always an up-to-date documentation
-of the available command line options
+of the available command line options.
 
 The manual assumes a working knowledge of refutational theorem
 proving, which can be gained from e.g.~\cite{CL73}. The calculus is
@@ -78,9 +78,9 @@ descriptions are~\cite{Schulz:LPAR-2013} (including the extension to
 many-sorted logic) and~\cite{SCV:CADE-2019} (including optional
 extension to LFHO and integration of PicoSAT). A more extensive
 description of the LFHO extension can be found
-in~\cite{VBCS:TACAS-2019,VBCS:STTT-2021}. Extensions to full higher
-order logic are covered in~\cite{VBS:TACAS-2023}. Most papers on E and
-much more information is available at or a few hops away from the E
+in~\cite{VBCS:TACAS-2019,VBCS:STTT-2021}. Extensions to full higher-order
+logic are covered in~\cite{VBS:TACAS-2023}. Most papers on E and
+much more information are available at or a few hops away from the E
 home page, \url{https://www.eprover.org}.
 
 Some other provers have influenced the design of E and may be
@@ -116,23 +116,23 @@ for higher-order logic.
       automagically\index{xyzzy}, based on problem features.\\
     \texttt{--auto}
     & As \texttt{--satauto}, but add heuristic
-      specification pruning using one of several instantiation of the SInE
+      specification pruning using one of several instantiations of the SInE
       algorithm~\cite{HV:CADE-2011} for large specifications. This makes
       the prover potentially incomplete.\\
     \texttt{--auto-schedule[=k]}
     & As \texttt{--auto}, but try not one, but
       several different strategies. If the optional argument is given, E
-      will uses up to that number of cores to run the schedule in
+      will use up to that number of cores to run the schedule in
       parallel.\\
     \texttt{--memory-limit=xx}
     & Tell the prover how much memory
       (measured in MB) to use at most. In automatic mode E will optimize
-      its behaviour for this amount (3 2~MB will work, 256~MB is
+      its behaviour for this amount (32~MB will work, 256~MB is
       reasonable, 1024~MB is what I use. \emph{More is
       better}\footnotemark, but if you go over
       your physical memory, you will probably experience \emph{very} heavy
       swapping.) Due to limitations of \texttt{rlim\_t}, values over 2047
-      may not work on all platforms. If you have ab up-to-date machine
+      may not work on all platforms. If you have an up-to-date machine
       and plan on running the prover for a few minutes at most, this has
       become a lot less critical than in the past.\\
     \hline
@@ -209,8 +209,8 @@ of type $(S_1, \ldots, S_n) \to T$.
 \emph{terms} over \emph{F} and \emph{V}, defined as follows:
 $x \in V_{S_i}$ is a term of sort $S_i$. If
 $f:(S_1, \ldots, S_n) \to T$ is a function symbol in $F$ and
-$t_1, \ldots t_n$ are terms of sorts $S_1, \ldots S_n$, respectively,
-then $f(s_1, \ldots, s_n)$ is a term of sort $T$. We require that the
+$t_1, \ldots, t_n$ are terms of sorts $S_1, \ldots, S_n$, respectively,
+then $f(t_1, \ldots, t_n)$ is a term of sort $T$. We require that the
 $S_i\not=\mathtt{\$o}$, and call function symbols with resulting type
 \texttt{\$o} \emph{predicate symbols}.
 
@@ -247,7 +247,7 @@ disjunctions of literals, $\ueqn{s_1}{t_1} \vee \ueqn{s_2}{t_2} \ldots
 of all clauses with function symbols $F$, predicate symbols $P$ and
 variables $V$. If $\mathcal{C}$ is a clause, we denote the (multi-)set
 of positive literals in $\mathcal{C}$ by $\mathcal{C^+}$ and the
-(multi-)set of negative literals in $\mathcal{C}$ by $\mathcal{C^-}$
+(multi-)set of negative literals in $\mathcal{C}$ by $\mathcal{C^-}$.
 We extend $>_L$ to clauses by defining $>_C = >_L>_L$, i.e.\ we
 compare clauses as multi-sets of literals.
 
@@ -272,7 +272,7 @@ and denote it by $\mw{mgu}(s,t)$.
 
 In the following, most inferences between clauses are performed at
 particular literals of the clauses. Inference literals can be
-determined the term ordering, or, sometimes, by \emph{selection}.  The
+determined by the term ordering, or, sometimes, by \emph{selection}.  The
 introduction of an extended notion of \emph{literal selection} has
 improved the performance of E significantly. The necessary concepts
 are explained in the following.
@@ -392,8 +392,8 @@ variables.
 
    This inference rule is an alternative to (SN). Note that the
    difference is that \emph{every} occurrence of the subterm unified
-   with the right-hand side of the rewriting clause is replaced by the
-   (instance of) the left hand side in the (instance of) the clause
+   with the left-hand side of the rewriting clause is replaced by (the
+   instance of) the right-hand side in (the instance of) the clause
    that is rewritten. This single rule usually performs better than a
    sequence of conventional superpositions in practice.
 
@@ -404,7 +404,7 @@ variables.
     \vee R}{\sigma(S \vee (\eqn{u}{v} \vee R)[u|_p\leftarrow
     t])}{if $\sigma=mgu(u|_p,s)$, $\sigma(s)\not<\sigma(t)$,
     $\sigma(u)\not<\sigma(v)$, $\sigma(\eqn{s}{t})$ is eligible for
-    paramodulation, $\sigma(\neqn{u}{v})$ is eligible for resolution,
+    paramodulation, $\sigma(\eqn{u}{v})$ is eligible for resolution,
     and $u|_p \notin V$.}
 
   This inference rule is an alternative to (SP) that performs better
@@ -433,7 +433,7 @@ variables.
      general case as well~\cite{Bachmair:personal-98}.  However, the
      proof of completeness for the general case seems to be rather
      involved, as it requires a very different clause ordering than
-     the one introduced~\cite{BG94}, and we are not aware of any
+     the one introduced in~\cite{BG94}, and we are not aware of any
      existing proof in the literature. The variant rule allows
      rewriting of maximal terms of maximal literals under certain
      circumstances:
@@ -444,7 +444,7 @@ variables.
        \phantom{ae} \eqn{u[p\leftarrow{} \sigma(t)]}{v} \vee R} {if
        $u|_p = \sigma(s)$, $\sigma(s)>\sigma(t)$ and
        if \eqn{u}{v} is not eligible for
-       paramdulation or $u \not> v$ or $p \not=
+       paramodulation or $u \not> v$ or $p \not=
        \lambda$ or $\sigma$ is not a variable renaming.}
 
      \medskip \noindent This stronger rule is implemented successfully
@@ -629,7 +629,7 @@ conjecture, and then recursively apply this process again.
 \begin{verbatim}
 <sine-filter> ::= GSinE(<g-measure>,
                         hypos|nohypos,
-                        <benvolvence>,
+                        <benevolence>,
                         <generosity>,
                         <rec-depth>,
                         <set-size>,
@@ -639,7 +639,7 @@ conjecture, and then recursively apply this process again.
   \begin{itemize}
   \item \texttt{<g-measure>} is the generality measure. Currently,
     \texttt{CountFormulas} and \texttt{CountTerms} are supported. The
-    first considers a symbol more general than another if it occurse
+    first considers a symbol more general than another if it occurs
     in more formulas. The second counts the number of subterms which
     contain the symbol as the top symbol.
   \item \texttt{hypos} or \texttt{nohypos} determines if clauses and
@@ -656,11 +656,11 @@ conjecture, and then recursively apply this process again.
     iterations of the selection algorithm.
   \item \texttt{<set-size>} gives an absolute upper bound for the
     number of clauses and formulas selected.
-  \item \texttt{set-fraction} gives a relative size (which fraction
-    of clauses/formulas) will be at most selected
+  \item \texttt{<set-fraction>} gives a relative upper bound (the
+    fraction of all clauses/formulas that will be selected at most).
   \item Finally, the optional last argument determines if clauses or
     formulas which do not contain any function- or predicate symbols
-    pass the filter. This is a rare occurence, so the effect is minor
+    pass the filter. This is a rare occurrence, so the effect is minor
     in either case.
   \end{itemize}
 \end{itemize}
@@ -681,7 +681,7 @@ algorithm has the following modifications:
   a given number of times in the naive output. The limit can be set
   with the option \texttt{--definitional-cnf}. E will reuse
   definitions generated for one input formula for syntactically
-  identical formulae in other formulas with the same specification.
+  identical formulae in other formulas of the same specification.
 \item E supports mini-scoping, but not the more advanced forms of
   Skolemization.
 \end{itemize}
@@ -691,7 +691,7 @@ It is possible to use E as a clausifier only. When given the
 the resulting clause set.
 
 
-\subsubsection{Equational Definition unfolding}\index{equational definition}
+\subsubsection{Equational Definition Unfolding}\index{equational definition}
 \label{sec:eqdef}
 
 Equational definitions are unit clauses of the form $f(X_1, \ldots,
@@ -709,7 +709,7 @@ equational definitions to those where the expanded definition is at
 most the given limit bigger (in terms of standard term weight) than
 the defined term.
 
-\texttt{--eq-unfold-maxclauses=<arg>} inhibits  unfolding of
+\texttt{--eq-unfold-maxclauses=<arg>} inhibits unfolding of
 equational definitions if the problem has more than the stated limit
 of clauses.
 
@@ -722,17 +722,17 @@ completely.
 \label{sec:presat}
 
 If the option \texttt{--presat-simplify} is set, E will perform an
-inital interreduction\index{interreduction} of the clause set. It will
+initial interreduction\index{interreduction} of the clause set. It will
 exhaustively apply simplifying inferences by running its main proof
 procedure while disabling generating inferences.
 
 Some problems can be solved purely by simplification, without the need
 for deducing new clauses via the expensive application of the
-generating inference rules, in particularly
+generating inference rules, in particular
 paramodulation/superposition. Moreover, exhaustive application of
 simplifying inferences can reduce redundancy in the specification and
 allows all input clauses to be evaluated under the same initial
-conditions. On the down side, a complete interreduction of the input
+conditions. On the downside, a complete interreduction of the input
 problem can take significant time, especially for large
 specifications.
 
@@ -786,7 +786,7 @@ specifications.
             if p is trivial\+\\
               \# Delete/ignore p\-\\
             else\+\\
-               T' := T' $\cup$ cheap\_simplify(p, P)\-\\
+               T' := T' $\cup$ \{p\}\-\\
             fi\-\\
           end\\
           U := U $\cup$ T' \-\\
@@ -804,11 +804,11 @@ Fig.~\ref{fig:procedure} shows a (slightly simplified) pseudocode
 sketch of the quite straightforward proof procedure of E. The set of
 all clauses is split into two sets, a set \texttt{P} of
 \emph{processed} clauses and a set \texttt{U} of \emph{unprocessed}
-clauses. Initially, all input clauses are in in \texttt{U}, and
+clauses. Initially, all input clauses are in \texttt{U}, and
 \texttt{P} is empty. In its normal mode of operation, at each
-iteration of the look the algorithm selects a new clause (sometimes
+iteration of the loop the algorithm selects a new clause (sometimes
 called the \emph{given clause}\index{given clause}) from \texttt{U},
-simplifies it w.r.t. to \texttt{P}, then uses it to back-simplify the
+simplifies it w.r.t.\ \texttt{P}, then uses it to back-simplify the
 clauses in \texttt{P} in turn. It then performs equality factoring,
 equality resolution and superposition between the selected clause and
 the set of processed clauses. The generated clauses are simplified and
@@ -851,10 +851,10 @@ PicoSAT\index{PicoSAT}~\cite{Biere:JSBC-2008}. The prover periodically
 grounds all clauses in the proof state and encodes the set of ground
 clauses for the propositional solver. If the propositional solver
 finds a proof for unsatisfiability of the ground problem, Herbrand's
-theorem allow us to lift this to the first-order level. In the
-implementation, the prover extract the unsatisfiable core of the
+theorem allows us to lift this to the first-order level. In the
+implementation, the prover extracts the unsatisfiable core of the
 grounded clause set, retrieves the corresponding first-order clauses,
-and adds an suitable pseudo-inference to the first-order proof
+and adds a suitable pseudo-inference to the first-order proof
 objects. A more detailed description is available
 in~\cite{Schulz:Vampire-2018}.
 
@@ -871,7 +871,7 @@ important choice points in the proof search are the choice of
 loop, and the (optional) selection of inference
 literals\index{literal!selection}. In addition to these major choice
 points, there are a large number of additional selections of lesser,
-but not insigificant importance.
+but not insignificant importance.
 
 
 \section{Search Control Heuristics}
@@ -888,7 +888,7 @@ an instance of a generic \emph{weight function}.
 
 Priority functions define a partition on the set of clauses.  A single
 clause evaluation consists of a priority (which is the first selection
-criteria) and an evaluation. Priorities are usually \emph{not}
+criterion) and an evaluation. Priorities are usually \emph{not}
 suitable to encode heuristic control knowledge, but rather are used to
 express certain elements of a search strategy, or to restrict the
 effect of heuristic evaluation functions to certain classes of
@@ -918,8 +918,6 @@ functions is described by the following rule:
                ByNegLitDist ||
                ByGoalDifficulty ||
                SimulateSOS||
-               PreferHorn||
-               PreferNonHorn||
                PreferUnitAndNonEq||
                DeferNonUnitMaxEq||
                ByCreationDate||
@@ -942,13 +940,13 @@ The priority functions are interpreted as follows:
 \item[\texttt{PreferNew}:] Prefer new clauses, i.e. clauses that are
   processed for the first time.
 \item[\texttt{PreferGoals}:] Prefer goals (all negative clauses).
-\item[\texttt{PreferNonGoals}:] Prefer non goals, i.e. facts with at
+\item[\texttt{PreferNonGoals}:] Prefer non-goals, i.e.\ facts with at
   least one positive literal.
 \item[\texttt{PreferUnits}:] Prefer unit clauses (clauses with one
   literal).
 \item[\texttt{PreferNonUnits}:] Prefer non-unit clauses.
 \item[\texttt{PreferHorn}:] Prefer Horn clauses (clauses with no more
-  than one positive literals).
+  than one positive literal, including units).
 \item[\texttt{PreferNonHorn}:] Prefer non-Horn clauses.
 \item[\texttt{ConstPrio}:] Assign the same priority to all clauses.
 \item[\texttt{ByLiteralNumber}:] Give a priority according to the
@@ -976,23 +974,21 @@ The priority functions are interpreted as follows:
   among many heuristics. If you try a pure SOS strategy, you also
   should set \texttt{--restrict-literal-comparisons} and run the
   prover without literal selection enabled.
-\item[\texttt{PreferHorn}:] Prefer Horn clauses (note: includes units).
-\item[\texttt{PreferNonHorn}:] Prefer non-Horn clauses.
 \item[\texttt{PreferUnitAndNonEq}:] Prefer all unit clauses and all
   clauses without equational literal. This was an attempt to model
   some restricted calculi used e.g.~in Gandalf~\cite{Tammet:JAR-97},
   but did not quite work out.
 \item[\texttt{DeferNonUnitMaxEq}:] Prefer everything except for
   non-unit clauses with a maximal equational literal (``Don't
-  paramodulate if it is to expensive''). See above, same result.
+  paramodulate if it is too expensive''). See above, same result.
 \item[\texttt{ByCreationDate}:] Return the creation date of the clause
   as priority. This imposes a FIFO equivalence class on
   clauses. Clauses generated from the same given clause are grouped
   together (and can be ordered with any evaluation function among each
   other).
-\item[\texttt{PreferWatchlist}] Prefer clauses on the watchlist
+\item[\texttt{PreferWatchlist}:] Prefer clauses on the watchlist
   (see~\ref{sec:options:watchlist}).
-\item[\texttt{DeferWatchlist}] Defer clauses on the watchlist (see
+\item[\texttt{DeferWatchlist}:] Defer clauses on the watchlist (see
   above).
 \end{description}
 
@@ -1093,7 +1089,7 @@ result in an extremely incomplete prover).
   \noindent{}\texttt{FunWeight(prio, fweight, vweight,
     term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}:
   This evaluation function is a variant of \texttt{Refinedweight}. The
-  first 6 parameter are identical in meaning. The function takes an
+  first 6 parameters are identical in meaning. The function takes an
   arbitrary number of extra parameters of the form
   \texttt{fun:fweight}, where \texttt{fun} is any valid function
   symbol, and \texttt{fweight} is a non-negative integer. The extra
@@ -1108,7 +1104,7 @@ result in an extremely incomplete prover).
   \noindent{}\texttt{SymOffsetWeight(prio, fweight, vweight,
     term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}:
   This evaluation function is similar to \texttt{FunWeight}. The first
-  6 parameter are identical in meaning.  The extra arguments allow
+  6 parameters are identical in meaning.  The extra arguments allow
   both positive and negative values, and are used as once-off weight
   modifiers added to the weight of all clauses that contain the
   defined symbol.
@@ -1129,7 +1125,7 @@ result in an extremely incomplete prover).
 
 A clause evaluation function is constructed by instantiating a generic
 weight function. It can either be specified directly, or specified and
-immediately given a name for later reference :
+immediately given a name for later reference:
 
  \begin{verbatim}
 <eval-fun>          ::= <ident>         ||
@@ -1142,9 +1138,9 @@ immediately given a name for later reference :
 Of course a single identifier is only a valid evaluation function if
 it has been previously defined in a \texttt{<eval-fun-def>}. It is
 possible to define the value of an identifier more than once, in which
-case later definitions take precedence to former ones.
+case later definitions take precedence over earlier ones.
 
-Clause evaluation functions can be be defined on the command line with
+Clause evaluation functions can be defined on the command line with
 the \texttt{-D} (\texttt{--define-weight-function}) option, followed
 by a \texttt{<eval-fun-def-list>}.
 
@@ -1153,17 +1149,17 @@ by a \texttt{<eval-fun-def-list>}.
     eprover -D"ex1=Clauseweight(ConstPrio,2,1,1) \
                ex2=FIFOWeight(PreferGoals)" ...
 \end{verbatim}
-  sets up the prover to know about two evaluation function
+  sets up the prover to know about two evaluation functions
   \texttt{ex1} and \texttt{ex2} (which supposedly will be used later on
   the command line to define one or more heuristics). The double
   quotes are necessary because the brackets and the commas are
-  special characters for most shells
+  special characters for most shells.
 \end{example}
 
 There are a variety of clause evaluation functions predefined in
 the variable \texttt{DefaultWeightFunctions}, which can be found in
 \texttt{che\_proofcontrol.c}. See also
-sections~\ref{sec:options:watchlist} and ~\ref{sec:options:learning},
+sections~\ref{sec:options:watchlist} and~\ref{sec:options:learning},
 which cover some of the more complex weight functions of E.
 
 
@@ -1187,11 +1183,11 @@ such named heuristics are predefined by the prover). A
 \texttt{<heuristic-def>} which degenerates to a simple heuristic
 defines a heuristic with name \texttt{Default} (which the prover will
 automatically choose if no other heuristic is selected with
-\texttt{-x} (\texttt{--expert-heuristic}). E allows both the
+\texttt{-x} (\texttt{--expert-heuristic})). E allows both the
 multiplication operator (\texttt{*}) and a simple full stop to specify
 the weight given to a single evaluation function.\footnote{\texttt{*}
   is the original syntax, but is hard to escape in some shells,
-  especially if parameter are handed through several shell scripts.}
+  especially if parameters are handed through several shell scripts.}
 
 \begin{example}
   To continue the above example,
@@ -1215,7 +1211,7 @@ the weight given to a single evaluation function.\footnote{\texttt{*}
 
 E currently supports two families of orderings: The
 \emph{Knuth-Bendix-Ordering} (KBO), which is used by default, and the
-\emph{Lexicographical Path Ordering} (LPO). The KBO is weight-based
+\emph{Lexicographic Path Ordering} (LPO). The KBO is weight-based
 and uses a precedence on function symbols to break ties. Consequently,
 to specify a concrete KBO, we need a weight function that assigns a
 weight to all function symbols, and a precedence on those symbols.
@@ -1271,9 +1267,9 @@ Options controlling the choice of term ordering:\\[1ex]
   totally ordered set (small integers) which can be compared using
   standard machine instructions. The used data structure is linear in
   the number $n$ of function symbols. However, if \texttt{--precedence}
-  is used, the prover allocates (and completes) a $n\times n$ lookup
+  is used, the prover allocates (and completes) an $n\times n$ lookup
   table to efficiently represent an arbitrary partial ordering. If $n$
-  is very big, this matrix takes up significant  space, and takes a
+  is very big, this matrix takes up significant space, and takes a
   long time to compute in the first place. This is unlikely to be a
   problem unless there are at least hundreds of symbols.\\[1ex]
 
@@ -1376,17 +1372,17 @@ symbol and the input clause set, or on the predefined
   the precedence increased by one).
 \item[\texttt{invprecedence}:] Let $<$ be the (pre-determined)
   precedence on function symbols $F$ in the problem. Then the weight
-  of $f$ is given by $|{g|f<g}|+1$ (the number of symbols larger than
+  of $f$ is given by $|\{g|f<g\}|+1$ (the number of symbols larger than
   $f$ in the precedence increased by one).
 \item[\texttt{freqcount}:] Make the weight of a symbol the number of
   occurrences of that symbol in the (potentially preprocessed) input
   problem.
 \item[\texttt{invfreqcount}:]  Let $m$ be the number of occurrences of
   the most frequent symbol in the input problem. The weight of $f$ is
-  $m$ minus he number of occurrences of $f$ in the input problem.
+  $m$ minus the number of occurrences of $f$ in the input problem.
 \item[\texttt{freqrank}:] Sort all function symbols by frequency of
   occurrence (which induces a total quasi-ordering). The weight of a
-  symbol is the rank of it's equivalence class, with less frequent
+  symbol is the rank of its equivalence class, with less frequent
   symbols getting lower weights.
 \item[\texttt{invfreqrank}:] Sort all function symbols by frequency of
   occurrence (which induces a total quasi-ordering). The weight of a
@@ -1398,9 +1394,9 @@ symbol and the input clause set, or on the predefined
   the square of the rank.
 \item[\texttt{invmodfreqrank}:] Sort all function symbols by frequency of
   occurrence (which induces a total quasi-ordering). The weight of an
-   equivalence class is the sum of the cardinality of all smaller
+  equivalence class is the sum of the cardinality of all smaller
   classes (+1). The weight of a symbol is the weight of its
-  equivalence classes. Less frequent symbols get higher weights.
+  equivalence class. Less frequent symbols get higher weights.
 \item[\texttt{invmodfreqrankmax0}:] As \texttt{invmodfreqrank}, except
   that the first maximal symbol is given weight 0.
 \item[\texttt{constant}:] Give the same arbitrary positive weight to
@@ -1417,13 +1413,13 @@ potentially stronger.
 
 The option \texttt{--restrict-literal-comparisons} makes all literals
 incomparable, i.e.\ all literals are potential inference literals
-(unless literal selection is activated -
-see~\ref{sec:options:strategies}. This will e.g.\ make the
+(unless literal selection is activated --
+see~\ref{sec:options:strategies}). This will e.g.\ make the
 set-of-support strategy complete for the non-equational case. It may
 also make some proofs easier to find. On average, however, this can be
 expected to decrease performance.
 
-The option \texttt{--literal-comparison=<arg>} allow the user to
+The option \texttt{--literal-comparison=<arg>} allows the user to
 select alternative literal comparison schemes. In particular, literals
 will be first compared by predicate symbol, and only then by full
 terms. This is a poor man's version of transfinite
@@ -1491,7 +1487,7 @@ Each of the strategies that do actually select negative literals has a
 corresponding counterpart starting with \texttt{P} that additionally
 allows paramodulation into maximal positive literals\footnote{Except
   for \texttt{SelectOptimalLit}, where the resulting strategy,
-  \texttt{PSelectOptimalLit} will allow paramodulation into positive
+  \texttt{PSelectOptimalLit}, will allow paramodulation into positive
   literals only if no ground literal has been selected.}.
 
 
@@ -1500,11 +1496,11 @@ allows paramodulation into maximal positive literals\footnote{Except
   strategy. Try e.g.
 \begin{verbatim}
 eprover --literal-selection-strategy=NoSelection \
-          GRP001-1+rm_eq_rstfp.lop
+          PUZ031-1+rm_eq_rstfp.lop
 eprover --literal-selection-strategy=SelectLargestNegLit \
-          GRP001-1+rm_eq_rstfp.lop
+          PUZ031-1+rm_eq_rstfp.lop
 \end{verbatim}
-  You will find the file \texttt{GRP001-1+rm\_eq\_rstfp.lop} in the
+  You will find the file \texttt{PUZ031-1+rm\_eq\_rstfp.lop} in the
   \texttt{E/PROVER} directory.
 \end{example}
 
@@ -1516,11 +1512,11 @@ information about the set of implemented functions, run
 somewhat described in \texttt{E/HEURISTICS/che\_litselection.h}.
 
 
-\section{Controling Propositional Reasoning}
+\section{Controlling Propositional Reasoning}
 \label{sec:cdclopt}
 
-E now integrates the CDCL SAT solver \index{PicoSAT} (see
-section~\ref{sec:cdcl}.  Support for SAT checking is, so far, only
+E now integrates the CDCL SAT solver PicoSAT\index{PicoSAT} (see
+section~\ref{sec:cdcl}).  Support for SAT checking is, so far, only
 marginally integrated into the automatic mode, but can be controlled
 by the user via the following command line options.
 
@@ -1532,21 +1528,21 @@ by the user via the following command line options.
   & Enable periodic SAT checking whenever the total proof state size
     increases by the given limit. \\
   \multicolumn{2}{l}{\texttt{--satcheck-ttinsert-interval[=<arg>]}}\\
-  & Enable periodic SAT checking whenever the number of term tops insertions
+  & Enable periodic SAT checking whenever the number of term top insertions
     matches the given limit (which grows exponentially).\\
   \multicolumn{2}{l}{\texttt{--satcheck[=<arg>]}}\\
   & Set the grounding strategy for periodic SAT checking. Note that to enable
     SAT checking, it is also necessary to set the interval with one of the
-    previous two options. \\
+    previous three options. \\
   \multicolumn{2}{l}{\texttt{--satcheck-decision-limit[=<arg>]}}\\
   & Set the number of decisions allowed for each run of the SAT solver. If
     the option is not given, the built-in value is 10000. Use -1 to allow
-    unlimited decision. \\
+    unlimited decisions. \\
   \multicolumn{2}{l}{\texttt{--satcheck-normalize-const}}\\
   & Use the current normal form (as recorded in the termbank rewrite cache)
     of the selected constant as the term for the grounding substitution.\\
   \multicolumn{2}{l}{\texttt{--satcheck-normalize-unproc}}\\
-  & Enable re-simplification (heuristic re-revaluation) of unprocessed
+  & Enable re-simplification (heuristic re-evaluation) of unprocessed
     clauses before grounding for SAT checking.\\
 \end{tabular}
 
@@ -1561,7 +1557,7 @@ encounters\footnote{Clauses are checked against the watchlist after
   they are selected for processing.} a clause that subsumes one or
 more clauses from the watchlist, those clauses are removed from it.
 The saturation process terminates if the watchlist is empty (or, of
-course, if a saturated state or the empty clause have been reached).
+course, if a saturated state or the empty clause has been reached).
 
 There are two uses for a watchlist: To guide the proof search (using a
 heuristic that prefers clauses on the watchlist), or to find purely
@@ -1575,36 +1571,36 @@ consideration to clauses on the watchlist. This is currently supported
 via the \emph{priority functions} \texttt{PreferWatchlist} and
 \texttt{DeferWatchlist}. A clause evaluation function using
 \texttt{PreferWatchlist} will always select clauses which subsume
-watchlist clauses first. Similarly, using \texttt{DeferWatchlist} can
+watchlist clauses first. Similarly, \texttt{DeferWatchlist} can
 be used to put the processing of watchlist clauses off.
 
 There is a predefined clause selection heuristic \texttt{UseWatchlist}
 (select it with \texttt{-xUseWatchlist}) that will make sure that
 watchlist clauses are selected relatively early. It is a strong
-general purpose heuristic, and will maintain completeness of the
+general-purpose heuristic, and will maintain completeness of the
 prover. This should allow easy access to the watchlist feature even
 if you don't yet feel comfortable with specifying your own
 heuristics.
 
 To generate constructive proofs of clauses, just place them on the
-watch list and select output level 4 or greater (see
-section~\ref{sec:output:lots}). Steps affecting the watch list will be
-marked in the PCL2 output file. If you use the \emph{eproof} script
-for proof output or run \emph{epclextract} on your own, subproofs for
-watchlist steps will be automatically extracted.
+watchlist and select output level 4 or greater (see
+section~\ref{sec:output:lots}; note that output levels of 2 and above
+are deprecated). Steps affecting the watchlist will be marked in the
+PCL2 output file. If you run \emph{epclextract} on this output,
+subproofs for watchlist steps will be automatically extracted.
 
 Note that this forward reasoning is not complete, i.e.\ the prover may
 never generate a given watchlist clause, even if it would be trivial
 to prove it via refutation.
 
-Options controlling the use of the watch list:\\
+Options controlling the use of the watchlist:\\
 \begin{tabular}{lp{5.8cm}}
-  \texttt{--watchlist=<arg>} & Select a file containing the watch list
-  clauses. Syntax should be the same syntax as your proof problem
+  \texttt{--watchlist=<arg>} & Select a file containing the watchlist
+  clauses. The syntax should be the same as that of your proof problem
   (E-LOP\index{LOP}, TPTP-1/2 or
   TPTP-3/TSTP\index{TPTP!language}). Just write down a list of
   clauses and/or formulas.\\
-  \texttt{--no-watchlist-simplification} & By default, watch list
+  \texttt{--no-watchlist-simplification} & By default, watchlist
   clauses are simplified with respect to the current set
   \texttt{P}. Use this option to disable the feature.
 \end{tabular}
@@ -1638,20 +1634,16 @@ configuration. However, the defaults are usually quite sufficient.
 \subsubsection{Populating Knowledge Bases}
 
 The knowledge base contains information gained from clausal PCL2
-protocols of E. In a first step, information from the protocol is
-abstracted into a more compact form. A number of clauses is selected
-as training examples, and annotations about their role are computed.
-The result is a list of annotated clauses and a list of the axioms
-(initial clauses) of the problem. This step can be performed using the
-program \texttt{direct\_examples}\footnote{The name is an historical
-  accident and has no significance anymore}.
-
-In a second step, the collected information is integrated into the
-knowledge base. For this purpose, the program \texttt{ekb\_insert}
-can be used. However, it is probably more convenient to use the single
-program \texttt{ekb\_ginsert}, which directly extracts all pertinent
-information from a PCL2 protocol and inserts it into a designated
-knowledge base.
+protocols of E. Information from the protocol is abstracted into a
+more compact form: A number of clauses is selected as training
+examples, and annotations about their role are computed. The result is
+a list of annotated clauses and a list of the axioms (initial clauses)
+of the problem, which is then integrated into the knowledge base. The
+program \texttt{ekb\_ginsert} performs both steps: it extracts all
+pertinent information from a PCL2 protocol and inserts it into a
+designated knowledge base. (The older program \texttt{ekb\_insert}
+inserts examples that have already been extracted into this compact
+form. For most applications it is obsolete.)
 
 The program \texttt{ekb\_delete} will delete an example from a
 knowledge base. This process is not particularly efficient, as the
@@ -1665,7 +1657,7 @@ evaluation functions \texttt{TSMWeight()} and \texttt{TSMRWeight()}.
 Both compute a modification weight based on the learned knowledge, and
 apply it to a conventional symbol-counting base weight (similar to
 \texttt{Clauseweight()} for \texttt{TSMWeight()} and
-\texttt{Refinedweight()} for \texttt{TSMWeight()}. An example command
+\texttt{Refinedweight()} for \texttt{TSMRWeight()}). An example command
 line is:
 
 \texttt{eprover -x'(1*TSMWeight(ConstPrio, 1, 1, 2, flat,
@@ -1692,7 +1684,7 @@ TBC - run \texttt{eprover --help} for a short overview.
 E supports three different input formats and two different output
 formats. If no particular format is explicitly requested, E will
 determine the input format based on the first tokens of the input file
-and also select a  matching output format.
+and also select a matching output format.
 
 \section{LOP}
 
@@ -1719,8 +1711,8 @@ differences, however:
   symbols. This should not usually affect pure theorem proving tasks.
 \item E normally treats procedural clauses exactly as it treats
   declarative clauses. Query clauses (clauses with an empty head and
-  starting with \texttt{?-}, e.g. \texttt{?-$\sim$p(X), q(X).} can
-  optionally be used to define the a set of \emph{goal clauses} (by
+  starting with \texttt{?-}, e.g. \texttt{?-$\sim$p(X), q(X).}) can
+  optionally be used to define a set of \emph{goal clauses} (by
   default, all negative clauses are considered to be goals). At the
   moment, this information is only used for the initial set of support
   (with \texttt{--sos-uses-input-types}). Note that you can still
@@ -1731,21 +1723,21 @@ differences, however:
 \section{TPTP-2 and TPTP-3 Formats}
 
 The TPTP\index{TPTP}~\cite{Sutcliffe:TPTP-WWW} is a library of
-problems for automated theorem prover. Problems in the TPTP are
+problems for automated theorem provers. Problems in the TPTP are
 written in TPTP syntax\index{TPTP!language}. There are two major
 versions of the TPTP syntax, both of which are supported by E.
 
 Version 2\footnote{Version 1 allowed the specification of problems in
   clause normal form only. Version 2 is a conservative extension of
   version 1 and adds support for full first order formulas.} of the
-TPTP syntax was used up for TPTP releases previous to TPTP~3.0.0.  The
+TPTP syntax was used for TPTP releases previous to TPTP~3.0.0.  The
 current version 3 of the TPTP syntax, described in
 \cite{SSCG:IJCAR-2006}, covers both input problems and both proof and
 model output using one consistent formalism. It has been used as the
 native format for TPTP releases since TPTP~3.0.0.
 
 Parsing in TPTP format version 2 is enabled by the options
-\texttt{--tptp-in}, \texttt{tptp2-in}, \texttt{--tptp-format} and
+\texttt{--tptp-in}, \texttt{--tptp2-in}, \texttt{--tptp-format} and
 \texttt{--tptp2-format}. The last two options also select TPTP 2
 format for the output of normal clauses during and after
 saturation. Proof output will be in PCL2 format, however.
@@ -1754,7 +1746,7 @@ TPTP syntax version 3~\cite{SSCG:IJCAR-2006,SSCB:LPAR-2012} is the
 currently recommended format. It is supported by many provers, it is
 more consistent than the old TPTP language, and it adds a number of
 useful features.  E supports TPTP-3 syntax with the options
-\texttt{--tstp-in} , \texttt{tptp3-in}, \texttt{--tstp-format} and
+\texttt{--tstp-in}, \texttt{--tptp3-in}, \texttt{--tstp-format} and
 \texttt{--tptp3-format}. The last two options will also enable TPTP-3
 format for proof output. Note that many of E's support tools still
 require PCL2 format. Various tools for processing TPTP-3 proof format
@@ -1774,14 +1766,14 @@ monomorphic higher-order logic. The option can be enabled at compile
 time by passing \texttt{--enable-ho} to the \texttt{configure} script.
 
 In this section we give a very short introduction to (LF)HOL syntax
-and semantics. Detailed description (which includes semantics) can be
+and semantics. A detailed description (which includes semantics) can be
 found in a paper by Bentkamp, Blanchette, Cruanes, and
 Waldmann~\cite{BBCW:IJCAR-2018}, available at
 \url{http://matryoshka.gforge.inria.fr/pubs/lfhosup_report.pdf}. The
 implementation is described
 in~\cite{VBCS:TACAS-2019,VBCS:LFHOReport-2018}.
 
-LFHOL extends FOL by allowing partial appliciation of function symbols
+LFHOL extends FOL by allowing partial application of function symbols
 as well as application of variables to other terms. Unlike other HOLs,
 there is no comprehension principle, and boolean formulae can only
 appear as atoms (not as arguments to other symbols). Quantification
@@ -1799,9 +1791,9 @@ As an example, LFHOL is expressive enough to reason about higher-order
 combinators such as \textsf{map} (pointwise application of a function
 to a list) or \textsf{power} (iterative application of a function).
 
-The example problem \texttt{list.p} in the directory
+The example problem \texttt{lists.p} in the directory
 \texttt{EXAMPLE\_PROBLEMS/LFHOL} shows how LFHOL features can be used
-to succintly express problems that have more verbose encodings in FOL.
+to succinctly express problems that have more verbose encodings in FOL.
 
 To get a feeling for what is provable in LFHOL, consider the following
 example:
@@ -1812,7 +1804,7 @@ In most HOLs, this formula is provable, and the witness is the
 function $\lambda x \, y. \, \textsf{f} \, y \, x$. In LFHOL, the
 function cannot be synthesized, so the proof can only be concluded if
 such a function is explicitly described in the axiomatization.  This
-proof problem is also provdied in \texttt{EXAMPLE\_PROBLEMS/LFHOL},
+proof problem is also provided in \texttt{EXAMPLE\_PROBLEMS/LFHOL},
 both with and without the axiom providing the permuting function.
 
 
@@ -1823,14 +1815,18 @@ E has several different output levels, controlled by the option
 \texttt{-l} or \texttt{--output-level}. Level 0 prints nearly no
 output except for the result. Level 1 is intended to give humans a
 somewhat readable impression of what is going on inside the inference
-engine.  Levels 3 to 6 output increasingly more information about the
-inside processes in PCL2\index{PCL} format. At level 4 and above, a (large)
-superset of the proof inferences is printed. You can use the
-\texttt{epclextract} utility in \texttt{E/PROVER/} to extract a simple
-proof object.
+engine. Levels 2 and above output increasingly more information about
+the internal processes in PCL2\index{PCL} or TPTP-3 format. These
+levels are \emph{deprecated}. Their role has been taken over by proof
+objects (option \texttt{--proof-object}, see
+section~\ref{sec:output:proofobj}).
 
-In Level 0 and 1, everything E prints is either a clause that is
+At levels 0 and 1, everything E prints is either a clause that is
 implied by the original axioms, or a comment (or, very often, both).
+
+Comments start with \verb+%+, the TPTP comment character. If E has
+been configured with \texttt{--unix-comments}, they start with
+\verb+#+ instead.
 
 
 \section{The Bare Essentials}
@@ -1844,12 +1840,12 @@ search after termination. The following possibilities exist:
 \begin{itemize}
 \item The prover found a proof. This is denoted by the output string
 \begin{verbatim}
-# Proof found!
+% Proof found!
 \end{verbatim}
 \item The problem does not have a proof, i.e. the specification is
   satisfiable (and E can detect this):
 \begin{verbatim}
-# No proof found!
+% No proof found!
 \end{verbatim}
   Ensuring the completeness of a prover is much harder than ensuring
   correctness. Moreover, proofs can easily be checked by analyzing the
@@ -1859,28 +1855,28 @@ search after termination. The following possibilities exist:
     memory (see below), the user selects an unfair strategy (in which
     case the prover may never terminate), or some strange and
     unexpected things happen.} but my belief in the former is stronger
-  than my belief in the latter\ldots...
+  than my belief in the latter\ldots
 \item A (hard) resource limit was hit. For memory this can be either
-  due to a per process limit (set with \texttt{limit} or the prover
+  due to a per-process limit (set with \texttt{limit} or the prover
   option \texttt{--memory-limit}), or due to running out of virtual
-  memory. For CPU time, this case is triggered if the per process CPU
+  memory. For CPU time, this case is triggered if the per-process CPU
   time limit is reached and signalled to the prover via a
   \texttt{SIGXCPU} signal. This limit can be set with \texttt{limit}
-  or, more reliable, with the option \texttt{--cpu-limit}. The output
+  or, more reliably, with the option \texttt{--cpu-limit}. The output
   string is one of the following two, depending on the exact reason
   for termination:
 \begin{verbatim}
-# Failure: Resource limit exceeded (memory)
-# Failure: Resource limit exceeded (time)
+% Failure: Resource limit exceeded (memory)
+% Failure: Resource limit exceeded (time)
 \end{verbatim}
 \item A user-defined limit was reached during saturation, and the
   saturation process was stopped gracefully. Limits include number of
   processed clauses, number of total clauses, and CPU time (as set
   with \texttt{--soft-cpu-limit}). The output string is
 \begin{verbatim}
-# Failure: User resource limit exceeded!
+% Failure: User resource limit exceeded!
 \end{verbatim}
-  \ldots and the user is expected to know which limit he selected.
+  \ldots and the user is expected to know which limit they selected.
 \item By default, E is \emph{complete}, i.e. it will only terminate if
   either the empty clause is found or all clauses have been processed
   (in which case the processed clause set is satisfiable). However, if
@@ -1891,15 +1887,15 @@ search after termination. The following possibilities exist:
   more. This effect manifests itself extremely rarely. If it does, E
   will print the following string:
 \begin{verbatim}
-  # Failure: Out of unprocessed clauses!
+  % Failure: Out of unprocessed clauses!
 \end{verbatim}
   This is roughly equivalent to Otter\index{Otter}'s \texttt{SOS empty} message.
-\item Finally, it is possible to chose restricted calculi when
+\item Finally, it is possible to choose restricted calculi when
   starting E. This is useful if E is used as a normalization tool or
   as a preprocessor or lemma generator. In this case, E will print a
   corresponding message:
 \begin{verbatim}
-# Clause set closed under restricted calculus!
+% Clause set closed under restricted calculus!
 \end{verbatim}
 \end{itemize}
 
@@ -1909,40 +1905,42 @@ search after termination. The following possibilities exist:
 
 If you run E without selecting an output level (or by setting it
 explicitly to 1), E will print each non-tautological, non-subsumed
-clause it processes as a comment. It will also print a hash
-('\verb+#+') for each clause it tries to process but can prove to be
-superfluous.
+clause it processes as a comment. It will also print the comment
+character ('\verb+%+') for each clause it selects for
+processing, so that clauses found to be superfluous show up as a
+sequence of these characters.
 
 This mode gives some indication of progress, and as the output is
 fairly restricted, does not slow the prover down too much.
 
 For any output level greater than 0, E will also print statistical
 information about the proof search and final clause sets. The data
-should be fairly self-explaining.
+should be fairly self-explanatory.
 
 
 \section{Inference Protocols}
 \label{sec:output:lots}
 
-THIS FEATURE IS DEPREACIATED. SEE NEXT SECTION. At output levels
-greater that 1, E prints certain inferences in PCL2\index{PCL}
-format\footnote{PCL2 is a proof output designed as a successor to
-  PCL~\cite{DS94a,DS94b,DS96a}.} or TPTP-3 output
-format\index{TPTP!language}.  At level 2, it only prints generating
-inferences. At level 4, it prints all generating and modifying
-inferences, and at level 6 it also prints PCL/TPTP-3 steps that don't
-correspond to inferences, but give some insight into the internal
-operation of the inference engine.  This protocol is fairly readable
-and, from level 4 on can be used to check the proof with the utility
-\texttt{checkproof} provided with the distribution.
+\emph{Output levels of 2 and above are deprecated. Their role has
+  been taken over by proof objects (see the next section).}
 
-Note that this feature has been replaced by the dynamic construction
-of proof objects, and is no longer actively maintained. As a result,
-strange things may happen, and newer inferences may not be supported
-at all. It's not (yet) been removed because some people still find it
+At output levels greater than 1, E prints certain inferences in
+PCL2\index{PCL} format\footnote{PCL2 is a proof output designed as a
+  successor to PCL~\cite{DS94a,DS94b,DS96a}.} or TPTP-3 output
+format\index{TPTP!language}. At level 2, it only prints generating
+inferences. Higher levels add modifying inferences and, finally,
+PCL/TPTP-3 steps that don't correspond to inferences, but give some
+insight into the internal operation of the inference engine. The
+\texttt{epclextract} utility in \texttt{E/PROVER/} can extract a
+proof from such a protocol.
+
+This feature is no longer actively maintained. As a result, strange
+things may happen, and newer inferences may not be supported at
+all. It has not (yet) been removed because some people still find it
 useful for debugging.
 
-\section{Proofs Objects}
+\section{Proof Objects}
+\label{sec:output:proofobj}
 
 
 E~1.9 and later can internally record all necessary information for
@@ -1952,8 +1950,8 @@ state) can ever participate in generating inferences or be used to
 simplify other clauses. For each clause, the system stores its origin
 (usually a generating inference and the parents), and a history of
 simplifications (inference rule and side premises). Only if a
-processed clause can be backward-simplified by a new clause, the
-original is archived and replaced by a simplified copy in the search
+processed clause can be backward-simplified by a new clause is the
+original archived and replaced by a simplified copy in the search
 state (which points to the original as its parent).
 
 When the empty clause has been derived and hence a proof concluded,
@@ -2012,10 +2010,10 @@ example.
   \hline
   \textbf{Answers} (\texttt{eprover -s --answers})\\
   \hline
-  \verb|# SZS status Theorem|\\
-  \verb+# SZS answers Tuple [[hume]|_]+\\
-  \verb+# SZS answers Tuple [([socrates]|[plato])|_]+\\
-  \verb|# Proof found!|\\
+  \verb|% SZS status Theorem|\\
+  \verb+% SZS answers Tuple [[hume]|_]+\\
+  \verb+% SZS answers Tuple [([socrates]|[plato])|_]+\\
+  \verb|% Proof found!|\\
   \hline
 \end{tabular}\\
 
@@ -2055,7 +2053,7 @@ First, E can give you some technical information about the conditions
 it runs under.
 
 The option \texttt{--print-pid} will make E print its process id as a
-comment, in the format \texttt{\# Pid: XXX}, where \texttt{XXX} is an
+comment, in the format \texttt{\% Pid: XXX}, where \texttt{XXX} is an
 integer number. This is useful if you want to send signals to the
 prover (in particular, if you want to terminate the prover) to control
 it from the outside.
@@ -2064,10 +2062,10 @@ The option \texttt{-R} (\texttt{--resources-info}) will make E print a
 summary of used system resources after graceful termination:
 
 \begin{verbatim}
-# User time                : 0.010 s
-# System time              : 0.020 s
-# Total time               : 0.030 s
-# Maximum resident set size: 0 pages
+% User time                : 0.010 s
+% System time              : 0.020 s
+% Total time               : 0.030 s
+% Maximum resident set size: 0 pages
 \end{verbatim}
 
 Most operating systems do not provide a valid value for the resident
@@ -2089,6 +2087,7 @@ clauses E knows about. The following table contains the meaning of the
 individual letters:
 
 \begin{tabular}{lp{9cm}}
+  \texttt{t} & Type declarations.\\
   \texttt{e} & Processed positive unit clauses (\emph{Equations}).\\
   \texttt{i} & Processed negative unit clauses (\emph{Inequations}).\\
   \texttt{g} & Processed non-unit clauses (except for the empty
@@ -2097,7 +2096,7 @@ individual letters:
   been computed.\\
   \texttt{E} & Unprocessed positive unit clauses.\\
   \texttt{I} & Unprocessed negative unit clauses.\\
-  \texttt{G} & Unprocessed non-unit clause (this set may contain the
+  \texttt{G} & Unprocessed non-unit clauses (this set may contain the
   empty clause in very rare cases).\\
   \texttt{a} & Print equality axioms (if equality is present in the
   problem). This letter prints axioms for reflexivity, symmetry, and
@@ -2110,17 +2109,17 @@ individual letters:
 The short form, \texttt{-S}, is equivalent to
 \texttt{--print-saturated=eigEIG}. If the option
 \texttt{--print-sat-info} is set, then each of the clauses is followed
-by a comment of the form \texttt{\# info(id, pd, pl, sc, cd, nl,
+by a comment of the form \texttt{\% info(id, pd, pl, sc, cd, nl,
   no, nv)}. The following table explains the meaning of these values:
 
 \begin{tabular}{lp{10cm}}
 \texttt{id} & Clause ident (probably only useful internally) \\
 \texttt{pd} & Depth of the derivation graph for this clause \\
-\texttt{pl} & Number of nodes in the derivation grap \\
+\texttt{pl} & Number of nodes in the derivation graph \\
 \texttt{sc} & Symbol count (function symbols and variables) \\
 \texttt{cd} & Depth of the deepest term in the clause \\
 \texttt{nl} & Number of literals in the clause \\
-\texttt{no} & Number of variable occurences \\
+\texttt{no} & Number of variable occurrences \\
 \texttt{nv} & Number of different variables \\
 \end{tabular}
 
@@ -2128,7 +2127,7 @@ by a comment of the form \texttt{\# info(id, pd, pl, sc, cd, nl,
 \chapter{Additional utilities}
 
 The E distribution contains a number of programs beyond the main
-prover. The following sections contains a short description of the
+prover. The following sections contain a short description of the
 programs that are reasonably stable. All of the utilities support the
 option \texttt{--help} to print a description of the operation and all
 supported options.
@@ -2158,12 +2157,12 @@ Table~\ref{tab:opts}.
     \multicolumn{2}{l}{\texttt{-v}}\\
     \multicolumn{2}{l}{\texttt{--verbose[=level]}}\\
     & Make the program more verbose. Verbose output is written to
-    \texttt{stterr}, not the standard output, and will cover technical
+    \texttt{stderr}, not the standard output, and will cover technical
     aspects. Most programs support verbosity levels 0 (the default),
     1, and 2, with \texttt{-v} selecting level 1.\\
     \multicolumn{2}{l}{\texttt{-s}}\\
     \multicolumn{2}{l}{\texttt{--silent}}\\
-    & Reduce output of the tool to a minimal. \\
+    & Reduce the output of the tool to a minimum. \\
     \multicolumn{2}{l}{\texttt{-o<outfile>}}\\
     \multicolumn{2}{l}{\texttt{--output-file=<outfile>}}\\
     & By default, most of the programs in the E distribution provide
@@ -2197,11 +2196,11 @@ class is \emph{effectively propositional} (EPR), since the Herbrand
 universe is finite. The program \texttt{eground} takes a problem from
 the Bernays-Sch{\"o}nfinkel class, or an EPR clause normal form
 problem, and tries to convert it into an equisatisfiable propositional
-problem. It does so by clausification and instantiation of the the
-clausal problem. The resulting propositional problem can than be
+problem. It does so by clausification and instantiation of the
+clausal problem. The resulting propositional problem can then be
 handed to a propositional reasoner (e.g. Chaff~\cite{MMZZM:DAC-2001}
-or MiniSAT~\cite{ES:SAT-2003}). One pre-packaged system build on this
-principles is GrAnDe~\cite{SS:CADE-2002}.
+or MiniSAT~\cite{ES:SAT-2003}). One pre-packaged system built on this
+principle is GrAnDe~\cite{SS:CADE-2002}.
 
 \texttt{Eground} uses a number of techniques to reduce the number of
 instances generated. The technical background is described
@@ -2229,7 +2228,7 @@ The rule set can be specified as a set of positive unit clauses and/or
 formulas that clausify into unit clauses. Literals are taken as
 rewrite rules with the orientation they are specified in the input. In
 particular, no term ordering is applied, and neither termination nor
-confluence are ensured or verified. The rewrite rules are applied
+confluence is ensured or verified. The rewrite rules are applied
 exhaustively, but in an unspecified order. Subterms are normalized in
 strict leftmost/innermost manner. In particular, all subterms are
 normalized before a superterm is rewritten.
@@ -2247,13 +2246,13 @@ A typical command line for starting \texttt{enormalizer} is:
 \index{e\_ltb\_runner|texttt}\index{batch processing}
 
 E is designed to handle individual proof problems, one at a time. The
-prover has mechanism to handle even large specifications. However, in
+prover has mechanisms to handle even large specifications. However, in
 cases where multiple queries or conjectures are posed against a large
 background theory, even the parsing of the background theory may take
 up significant time. \texttt{E\_ltb\_runner} has been developed to
 efficiently handle this situation. It can read the background theory
 once, and then run E with additional axioms and different conjectures
-against this background theory without re-parsing of the full theory.
+against this background theory without re-parsing the full theory.
 
 The program was originally designed for running sets of queries
 against \emph{large theories} in \emph{batch mode}, but now also
@@ -2286,7 +2285,7 @@ used on a multi-core machine with sufficient amounts of memory.
 semantics, and hence will only (and implicitly) work with the TPTP-3
 syntax. The main program runs several instances of \texttt{eprover} as
 sub-processes. Unless that executable is in the search path, the full
-path should be given as as the optional second argument to the
+path should be given as the optional second argument to the
 program.
 
 A typical command line for starting \texttt{e\_ltb\_runner} is:
@@ -2296,7 +2295,7 @@ A typical command line for starting \texttt{e\_ltb\_runner} is:
 \end{verbatim}
 
 For interactive use, add the option \texttt{--interactive}, for
-multi-format support (see below) add \texttt{--variant27}.
+multi-format support (see below) add \texttt{--variants27}.
 
 
 \subsection{Batch specification file}
@@ -2308,7 +2307,7 @@ year. E tracks this development. The E~1.9 distribution implements
 support for the LTB format used in CASC-24/CASC-25 and documented at
 \url{http://www.cs.miami.edu/~tptp/CASC/24/Design.html#Problems},
 subsection \emph{Batch Specification Files}. It tries to maintain
-backwards-compatibility to for the LTB format used in CASC-J6 and
+backward compatibility with the LTB format used in CASC-J6 and
 documented at
 \url{http://www.cs.miami.edu/~tptp/CASC/J6/Design.html#Problems}. Later
 versions support later formats. In particular, E~2.4 adds support for
@@ -2354,7 +2353,7 @@ include('Axioms/CSR003+5.ax').
 
 Figure~\ref{fig:ltbspec} shows an example of an LTB batch
 specification file. \texttt{E\_ltb\_runner} ignores all comment lines
-in the batch specification file. The non-comment-lines are described
+in the batch specification file. The non-comment lines are described
 below.
 
 \begin{itemize}
@@ -2384,17 +2383,18 @@ below.
   \end{itemize}
 \item \texttt{output.desired \emph{space\_separated\_list}}
 
-   This specifies what output is required from the system. Available
+  This specifies what output is desired from the system. Available
   values are as for the previous option.  \texttt{E\_ltb\_runner}
   treats this exactly as the required output.
 \item \texttt{limit.time.problem.wc \emph{limit\_in\_seconds}}
+
   The wall clock time limit allowed per problem. If this is zero, no
   per-problem limit exists.
 \item The specification of the background theory, in the form of a
-  list of TPTP \texttt{include} statement. Note that the file names
+  list of TPTP \texttt{include} statements. Note that the file names
   will be interpreted as always: An absolute file name is an absolute
   file name. A relative file name is relative to the current working
-  directory, or, of the file is not found, relative to the value of
+  directory, or, if the file is not found, relative to the value of
   the \texttt{TPTP} environment variable (if set).
 \item The list of individual batch jobs, in the form of pairs of
   absolute problem file names, with the first giving the problem
@@ -2418,13 +2418,13 @@ user requests are supported:
 \item \texttt{quit}: Terminates the program in a controlled manner.
 \item The last option specifies a theorem proving job. It optionally
   starts with a job name specifier of the form \texttt{job <ident>.}
-  and then specified a problem in TPTP-3 CNF/FOF syntax (optionally
+  and then specifies a problem in TPTP-3 CNF/FOF syntax (optionally
   using include statements). After the concluding \texttt{go.}, the
   specification will be parsed, combined with the background theory,
   and passed to the proving engine.
 \end{itemize}
 
-Figure~\ref{fig:lbtsession} shows an slightly shortened example of an
+Figure~\ref{fig:lbtsession} shows a slightly shortened example of an
 interactive session with \texttt{e\_ltb\_runner}.
 
 \begin{figure}
@@ -2432,57 +2432,57 @@ interactive session with \texttt{e\_ltb\_runner}.
   \footnotesize
 \begin{verbatim}
 > e_ltb_runner ../etc/LTBSampleInputI.txt --interactive
-# Parsing Axioms/CSR003+2.ax
-# Parsing Axioms/CSR003+5.ax
+% Parsing Axioms/CSR003+2.ax
+% Parsing Axioms/CSR003+5.ax
 
-# == WCT:    1s, Solved:    0/   0    ==
-# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
+% == WCT:    1s, Solved:    0/   0    ==
+% Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
 help
 go.
-# Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line
-# of its own. A job consists of an optional job name specifier of the
-# form 'job <ident>.', followed by a specification of a first-order
-# problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and
-# 'include' statements. The system then tries to solve the specified
-# problem (including the constant background theory) and prints the
-# results of this attempt.
-# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
+% Enter a job, 'help' or 'quit'. Finish any action with 'go.' on a line
+% of its own. A job consists of an optional job name specifier of the
+% form 'job <ident>.', followed by a specification of a first-order
+% problem in TPTP-3 syntax (including any combination of 'cnf', 'fof' and
+% 'include' statements. The system then tries to solve the specified
+% problem (including the constant background theory) and prints the
+% results of this attempt.
+% Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
 job test_job.
 include('CSR083+3.p').
 go.
 
-# Processing started for test_job
-# Filtering for Threshold(10000) (606)
-# Filtering for GSinE(CountFormulas, hypos, 6.000000, ...
-# Filtering for GSinE(CountFormulas, hypos, 1.200000, ...
+% Processing started for test_job
+% Filtering for Threshold(10000) (606)
+% Filtering for GSinE(CountFormulas, hypos, 6.000000, ...
+% Filtering for GSinE(CountFormulas, hypos, 1.200000, ...
 [...]
-# Filtering for GSinE(CountFormulas, nohypos, 6.000000, ...
-# No proof found by Threshold(10000)
-# SZS status Theorem for test_job
-# Solution found by GSinE(CountFormulas, nohypos, 1.200000, ...
-# Pid: 69178
-# Preprocessing time       : 0.012 s
-# SZS status Theorem
-# SZS answers Tuple [[s__Human]|_]
+% Filtering for GSinE(CountFormulas, nohypos, 6.000000, ...
+% No proof found by Threshold(10000)
+% SZS status Theorem for test_job
+% Solution found by GSinE(CountFormulas, nohypos, 1.200000, ...
+% Pid: 69178
+% Preprocessing time       : 0.012 s
+% SZS status Theorem
+% SZS answers Tuple [[s__Human]|_]
 
-# Proof found!
+% Proof found!
 
-# -------------------------------------------------
-# User time                : 0.009 s
-# System time              : 0.005 s
-# Total time               : 0.013 s
-# Maximum resident set size: 2457600 pages
-# Proof reconstruction starting
-# SZS output start CNFRefutation.
+% -------------------------------------------------
+% User time                : 0.009 s
+% System time              : 0.005 s
+% Total time               : 0.013 s
+% Maximum resident set size: 2457600 pages
+% Proof reconstruction starting
+% SZS output start CNFRefutation.
 [...]
-# SZS output end CNFRefutation
-# Proof reconstruction done
+% SZS output end CNFRefutation
+% Proof reconstruction done
 
-# Processing finished for test_job
+% Processing finished for test_job
 
-# Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
+% Enter job, 'help' or 'quit', followed by 'go.' on a line of its own:
 \end{verbatim}
-  \caption{Example of an interactive\texttt{e\_ltb\_runner} session
+  \caption{Example of an interactive \texttt{e\_ltb\_runner} session
     (slightly shortened)}
   \label{fig:lbtsession}
 \end{figure}
@@ -2493,7 +2493,7 @@ go.
 One of the problems of automated deduction is the handling of large
 specifications that contain a lot of axioms that are not relevant for
 the conjectures at hand. The irrelevant facts contribute to the size
-and growths of the search space, and hence make proof search much more
+and growth of the search space, and hence make proof search much more
 difficult.
 
 E provides a mechanism to apply (pruning) filters to
@@ -2525,23 +2525,23 @@ default, which consists of a set of reasonably orthogonal filters.
 \subsection{Filter algorithms}
 
 E currently implements two types of filters. The major filter type is
-a configurable variant of Kry\v{s}toff Hoder's SInE\index{SInE}
-algorithm~\cite{HV:CADE-2011} for pruning large specification. The
+a configurable variant of Kry\v{s}tof Hoder's SInE\index{SInE}
+algorithm~\cite{HV:CADE-2011} for pruning large specifications. The
 basic idea of this filter is to rate function- and predicate symbols
 by their rarity - the less often a symbol occurs in the specification,
 the more important any given formula or clause that handles the symbol
 is for the definition of that symbol. The algorithm starts by
 computing the \emph{D-relation} between clauses/formulas and
 symbols. A clause/formula is in the \emph{D-relation} with the rarest
-symbols that occur in it. The exact details of "rarest" are
+symbols that occur in it. The exact details of ``rarest'' are
 configurable in a number of ways - see below.
 
 The selection algorithm starts with the conjectures (all
-clauses/formulas of TPTP type \texttt{conjecture}, and marks all
+clauses/formulas of TPTP type \texttt{conjecture}), and marks all
 symbols in them as active. It then proceeds to add all
 clauses/formulas that are in the D-relation with an active symbol. All
 other symbols in those new clauses are made active as well, and the
-process repeats until a fix point is reached or one of several other
+process repeats until a fixed point is reached or one of several other
 termination conditions is reached.
 
 The second kind of filter is a simple threshold filter. It will pass
@@ -2556,7 +2556,7 @@ tackled using a variety of filters. Such an approach is implemented by
 
 \subsection{Filter specification}
 
-The specification of a single filter follows the syntax show in
+The specification of a single filter follows the syntax shown in
 Figure~\ref{fig:axfilter}. For all optional names and values,
 reasonable defaults are provided automatically.
 
@@ -2567,15 +2567,15 @@ reasonable defaults are provided automatically.
 
 <sine-filter> ::=      GSinE '(' CountTerms|CountFormulas ','
                                  [hypos|nohypos] ','
-                                 [<benvolvence>]  ','
+                                 [<benevolence>]  ','
                                  [<generosity>]   ','
                                  [<rec-depth>]    ','
                                  [<set-size>]     ','
                                  [<set-fraction>]
                                  [ ',' addnosymb|ignorenosymb] ')'
-<threshold-filter> ::= Theshold '(' <threshold> ')'
+<threshold-filter> ::= Threshold '(' <threshold> ')'
 \end{verbatim}
-  \caption{Specification filter specification syntax}
+  \caption{Filter specification syntax}
   \label{fig:axfilter}
 \end{figure}
 
@@ -2613,7 +2613,7 @@ The parameters have the following type and meaning:
   pass the filter. E does not consider equality as a (normal) symbol,
   so clauses or formulas that only contain variables will never be
   selected by the standard SInE algorithm. This parameter adds them
-  explicitly. This is a rare occurence, so the effect is minor in
+  explicitly. This is a rare occurrence, so the effect is minor in
   either case.
 \end{itemize}
 
@@ -2622,7 +2622,7 @@ The parameters have the following type and meaning:
   \chapter{Acknowledgements}
 
   \index{Acknowledgements} Many people have helped shape E with
-  discussions and requests. They are to numerous to be listed here,
+  discussions and requests. They are too numerous to be listed here,
   but outstanding contributors include Robert Nieuwenhuis (who
   introduced me to literal selection), Geoff Sutcliffe (who always
   pushes for one more feature - or ten), Andrei Voronkov (for playing
@@ -2633,7 +2633,7 @@ The parameters have the following type and meaning:
   In addition to this moral support, Martin M\"ohrmann has done some
   cleanup and optimization of the code, Simon Cruanes has implemented
   the extension to many-sorted logic, and Petar Vukmirovic has added
-  support for higher order logic and other improvements.
+  support for higher-order logic and other improvements.
 
   Nik Sultana has overhauled the manual, fixing many of my errors and
   thus making space for new ones.
@@ -2753,14 +2753,14 @@ Th. Hillenbrand, A.~Jaeger, and B.~L{\"o}chner.
 Kry\v{s}tof Hoder and Andrei Voronkov.
 \newblock {Sine Qua Non for Large Theory Reasoning}.
 \newblock In Nikolaj Bj{\o}rner and Viorica Sofronie-Stokkermans, editors, {\em
-  Proc.\ of the 23rd CADE, Wroclav, Poland}, volume 6803 of {\em LNAI}, pages
+  Proc.\ of the 23rd CADE, Wroc{\l}aw, Poland}, volume 6803 of {\em LNAI}, pages
   299--314. Springer, 2011.
 
 \bibitem[KMV11]{KMV:CADE-2011}
 Laura Kov{\'a}cs, Georg Moser, and Andrei Voronkov.
 \newblock {On Transfinite Knuth-Bendix Orders}.
 \newblock In Nikolaj Bj{\o}rner and Viorica Sofronie-Stokkermans, editors, {\em
-  Proc.\ of the 23rd CADE, Wroclav, Poland}, volume 6803 of {\em LNAI}, pages
+  Proc.\ of the 23rd CADE, Wroc{\l}aw, Poland}, volume 6803 of {\em LNAI}, pages
   384--399. Springer, 2011.
 
 \bibitem[KV13]{KV:CAV-2013}
@@ -2772,8 +2772,8 @@ Laura Kov{\'a}cs and Andrei Voronkov.
 \bibitem[LW07]{LW:LPAR-2007}
 Michel Ludwig and Uwe Waldmann.
 \newblock {An Extension of the Knuth-Bendix Ordering with LPO-Like Properties}.
-\newblock In Nachum Dershowitz and Andei Voronkov, editors, {\em Proc.\ of the
-  14th LPAR, Yerevan, Armenia}, volume 4790 of {\em LNCS}, pages 348–--362.
+\newblock In Nachum Dershowitz and Andrei Voronkov, editors, {\em Proc.\ of the
+  14th LPAR, Yerevan, Armenia}, volume 4790 of {\em LNCS}, pages 348--362.
   Springer, 2007.
 
 \bibitem[McC94]{Mc94}
@@ -2876,7 +2876,7 @@ S.~Schulz.
 Stephan Schulz, Simon Cruanes, and Petar Vukmirovi{\'c}.
 \newblock Faster, higher, stronger: {E} 2.3.
 \newblock In Pascal Fontaine, editor, {\em Proc.\ of the 27th CADE, Natal,
-  Brasil}, number 11716 in LNAI, pages 495--507. Springer, 2019.
+  Brazil}, number 11716 in LNAI, pages 495--507. Springer, 2019.
 
 \bibitem[SS02]{SS:CADE-2002}
 S.~Schulz and G.~Sutcliffe.
@@ -2895,7 +2895,7 @@ Geoff Sutcliffe, Stephan Schulz, Koen Claessen, and Peter Baumgartner.
 Geoff Sutcliffe, Stephan Schulz, Koen Claessen, and Allen~Van Gelder.
 \newblock {Using the TPTP Language for Writing Derivations and Finite
   Interpretations }.
-\newblock In Ulrich Fuhrbach and Natarajan Shankar, editors, {\em Proc.\ of the
+\newblock In Ulrich Furbach and Natarajan Shankar, editors, {\em Proc.\ of the
   3rd IJCAR, Seattle}, volume 4130 of {\em LNAI}, pages 67--81. Springer, 2006.
 
 \bibitem[SSSU]{SSSU:TPTP-ANS}
@@ -2903,13 +2903,13 @@ Geoff Sutcliffe, Mark Stickel, Stephan Schulz, and Josef Urban.
 \newblock {Answer Extraction for TPTP}.
 \newblock
   \url{http://www.cs.miami.edu/~tptp/TPTP/Proposals/AnswerExtraction.html}.
-\newblock (acccessed 2013-07-08).
+\newblock (accessed 2013-07-08).
 
 \bibitem[Sut09]{Sutcliffe:TPTP-WWW}
 G.~Sutcliffe.
 \newblock {The TPTP Web Site}.
 \newblock \url{http://www.tptp.org}, 2004--2009.
-\newblock (acccessed 2009-09-28).
+\newblock (accessed 2009-09-28).
 
 \bibitem[Tam97]{Tammet:JAR-97}
 T.~Tammet.
