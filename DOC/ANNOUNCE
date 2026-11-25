@@ -2213,18 +2213,20 @@ The main changes compared to E 3.2 are:
 
 - Proof search is now reproducible: repeated runs on the same problem
   give the same result, the same proof and the same statistics, for
-  both first-order and higher-order problems.
+  both first-order and higher-order problems, and even under
+  randomized address space layout.
 - Several soundness and completeness bugs have been fixed, in
   particular in clause splitting, predicate elimination with gate
   recognition, and condensing.
 - Proof objects document Skolemization step by step, as required for
   checkable TPTP-3 proofs, and --proof-object=3 makes every
-  simplification step a separate inference.
+  simplification step a separate inference (thanks to Lydia
+  Kondylidou).
 - A new TWEE-inspired clause evaluation function (GDWeight), and the
   conjecture-oriented term weights now work with typed and
   higher-order terms.
 - $distinct is accepted anywhere in FOF, TFF and THF formulas, and
-  THF $ite is also accepted in application syntax.
+  THF $ite is also accepted in applicative syntax.
 - The default comment character is now "%" (use
   ./configure --unix-comments for "#").
 - A much simpler build system that works with any POSIX make.
@@ -2237,7 +2239,7 @@ my hands on: Various versions of GNU/Linux for Intel and XScale,
 Solaris on SPARC, MacOS-X (with both GNU gcc and LLVM), and
 FreeBSD. Current versions are tested under OS-X/macOS and Linux. Users
 have also reported successful builds on a large number of other
-operating systems, including Windows/Cygwin.
+operating systems, including Windows/Cygwin and WSL.
 
 You can find installation instructions in the README file. Building
 the prover with HO-support is as easy as
