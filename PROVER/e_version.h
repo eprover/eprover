@@ -49,7 +49,7 @@ Contents
 
 #define E_NICKNAME     "Countess Grey"
 
-#define E_URL "http://www.eprover.org"
+#define E_URL "https://www.eprover.org"
 
 #define STS_MAIL "schulz@eprover.org"
 #define STS_COPYRIGHT "Copyright 1998-2026 by Stephan Schulz"
@@ -78,9 +78,8 @@ GNU General Public License for more details.\n\
 \n\
 You should have received a copy of the GNU General Public License\n\
 along with this program (it should be contained in the top level\n\
-directory of the distribution in the file COPYING); if not, write to\n\
-the Free Software Foundation, Inc., 59 Temple Place, Suite 330,\n\
-Boston, MA  02111-1307 USA\n\
+directory of the distribution in the file COPYING); if not, see\n\
+<https://www.gnu.org/licenses/>.\n\
 \n\
 We welcome bug reports and even reasonable questions. If the prover\n\
 behaves in an unexpected way, please include the following\n\
@@ -89,11 +88,11 @@ information:\n\
 - What did you observe?\n\
 - What did you expect?\n\
 - The output of `eprover --version`\n\
-- The full commandline that lead to the unexpected behaviour\n\
-- The input file(s) that lead to the unexpected behaviour\n\
+- The full command line that led to the unexpected behaviour\n\
+- The input file(s) that led to the unexpected behaviour\n\
 \n\
-Most bug reports should be send to <"STS_MAIL">. Bug reports with \n\
-respect to the HO-version should be send to or at least copied to \n\
+Most bug reports should be sent to <"STS_MAIL">. Bug reports with\n\
+respect to the HO-version should be sent to or at least copied to\n\
 <"HO_MAIL">. Please remember that this is an unpaid\n\
 volunteer service.\n\
 \n\

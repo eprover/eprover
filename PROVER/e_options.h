@@ -294,19 +294,19 @@ OptCell opts[] =
     'p', "proof-object",
     OptArg, "1",
     "Generate (and print, in case of success) an internal proof object. "
-    "Level 0 will not print a proof object, level 1 will build a"
+    "Level 0 will not print a proof object, level 1 will build a "
     "simple, compact proof object that only contains inference rules "
     "and dependencies, level 2 will build a proof object where "
     "inferences are unambiguously described by giving inference "
     "positions, and level 3 will expand this to a proof object where "
-    "all intermediate results are explicit. This feature is under "
-    "development. Level 2 is not yet operational. Level 3 prints the "
+    "all intermediate results are explicit. Level 2 is not yet "
+    "implemented and currently behaves like level 1. Level 3 prints the "
     "clause after each simplification step, so that each step is a "
     "separate inference. "
     "The proof object will be provided in TPTP-3 or PCL "
     "syntax, depending on input format and explicit settings. The "
     "--proof-graph option will suppress normal output of the proof "
-    "object in favour of a graphial representation."},
+    "object in favour of a graphical representation."},
 
    {OPT_PROOF_GRAPH,
     '\0', "proof-graph",
@@ -315,8 +315,8 @@ OptCell opts[] =
     "in the form of a GraphViz dot graph. The optional argument can be 1 "
     "(nodes are labelled with just the name of the clause/formula), "
     "2 (nodes are "
-    "labelled with the TPTP clause/formula) or 3  (nodes "
-    "also labelled with source/inference record."},
+    "labelled with the TPTP clause/formula) or 3 (nodes "
+    "also labelled with source/inference record)."},
 
    {OPT_PROOF_STATS,
     '\0', "proof-statistics",
@@ -326,14 +326,14 @@ OptCell opts[] =
    {OPT_FULL_DERIV,
     'd', "full-deriv",
     NoArg, NULL,
-    "Include all derived formuas/clauses in the proof graph/proof "
+    "Include all derived formulas/clauses in the proof graph/proof "
     "object, not just the ones contributing to the actual proof."},
 
    {OPT_FORCE_DERIV,
     '\0', "force-deriv",
     OptArg, "1",
     "Force output of the derivation even in cases where the prover "
-    "terminates in an indeterminate state. By default, the deriviation "
+    "terminates in an indeterminate state. By default, the derivation "
     "of all processed clauses is included in the derivation object. "
     "With argument 2, the derivation of all clauses will be printed."},
 
@@ -349,8 +349,8 @@ OptCell opts[] =
     '\0', "training-examples",
     OptArg, "1",
     "Generate and process training examples from the proof search object."
-    " Implies --record-gcs. The argument is a binary or of the desired "
-    "processing. Bit zero prints positive exampels. Bit 1 prints negative "
+    " Implies --record-gcs. The argument is a binary OR of the desired "
+    "processing. Bit 0 prints positive examples. Bit 1 prints negative "
     "examples. Additional selectors will be added later."},
 
    {OPT_PCL_COMPRESSED,
@@ -361,7 +361,7 @@ OptCell opts[] =
    {OPT_PCL_COMPACT,
     '\0', "pcl-compact",
     NoArg, NULL,
-    "Print PCL steps without additional spaces for formatting (safes "
+    "Print PCL steps without additional spaces for formatting (saves "
     "disk space for large protocols)."},
 
    {OPT_PCL_SHELL_LEVEL,
@@ -376,7 +376,7 @@ OptCell opts[] =
     '\0', "print-statistics",
     NoArg, NULL,
     "Print the inference statistics (only relevant for output level <=1, "
-    "otherwise they are printed automatically."},
+    "otherwise they are printed automatically)."},
 
    {OPT_EXPENSIVE_DETAILS,
     '0', "print-detailed-statistics",
@@ -411,11 +411,11 @@ OptCell opts[] =
    {OPT_FILTER_SATURATED,
     '\0', "filter-saturated",
     OptArg, DEFAULT_FILTER_DESCRIPTOR,
-    "Filter the  (semi-) saturated clause sets after terminating the "
+    "Filter the (semi-) saturated clause sets after terminating the "
     "saturation process. The argument is a string describing which "
     "operations to take (and in which order). Options are 'u' (remove"
     " all clauses with more than one literal), 'c' (delete all but one"
-    " copy of identical clauses, 'n', 'r', 'f' (forward contraction, "
+    " copy of identical clauses), 'n', 'r', 'f' (forward contraction, "
     "unit-subsumption only, no rewriting, rewriting with rules only,"
     " full rewriting, respectively), and 'N', 'R' and 'F' (as their"
     " lower case counterparts, but with non-unit-subsumption enabled"
@@ -425,12 +425,12 @@ OptCell opts[] =
     '\0', "syntax-only",
     NoArg, NULL,
     "Stop after parsing, i.e. only check if the input can be parsed "
-    "correcly."},
+    "correctly."},
    {OPT_PRINT_FORMULAS,
     '\0', "print-formulas",
     NoArg, NULL,
-    "If the syntax checks out, print back an include-expanded all "
-    "formula-version of the peoblem, then terminate."},
+    "If the syntax checks out, print back the problem with all "
+    "includes expanded and all clauses as formulas, then terminate."},
 
    {OPT_PRUNE_ONLY,
     '\0', "prune",
@@ -460,7 +460,7 @@ OptCell opts[] =
     '\0', "print-version",
     NoArg, NULL,
     "Print the version number of the prover as a comment after option "
-    "processing. Note that unlike -version, the prover will not "
+    "processing. Note that unlike --version, the prover will not "
     "terminate, but proceed normally."},
 
    {OPT_REQUIRE_NONEMPTY,
@@ -478,15 +478,10 @@ OptCell opts[] =
     ReqArg, NULL,
     "Limit the memory the prover may use. The argument is "
     "the allowed amount of memory in MB. If you use the argument 'Auto',"
-    " the system will try to figure out the amount of physical memory of "
-    "your machine and claim most of it. This option may not work "
-    "everywhere, due to broken and/or strange behaviour of setrlimit() "
-    "in some UNIX implementations, and due to the fact that I know "
-    "of no portable way to figure out the physical memory in a machine. "
-    "Both the option and the 'Auto' version do work under all tested "
-    "versions of Solaris and GNU/Linux. Due to problems with limit "
-    "data types, it is currently impossible to set a limit of more than "
-    "2 GB (2048 MB)."},
+    " the prover will determine the physical memory of the machine, "
+    "claim 80% of it, and set --delete-bad-limit accordingly. The limit "
+    "is enforced with setrlimit() (data segment and address space), "
+    "which may behave differently on some UNIX implementations."},
 
    {OPT_CPU_LIMIT,
     '\0', "cpu-limit",
@@ -497,7 +492,7 @@ OptCell opts[] =
     "state. As a side effect, this option will inhibit core file "
     "writing. Please note that if you use both --cpu-limit and "
     "--soft-cpu-limit, the soft limit has to "
-    "be smaller than the hard limit to have any effect. "},
+    "be smaller than the hard limit to have any effect."},
 
    {OPT_SOFTCPU_LIMIT,
     '\0', "soft-cpu-limit",
@@ -532,8 +527,8 @@ OptCell opts[] =
     OptArg, ">current-strategy<",
     "Print a representation of all search parameters and their setting "
     "of a given strategy, then terminate. If no argument is given, "
-    "the current strategy is printed. Use the reserved name '>all-strats<'"
-    "to get a description of all built-in strategies,  '>all-names<' "
+    "the current strategy is printed. Use the reserved name '>all-strats<' "
+    "to get a description of all built-in strategies, or '>all-names<' "
     "to get a list of all names of strategies."},
 
    {OPT_PARSE_STRATEGY,
@@ -577,7 +572,7 @@ OptCell opts[] =
    {OPT_TB_INSERT_LIMIT,
     '\0', "tb-insert-limit",
     ReqArg, NULL,
-    "Set the maximal number of of term bank term top insertions. This is "
+    "Set the maximal number of term bank term top insertions. This is "
     "a reasonable (though not great) estimate of the work done."},
 
    {OPT_ANSWER_LIMIT,
@@ -604,7 +599,7 @@ OptCell opts[] =
    {OPT_FULL_EQ_REP,
     'e', "full-equational-rep",
     NoArg, NULL,
-    "In LOP. print all literals as equations, even non-equational ones."},
+    "In LOP, print all literals as equations, even non-equational ones."},
 
    {OPT_PRINT_ORIENTED,
     '\0', "print-oriented-eqlits-as-rules",
@@ -699,11 +694,11 @@ OptCell opts[] =
    {OPT_AUTO_SCHED,
     '\0', "auto-schedule",
     OptArg, "1",
-    "Use the (experimental) strategy scheduling. This will try several "
+    "Use strategy scheduling. This will try several "
     "different fully specified search strategies (aka \"Auto-Modes\"), "
     "one after the other, until a proof or saturation is found, or the "
     "time limit is exceeded. The optional argument is the number of CPUs "
-    "on which the schedule is going to be executed on. By default, "
+    "on which the schedule is executed. By default, "
     "the schedule is executed on a single core. To execute on all "
     "cores of a system, set the argument to 'Auto', but note that this "
     "will use all reported cores (even low-performance efficiency "
@@ -713,7 +708,7 @@ OptCell opts[] =
     '\0', "force-preproc-sched",
     ReqArg, NULL,
     "When autoscheduling is used, make sure that preprocessing schedule is "
-    "inserted in the search categories"},
+    "inserted in the search categories."},
 
     {OPT_SERIALIZE_SCHEDULE,
     '\0', "serialize-schedule",
@@ -766,7 +761,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Introduce goal definitions for all conjecture ground subterms. "
     "The default is to only introduce them for the maximal (with respect "
-    "to the subterm relation) ground terms in conjecture clauses (to be implemented)."},
+    "to the subterm relation) ground terms in conjecture clauses."},
 
    {OPT_SINE,
     '\0', "sine",
@@ -860,7 +855,7 @@ OptCell opts[] =
    {OPT_POS_LITSEL_MAX,
     '\0', "selection-pos-max",
     ReqArg, NULL,
-    "Set a upper limit for the number of positive literals a clause can"
+    "Set an upper limit for the number of positive literals a clause can"
     " have to be eligible for literal selection."},
 
    {OPT_NEG_LITSEL_MIN,
@@ -872,7 +867,7 @@ OptCell opts[] =
    {OPT_NEG_LITSEL_MAX,
     '\0', "selection-neg-max",
     ReqArg, NULL,
-    "Set a upper limit for the number of negative literals a clause can"
+    "Set an upper limit for the number of negative literals a clause can"
     " have to be eligible for literal selection."},
 
    {OPT_ALL_LITSEL_MIN,
@@ -884,7 +879,7 @@ OptCell opts[] =
    {OPT_ALL_LITSEL_MAX,
     '\0', "selection-all-max",
     ReqArg, NULL,
-    "Set an upper limit for the number of literals a clause must"
+    "Set an upper limit for the number of literals a clause can"
     " have to be eligible for literal selection."},
 
    {OPT_WEIGHT_LITSEL_MIN,
@@ -918,16 +913,16 @@ OptCell opts[] =
     '\0', "filter-orphans-limit",
     OptArg, "100",
     "Orphans are unprocessed clauses where one of the parents has been "
-    "removed by back-simolification. They are redundant and usually "
+    "removed by back-simplification. They are redundant and usually "
     "removed lazily (i.e. only when they are selected for processing). "
     "With this option you can select a limit on back-simplified clauses "
-    " after which orphans will be eagerly deleted."},
+    "after which orphans will be eagerly deleted."},
 
    {OPT_FORWARD_CONTRACT_LIMIT,
     '\0', "forward-contract-limit",
     OptArg, "80000",
     "Set a limit on the number of processed clauses after which the "
-    "unprocessed clause set will be re-simplified and reweighted. "},
+    "unprocessed clause set will be re-simplified and reweighted."},
 
    {OPT_DELETE_BAD_LIMIT,
     '\0', "delete-bad-limit",
@@ -937,16 +932,14 @@ OptCell opts[] =
     " be potentially incomplete, but will allow you to limit the"
     " maximum amount of memory used fairly well. The prover will tell"
     " you if a proof attempt failed due to the incompleteness"
-    " introduced by this option. It is recommended to set this limit"
-    " significantly higher than --filter-limit or"
-    " --filter-copies-limit. If you select -xAuto and set a"
+    " introduced by this option. If you select -xAuto and set a"
     " memory limit, the prover will determine a good value"
     " automatically."},
 
    {OPT_ASSUME_COMPLETENESS,
     '\0', "assume-completeness",
     NoArg, NULL,
-    "There are various way (e.g. the next few options) to configure the "
+    "There are various ways (e.g. the next few options) to configure the "
     "prover to be strongly incomplete in the general case. E will detect"
     " when such an option is selected and return corresponding exit "
     "states (i.e. it will not claim satisfiability just because it ran"
@@ -959,7 +952,7 @@ OptCell opts[] =
     NoArg, NULL,
     "This option instructs the prover to assume incompleteness (typically"
     " because the axiomatization already is incomplete because axioms"
-    " have been filtered before they are handed to the system."},
+    " have been filtered before they are handed to the system)."},
 
    {OPT_DISABLE_EQ_FACTORING,
     '\0', "disable-eq-factoring",
@@ -967,12 +960,12 @@ OptCell opts[] =
     "Disable equality factoring. This makes the prover incomplete for "
     "general non-Horn problems, but helps for some specialized classes."
     " It is not necessary to disable equality factoring for Horn problems"
-    ", as Horn clauses are not factored anyways."},
+    ", as Horn clauses are not factored anyway."},
 
    {OPT_DISABLE_NEGUNIT_PM,
     '\0', "disable-paramod-into-neg-units",
     NoArg, NULL,
-    "Disable paramodulation into negative unit clause. This makes the"
+    "Disable paramodulation into negative unit clauses. This makes the"
     " prover incomplete in the general case, but helps for some "
     "specialized classes."},
 
@@ -995,7 +988,7 @@ OptCell opts[] =
     "generated). In general,"
     " this breaks some basic assumptions of the DISCOUNT loop proof search"
     " procedure. However, there are some problem classes in which "
-    " this simplifications empirically never occurs. In such cases, we "
+    "these simplifications empirically never occur. In such cases, we "
     "can save significant overhead. The option _should_ work in all "
     "cases, but is not expected to improve things in most cases."},
 
@@ -1051,7 +1044,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Apply splitting to new clauses (after simplification) and before "
     "evaluation. By default, splitting (if activated) is only "
-    "performed on selected clauses. "},
+    "performed on selected clauses."},
 
    {OPT_SPLIT_REUSE_DEFS,
     '\0', "split-reuse-defs",
@@ -1089,7 +1082,7 @@ OptCell opts[] =
    {OPT_TO_WEIGHTS,
     '\0', "order-weights",
     ReqArg, NULL,
-    "Describe a (partial) assignments of weights to function symbols for "
+    "Describe a (partial) assignment of weights to function symbols for "
     "term orderings (in particular, KBO). You can specify a list of weights"
     " of the form 'f1:w1,f2:w2, ...'. Since a total weight assignment is"
     " needed, E will _first_ apply any weight generation scheme specified"
@@ -1109,16 +1102,16 @@ OptCell opts[] =
    {OPT_TO_CONJONLY_PREC,
     '\0', "prec-pure-conj",
     OptArg, "10",
-    "Set a weight for symbols that occur in conjectures only to determine"
-    "where to place it in the precedence. This value is used for a rough"
-    "pre-order, the normal schemes only sort within symbols with the same"
+    "Set a weight for symbols that occur in conjectures only to determine "
+    "where to place them in the precedence. This value is used for a rough "
+    "pre-order, the normal schemes only sort within symbols with the same "
     "occurrence modifier."},
 
    {OPT_TO_CONJAXIOM_PREC,
     '\0', "prec-conj-axiom",
     OptArg, "5",
-    "Set a weight for symbols that occur in both conjectures and axioms"
-    "to determine where to place it in the precedence. This value is "
+    "Set a weight for symbols that occur in both conjectures and axioms "
+    "to determine where to place them in the precedence. This value is "
     "used for a rough pre-order, the normal schemes only sort within "
     "symbols with the same occurrence modifier."},
 
@@ -1187,10 +1180,9 @@ OptCell opts[] =
     NoArg, NULL,
     "Make all literals uncomparable in the term ordering (i.e. do not"
     " use the term ordering to restrict paramodulation, equality"
-    " resolution and factoring to certain literals. This is necessary"
+    " resolution and factoring to certain literals). This is necessary"
     " to make Set-of-Support-strategies complete for the non-equational"
-    " case (It still is incomplete for the equational case, but pretty"
-    " useless anyways)."},
+    " case (it is still incomplete for the equational case)."},
 
    {OPT_TO_LIT_CMP,
     '\0', "literal-comparison",
@@ -1260,7 +1252,7 @@ OptCell opts[] =
     NoArg, NULL,
     "Prefer general demodulators. By default, E prefers specialized"
     " demodulators. This affects in which order the rewrite "
-    " index is traversed."},
+    "index is traversed."},
 
    {OPT_FORWARD_DEMOD,
     'F', "forward-demod-level",
@@ -1273,13 +1265,14 @@ OptCell opts[] =
    {OPT_DEMOD_LAMBDA,
     '\0', "demod-under-lambda",
     ReqArg, NULL,
-    "Demodulate *closed* subterms under lambdas."},
+    "Demodulate *closed* subterms under lambdas (true or false)."},
 
    {OPT_STRONG_RHS_INSTANCE,
     '\0', "strong-rw-inst",
     NoArg, NULL,
-    "Instantiate unbound variables in matching potential "
-    "demodulators with a small constant terms."},
+    "When rewriting with an equation whose right-hand side has "
+    "variables that do not occur in the left-hand side, bind these "
+    "variables to the minimal term of their type."},
 
    {OPT_STRONGSUBSUMPTION,
     'u', "strong-forward-subsumption",
@@ -1303,7 +1296,7 @@ OptCell opts[] =
    {OPT_SAT_TTINSERT_INTERVAL,
     '\0', "satcheck-ttinsert-interval",
     OptArg, "5000000",
-    "Enable periodic SAT checking whenever the number of term tops "
+    "Enable periodic SAT checking whenever the number of term top "
     "insertions matches the given limit (which grows exponentially)."},
 
    {OPT_SATCHECK,
@@ -1311,14 +1304,14 @@ OptCell opts[] =
     OptArg, "FirstConst",
     "Set the grounding strategy for periodic SAT checking. Note that to "
     "enable SAT checking, it is also necessary to set the interval with "
-    "one of the previous two options."},
+    "one of the previous three options."},
 
    {OPT_SAT_DEC_LIMIT,
     '\0', "satcheck-decision-limit",
     OptArg, "100",
     "Set the number of decisions allowed for each run of the SAT solver. "
     "If the option is not given, the built-in value is 10000. Use -1 to "
-    "allow unlimited decision."},
+    "allow unlimited decisions."},
 
    {OPT_SAT_NORMCONST,
     '\0', "satcheck-normalize-const",
@@ -1330,7 +1323,7 @@ OptCell opts[] =
    {OPT_SAT_NORMALIZE,
     '\0', "satcheck-normalize-unproc",
     NoArg, NULL,
-    "Enable re-simplification (heuristic re-revaluation) of unprocessed "
+    "Enable re-simplification (heuristic re-evaluation) of unprocessed "
     "clauses before grounding for SAT checking."},
 
    {OPT_WATCHLIST,
@@ -1353,9 +1346,9 @@ OptCell opts[] =
    {OPT_STATIC_WATCHLIST,
     '\0', "static-watchlist",
     OptArg, WATCHLIST_INLINE_QSTRING,
-    "This is identical to the previous option, but subsumed clauses will"
+    "This is identical to the previous option, but subsumed clauses will "
     "not be removed from the watchlist (and hence the prover will not "
-    "terminate if all watchlist clauses have been subsumed. This may be "
+    "terminate if all watchlist clauses have been subsumed). This may be "
     "more useful for heuristic guidance."},
 
    {OPT_WATCHLIST_NO_SIMPLIFY,
@@ -1384,7 +1377,7 @@ OptCell opts[] =
     "Choices are 'None' for naive subsumption, 'Direct' for direct mapped"
     " FV-Indexing, 'Perm' for permuted FV-Indexing and 'PermOpt' for "
     "permuted FV-Indexing with deletion of (suspected) non-informative "
-    "features. Default behaviour is 'Perm'."},
+    "features. Default behaviour is 'Direct'."},
 
    {OPT_FVINDEX_FEATURETYPES,
     '\0', "fvindex-featuretypes",
@@ -1392,7 +1385,7 @@ OptCell opts[] =
     "Select the feature types used for indexing. Choices are \"None\""
     " to disable FV-indexing, \"AC\" for AC compatible features (the default) "
     "(literal number and symbol counts), \"SS\" for set subsumption "
-    "compatible features (symbol depth), and \"All\" for all features."
+    "compatible features (symbol depth), and \"All\" for all features. "
     "Unless you want to measure the effects of the "
     "different features, I suggest you stick with the default."},
 
@@ -1402,9 +1395,9 @@ OptCell opts[] =
     "Set the maximum initial number of symbols for feature computation. Depending"
     " on the feature selection, a value of X here will convert into 2X+2 "
     "features (for set subsumption features), 2X+4 features (for "
-    "AC-compatible features) or 4X+6 features (if all features are used, "
-    "the default). Note that the actually used set of features may be "
-    "smaller than this if the signature does not contain enough symbols."
+    "AC-compatible features) or 4X+6 features (if all features are used). "
+    "Note that the actually used set of features may be "
+    "smaller than this if the signature does not contain enough symbols. "
     "For the Perm and PermOpt version, this is _also_ used to set the"
     " maximum depth of the feature vector index. Yes, I should "
     "probably make this into two separate options."
@@ -1418,7 +1411,7 @@ OptCell opts[] =
     "that may be introduced into the signature "
     "later, e.g. by splitting. If no new symbols are introduced, this just "
     "wastes time and memory. If PermOpt is chosen, the slackness slots will "
-    "be deleted from the index anyways, but will still waste "
+    "be deleted from the index anyway, but will still waste "
     "(a little) time in computing feature vectors."},
 
    {OPT_RW_BW_INDEX,
@@ -1426,7 +1419,7 @@ OptCell opts[] =
     OptArg, "FP7",
     "Select fingerprint function for backwards rewrite index. "
     "\"NoIndex\" will disable backward rewriting indexing. For a list "
-    "of the other values run '" NAME " --pm-index=none'. FPX functions "
+    "of the other values run '" NAME " --fp-index=none'. FPX functions "
     "will use a fingerprint of X positions, the letters disambiguate "
     "between different fingerprints with the same sample size."},
 
@@ -1448,7 +1441,7 @@ OptCell opts[] =
     "Select fingerprint function for the index for paramodulation from "
     "indexed clauses. \"NoIndex\" "
     "will disable paramodulation indexing. For a list "
-    "of the other values run '" NAME " --pm-index=none'. FPX functions"
+    "of the other values run '" NAME " --fp-index=none'. FPX functions "
     "will use a fingerprint of X positions, the letters disambiguate "
     "between different fingerprints with the same sample size."},
 
@@ -1458,7 +1451,7 @@ OptCell opts[] =
     "Select fingerprint function for the index for paramodulation into "
     "the indexed clauses. \"NoIndex\" "
     "will disable paramodulation indexing. For a list "
-    "of the other values run '" NAME " --pm-index=none'. FPX functions"
+    "of the other values run '" NAME " --fp-index=none'. FPX functions "
     "will use a fingerprint of X positions, the letters disambiguate "
     "between different fingerprints with the same sample size."},
 
@@ -1503,7 +1496,7 @@ OptCell opts[] =
    {OPT_DEFINE_WFUN,
     'D', "define-weight-function",
     ReqArg, NULL,
-    "Define  a weight function (see manual for details). Later"
+    "Define a weight function (see manual for details). Later"
     " definitions override previous definitions."},
 
    {OPT_DEFINE_HEURISTIC,
@@ -1516,7 +1509,7 @@ OptCell opts[] =
     '\0', "free-numbers",
      NoArg, NULL,
      "Treat numbers (strings of decimal digits) as normal free function "
-    "symbols in the input. By default, number now are supposed to denote"
+    "symbols in the input. By default, numbers are supposed to denote"
     " domain constants and to be implicitly different from each other."},
 
    {OPT_FREE_OBJECTS,
@@ -1524,13 +1517,13 @@ OptCell opts[] =
      NoArg, NULL,
      "Treat object identifiers (strings in double quotes) as normal "
     "free function symbols in the input. By default, object identifiers "
-    "now represent domain objects and are implicitly different from "
+    "represent domain objects and are implicitly different from "
     "each other (and from numbers, unless those are declared to be free)."},
 
    {OPT_DEF_CNF,
     '\0', "definitional-cnf",
     OptArg, TFORM_RENAME_LIMIT_STR,
-    "Tune the clausification algorithm to introduces definitions for "
+    "Tune the clausification algorithm to introduce definitions for "
     "subformulae to avoid exponential blow-up. The optional argument "
     "is a fudge factor that determines when definitions are introduced. "
     "0 disables definitions completely. The default works well."},
@@ -1562,30 +1555,30 @@ OptCell opts[] =
    {OPT_ARG_CONG,
     '\0', "arg-cong",
     ReqArg, NULL,
-    "Turns on ArgCong inference rule. Excepts an argument \"all\" or \"max\" "
-    "that applies the rule to all or only literals that are eligible "
-    "for resolution."},
+    "Turns on ArgCong inference rule. Expects an argument \"all\" or \"max\" "
+    "that applies the rule to all literals or only to literals that are "
+    "eligible for resolution."},
 
 
    {OPT_NEG_EXT,
     '\0', "neg-ext",
     ReqArg, NULL,
-    "Turns on NegExt inference rule. Excepts an argument \"all\" or \"max\" "
-    "that applies the rule to all or only literals that are eligible "
-    "for resolution."},
+    "Turns on NegExt inference rule. Expects an argument \"all\" or \"max\" "
+    "that applies the rule to all literals or only to literals that are "
+    "eligible for resolution."},
 
    {OPT_POS_EXT,
     '\0', "pos-ext",
     ReqArg, NULL,
-    "Turns on PosExt inference rule. Excepts an argument \"all\" or \"max\" "
-    "that applies the rule to all or only literals that are eligible "
-    "for resolution."},
+    "Turns on PosExt inference rule. Expects an argument \"all\" or \"max\" "
+    "that applies the rule to all literals or only to literals that are "
+    "eligible for resolution."},
 
    {OPT_EXT_SUP,
     '\0', "ext-sup-max-depth",
     ReqArg, NULL,
     "Sets the maximal proof depth of the clause which will be considered for "
-    " Ext-family of inferences. Negative value disables the rule."},
+    "the Ext-family of inferences. Negative value disables the rule."},
 
    {OPT_INVERSE_RECOGNITION,
     '\0', "inverse-recognition",
@@ -1598,12 +1591,12 @@ OptCell opts[] =
     '\0', "replace-inj-defs",
     NoArg, NULL,
     "After CNF and before saturation, replaces all clauses that are definitions "
-    " of injectivity by axiomatization of inverse function."},
+    "of injectivity by an axiomatization of the inverse function."},
 
    {OPT_LIFT_LAMBDAS,
     '\0', "lift-lambdas",
     ReqArg, NULL,
-    "Should the lambdas be replaced by named fuctions?"},
+    "Should the lambdas be replaced by named functions?"},
 
    {OPT_ETA_NORMALIZE,
     '\0', "eta-normalize",
@@ -1635,7 +1628,7 @@ OptCell opts[] =
     ReqArg, NULL,
     "Maximal proof depth of the clause on which Leibniz"\
     " equality elimination should be applied"\
-    "; -1 disaables Leibniz equality elimination altogether"},
+    "; -1 disables Leibniz equality elimination altogether."},
 
     {OPT_UNROLL_FORMULAS_ONLY,
     '\0', "unroll-formulas-only",
@@ -1646,26 +1639,26 @@ OptCell opts[] =
     {OPT_PRIM_ENUM_KIND,
     '\0', "prim-enum-mode",
     ReqArg, NULL,
-    "Choose the mode of primitive enumeration "},
+    "Choose the mode of primitive enumeration."},
 
     {OPT_PRIM_ENUM_MAX_DEPTH,
     '\0', "prim-enum-max-depth",
     ReqArg, NULL,
     "Maximal proof depth of a clause on which primitive enumeration is applied."
-    " -1 disables primitive enumeration"},
+    " -1 disables primitive enumeration."},
 
     {OPT_CHOICE_INST,
     '\0', "inst-choice-max-depth",
     ReqArg, NULL,
     "Maximal proof depth of a clause which is going to"
-    " be scanned for occurrences of defined choice symbol"
-    " -1 disables scanning for choice symbols"},
+    " be scanned for occurrences of defined choice symbols."
+    " -1 disables scanning for choice symbols."},
 
     {OPT_LOCAL_RW,
     '\0', "local-rw",
     ReqArg, NULL,
     "Enable/disable local rewriting: if the clause is of the form s != t | "
-    " C, where s > t, rewrite all occurrences of s with t in C."},
+    "C, where s > t, rewrite all occurrences of s with t in C."},
 
     {OPT_PRUNE_ARGS,
     '\0', "prune-args",
@@ -1675,22 +1668,22 @@ OptCell opts[] =
     {OPT_FUNC_PROJ_IMIT,
     '\0', "func-proj-limit",
     ReqArg, NULL,
-    "Maximal number of functional projections"},
+    "Maximal number of functional projections."},
 
     {OPT_IMIT_LIMIT,
     '\0', "imit-limit",
     ReqArg, NULL,
-    "Maximal number of imitations"},
+    "Maximal number of imitations."},
 
     {OPT_IDENT_LIMIT,
     '\0', "ident-limit",
     ReqArg, NULL,
-    "Maximal number of identifications"},
+    "Maximal number of identifications."},
 
     {OPT_ELIM_LIMIT,
     '\0', "elim-limit",
     ReqArg, NULL,
-    "Maximal number of eliminations"},
+    "Maximal number of eliminations."},
 
     {OPT_UNIF_MODE,
     '\0', "unif-mode",
@@ -1705,18 +1698,18 @@ OptCell opts[] =
     {OPT_FIXPOINT_ORACLE,
     '\0', "fixpoint-oracle",
     ReqArg, NULL,
-    "Turn the pattern oracle on or off."},
+    "Turn the fixpoint oracle on or off."},
 
     {OPT_MAX_UNIFIERS,
     '\0', "max-unifiers",
     ReqArg, NULL,
-    "Maximal number of imitations"},
+    "Maximal number of unifiers."},
 
     {OPT_MAX_UNIF_STEPS,
     '\0', "max-unif-steps",
     ReqArg, NULL,
     "Maximal number of variable bindings that can "
-    "be done in one single call to copmuting the next unifier."},
+    "be done in one single call computing the next unifier."},
 
     {OPT_PREINSTANTIATE_INDUCTION,
     '\0', "preinstantiate-induction",
@@ -1725,27 +1718,27 @@ OptCell opts[] =
     "to instantiate clauses that look like the ones coming from induction axioms."},
 
     {OPT_BCE,
-    '\0', "bce", ReqArg, NULL, "Turn blocked clause elimination on or off"},
+    '\0', "bce", ReqArg, NULL, "Turn blocked clause elimination on or off."},
 
     {OPT_BCE_MAX_OCCS,
     '\0', "bce-max-occs", ReqArg, NULL,
-    "Stop tracking symbol after it occurs in <arg> clauses"
-    " Set <arg> to -1 disable this limit"},
+    "Stop tracking a symbol after it occurs in <arg> clauses."
+    " Set <arg> to -1 to disable this limit."},
 
     {OPT_PRED_ELIM,
-    '\0', "pred-elim", ReqArg, NULL, "Turn predicate elimination on or off"},
+    '\0', "pred-elim", ReqArg, NULL, "Turn predicate elimination on or off."},
 
     {OPT_PRED_ELIM_MAX_OCCS,
     '\0', "pred-elim-max-occs", ReqArg, NULL,
-    "Stop tracking symbol after it occurs in <arg> clauses"
-    " Set <arg> to -1 disable this limit"},
+    "Stop tracking a symbol after it occurs in <arg> clauses."
+    " Set <arg> to -1 to disable this limit."},
 
     {OPT_PRED_ELIM_TOLERANCE,
     '\0', "pred-elim-tolerance", ReqArg, NULL,
     "Tolerance for predicate elimination measures."},
 
     {OPT_PRED_ELIM_GATES,
-    '\0', "pred-elim-recognize-gates", ReqArg, NULL, "Turn gate recognition for predicate elimination on or off"},
+    '\0', "pred-elim-recognize-gates", ReqArg, NULL, "Turn gate recognition for predicate elimination on or off."},
 
     {OPT_PRED_ELIM_FORCE_MU_DECREASE,
     '\0', "pred-elim-force-mu-decrease", ReqArg, NULL,
