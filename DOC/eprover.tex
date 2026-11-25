@@ -1006,8 +1006,8 @@ function is combined with a priority function and instantiated with a
 set of parameters to yield a clause evaluation function.
 
 You can specify an instantiated generic weight function as described
-in this rule\footnote{Note that there now are many additional generic
-  weight functions not yet documented.}:
+in this rule (the most common functions are shown, the others are
+described in Section~\ref{sec:options:moreweights}):
 
 \small
 \begin{verbatim}
@@ -1118,6 +1118,323 @@ result in an extremely incomplete prover).
   \end{example}
 
 \end{sloppypar}
+
+
+\paragraph{Further generic weight functions}
+\label{sec:options:moreweights}
+\begingroup\raggedright
+
+All other generic weight functions follow the same pattern: the name,
+followed by a parenthesized list that starts with a priority function
+and continues with the parameters given below, separated by
+commas. Parameters that occur in several functions have the same
+meaning throughout:
+\begin{description}
+\item[\texttt{fweight}, \texttt{vweight}:] Weight of a function symbol
+  and of a variable occurrence, as for \texttt{Clauseweight()}. If a
+  function also has \texttt{cweight} and \texttt{pweight}, these
+  are the weights of constants and of predicate symbols, and
+  \texttt{fweight} only applies to non-constant function
+  symbols. Otherwise, \texttt{fweight} applies to all of them.
+\item[\texttt{max\_term}, \texttt{max\_lit}, \texttt{pos\_mult}:]
+  Multipliers for maximal terms, for maximal literals, and for
+  positive literals, as for \texttt{Refinedweight()}.
+\end{description}
+Weights are integers, the multipliers are floating point numbers. In
+builds with higher-order support (\texttt{--enable-ho}), most
+symbol-counting functions accept an additional optional last
+parameter \texttt{app\_var\_mult}, a multiplier for the weight of
+applied variables (default 1).
+
+\medskip
+\noindent\emph{Variants of the basic symbol-counting weights:}
+
+\begin{description}
+\item[\texttt{Refinedweight2}:] Parameters: \texttt{prio, fweight,
+    vweight, max\_term, max\_lit, pos\_mult}.\\
+  As \texttt{Refinedweight()}, but literals
+  are weighted in E's internal encoding: a non-equational literal
+  $p(\ldots)$ is counted as the equation \eqn{p(\ldots)}{\top}, and
+  the equality symbol itself has no weight.
+\item[\texttt{PNRefinedweight}:] Parameters: \texttt{prio, fweight,
+    vweight, nfweight, nvweight, max\_term, max\_lit, pos\_mult}.\\
+  As
+  \texttt{Refinedweight()}, but symbols and variables in negative
+  literals are counted with \texttt{nfweight} and \texttt{nvweight}.
+\item[\texttt{SymbolTypeweight}:] Parameters: \texttt{prio, fweight,
+    vweight, cweight, pweight, max\_term, max\_lit, pos\_mult}.\\
+  As
+  \texttt{Refinedweight()}, but with separate weights for
+  non-constant function symbols, constants, and predicate symbols.
+\item[\texttt{NLweight}:] Parameters: \texttt{prio, fweight, vlweight,
+    vweight, max\_term, max\_lit, pos\_mult}.\\
+  As \texttt{Refinedweight()}, but
+  distinguishes linear and non-linear variables: the first occurrence
+  of a variable in a term counts \texttt{vlweight}, each further
+  occurrence counts \texttt{vweight}. Note the order of the
+  parameters.
+\item[\texttt{ClauseLMaxWeight}:] Parameters: \texttt{prio, fweight,
+    vweight, pos\_mult}.\\
+  Each literal is weighted with the weight of its heaviest term,
+  multiplied by \texttt{pos\_mult} for positive literals.
+\item[\texttt{ClauseCMaxWeight}:] Parameters: \texttt{prio, fweight,
+    vweight, pos\_mult}.\\
+  Determines the weight $w$ of the heaviest term in the clause, and
+  returns $w$ times the number of literals (with $w$ multiplied by
+  \texttt{pos\_mult} for positive literals).
+\item[\texttt{OrientLMaxWeight}:] Parameters: \texttt{prio, fweight,
+    vweight, unorient\_mult, max\_lit, pos\_mult}.\\
+  Each literal is weighted with the weight
+  of its heaviest term. This is multiplied by \texttt{pos\_mult} for
+  positive literals, by \texttt{max\_lit} for maximal literals, and
+  by \texttt{unorient\_mult} for literals that cannot be oriented by
+  the term ordering.
+\item[\texttt{Diversityweight}:] Parameters: \texttt{prio, fweight,
+    vweight, max\_term, max\_lit, pos\_mult, f1, f2, v1, v2}.\\
+  The weight computed by
+  \texttt{Refinedweight()}, plus $f\cdot(\mathtt{f2}\cdot f +
+  \mathtt{f1}) + v\cdot(\mathtt{v2}\cdot v + \mathtt{v1})$, where $f$
+  is the number of different function symbols and $v$ the number of
+  different variables in the clause.
+\item[\texttt{Sigweight}:] Parameters: \texttt{prio, fweight, vweight,
+    max\_term, max\_lit, pos\_mult, sig\_mult}.\\
+  The weight computed by
+  \texttt{Refinedweight()}, multiplied by $1+\mathtt{sig\_mult}\cdot
+  s/S$, where $s$ is the number of different symbols in the clause and
+  $S$ the number of symbols in the signature.
+\item[\texttt{Depthweight}:] Parameters: \texttt{prio, fweight,
+    vweight, max\_term, max\_lit, pos\_mult, tw\_mult}.\\
+  Each term is evaluated as its depth plus
+  \texttt{tw\_mult} times its weight. The multipliers are applied as
+  for \texttt{Refinedweight()}.
+\item[\texttt{WLessDWeight}:] Parameters: \texttt{prio, fweight,
+    vweight, max\_term, max\_lit, pos\_mult, depth\_mult}.\\
+  Each term is evaluated as its weight
+  minus \texttt{depth\_mult} times its depth. The multipliers are
+  applied as for \texttt{Refinedweight()}.
+\item[\texttt{Proofweight}:] Parameters: \texttt{prio, fweight,
+    vweight, max\_term, max\_lit, pos\_mult, size\_mult,
+    depth\_mult}.\\
+  The weight computed by
+  \texttt{Refinedweight()}, multiplied by
+  $(1+\mathtt{depth\_mult}/(d+1))\cdot(1+\mathtt{size\_mult}/(s+1))$,
+  where $d$ is the derivation depth and $s$ the derivation size of the
+  clause (compare the priority functions \texttt{ByDerivationDepth}
+  and \texttt{ByDerivationSize}).
+\item[\texttt{TPTPTypeweight}:] Parameters: \texttt{prio, fweight,
+    vweight, max\_term, max\_lit, pos\_mult, conj\_mult,
+    hyp\_mult}.\\
+  The weight
+  computed by \texttt{Refinedweight()}, multiplied by
+  \texttt{conj\_mult} for clauses of TPTP type \texttt{conjecture} and
+  by \texttt{hyp\_mult} for clauses of type \texttt{hypothesis}.
+\item[\texttt{ClauseWeightAge}:] Parameters: \texttt{prio, fweight,
+    vweight, pos\_mult, w\_mult}.\\
+  The weight computed by \texttt{Clauseweight()},
+  multiplied by \texttt{w\_mult}, plus the creation date of the
+  clause. This combines symbol counting and FIFO in a single
+  evaluation.
+\item[\texttt{Defaultweight}:] Parameters: \texttt{prio}.\\
+  The standard weight of the
+  clause (function symbols count 2, variables 1).
+\item[\texttt{Uniqweight}:] Parameters: \texttt{prio}.\\
+  A weight designed to differ for
+  clauses of different shape, but to be invariant under renaming of
+  symbols. It is mostly of use for experiments.
+\item[\texttt{StaggeredWeight}:] Parameters: \texttt{prio, factor}.\\
+  Divides the clauses
+  into classes by standard weight. The class size is \texttt{factor}
+  times the standard weight of the largest input clause. Within a
+  class, clauses are processed in FIFO order.
+\item[\texttt{RandomWeight}:] Parameters: \texttt{prio, range,
+    fifo\_w, sc\_w [, seed1 [, seed2 [, seed3]]]}.\\
+  A random number between 0 and
+  \texttt{range}, plus \texttt{fifo\_w} times the creation number and
+  \texttt{sc\_w} times the standard weight of the clause. The optional
+  seeds initialize the random number generator.
+\end{description}
+
+\medskip
+\noindent\emph{DAG weights:} These functions count repeated
+occurrences of the same subterm (which E stores only once) with a
+separate weight \texttt{dup\_weight}.
+
+\begin{description}
+\item[\texttt{DAGweight}:] Parameters: \texttt{prio, fweight, vweight,
+    pos\_mult, dup\_weight, pos\_dag, pos\_term\_reset,
+    pos\_lit\_reset, neg\_dag, neg\_term\_reset, neg\_lit\_reset,
+    pos\_neg\_reset}.\\
+  The last
+  seven parameters are flags (0 or 1). \texttt{pos\_dag} and
+  \texttt{neg\_dag} select whether DAG weights are used for positive
+  and negative literals (otherwise, symbols are counted as for
+  \texttt{Clauseweight()}). The reset flags determine the scope in
+  which subterms count as repeated: if
+  \texttt{pos\_lit\_reset}/\texttt{neg\_lit\_reset} is set, each
+  literal is considered separately. If
+  \texttt{pos\_term\_reset}/\texttt{neg\_term\_reset} is set, the two
+  sides of a literal are considered separately. If
+  \texttt{pos\_neg\_reset} is set, subterms of positive literals are
+  not considered repeated in negative literals.
+\item[\texttt{RDAGweight}:] Parameters: \texttt{prio, fweight,
+    vweight, dup\_weight, uniqmax\_mult, max\_term, max\_lit,
+    pos\_mult}.\\
+  DAG weight per
+  literal, with maximal terms multiplied by \texttt{max\_term}. The
+  larger side of an oriented literal is in addition multiplied by
+  \texttt{uniqmax\_mult}. The parameter \texttt{max\_lit} is
+  currently ignored.
+\item[\texttt{RDAGweight2}:] Parameters: \texttt{prio, fweight,
+    vweight, dup\_weight, heavy\_mult, pos\_mult}.\\
+  A variant inspired by the prover
+  Twee: both sides of a literal are evaluated as separate DAGs, and
+  the heavier one is multiplied by \texttt{heavy\_mult}. The term
+  ordering is not considered.
+\item[\texttt{RDAGweight3}:] Parameters: \texttt{prio, fweight,
+    vweight, nfweight, nvweight, dup\_weight, heavy\_mult, pos\_mult,
+    pos\_eq\_mult, neg\_eq\_mult}.\\
+  As \texttt{RDAGweight2()} for positive
+  literals. Negative literals are evaluated as a single DAG with
+  \texttt{nfweight} and \texttt{nvweight}, without
+  \texttt{heavy\_mult}. Equational literals are in addition multiplied
+  by \texttt{pos\_eq\_mult} or \texttt{neg\_eq\_mult}.
+\end{description}
+
+\medskip
+\noindent\emph{Conjecture-oriented symbol weights:} These functions
+give different weights to symbols depending on their relation to the
+conjecture, i.e.\ the clauses of type
+\texttt{negated\_conjecture}. They are the most frequently used
+weight functions in E's automatic modes.
+
+\begin{description}
+\item[\texttt{ConjectureGeneralSymbolWeight}:] Parameters:
+    \texttt{prio, fweight, cweight, pweight, conj\_fweight,
+    conj\_cweight, conj\_pweight, vweight, max\_term, max\_lit,
+    pos\_mult}.\\
+  As \texttt{SymbolTypeweight()},
+  but symbols that occur in the conjecture are counted with
+  \texttt{conj\_fweight}, \texttt{conj\_cweight}, and
+  \texttt{conj\_pweight}.
+\item[\texttt{ConjectureSymbolWeight}:] Parameters: \texttt{prio,
+    fweight, pweight, conj\_fweight, conj\_pweight, vweight,
+    max\_term, max\_lit, pos\_mult}.\\
+  As \texttt{ConjectureGeneralSymbolWeight()}, but
+  constants are treated as function symbols.
+\item[\texttt{ConjectureRelativeSymbolWeight}:] Parameters:
+    \texttt{prio, conj\_mult, fweight, cweight, pweight, vweight,
+    max\_term, max\_lit, pos\_mult}.\\
+  As
+  \texttt{ConjectureGeneralSymbolWeight()}, but the weights of
+  conjecture symbols are given relative to the others, as
+  \texttt{conj\_mult} times \texttt{fweight}, \texttt{cweight}, or
+  \texttt{pweight}. The results are rounded down to integers.
+\item[\texttt{ConjectureRelativeTypeSymbolWeight}:] Parameters as
+  for \texttt{ConjectureRelativeSymbolWeight()}. A symbol is treated
+  as a conjecture symbol if its type occurs in the conjecture.
+\item[\texttt{ConjectureTypeBasedWeight}:] Parameters: \texttt{prio,
+    vweight, max\_term, max\_lit, pos\_mult}.\\
+  Symbol weights are computed from the
+  conjecture: the more often a symbol, and symbols of its type, occur
+  in the conjecture, the lower its weight. Symbols of types that do
+  not occur in the conjecture get a high weight.
+\item[\texttt{RelevanceLevelWeight}:] Parameters: \texttt{prio, c0,
+    c1, c2, penalty, fweight, cweight, pweight, vweight, max\_term,
+    max\_lit, pos\_mult}.\\
+  Symbol weights depend on the relevance level $l$ of the symbol:
+  symbols in the conjecture have level 1, and symbols that occur in a
+  clause or formula together with a symbol of level $l$ (and do not
+  already have a level) have level $l+1$. Symbols that are not reached
+  get level $L+\mathtt{penalty}$, where $L$ is the highest level. The
+  weight of a symbol is its base weight (\texttt{fweight},
+  \texttt{cweight}, or \texttt{pweight}) times $\mathtt{c0} +
+  \mathtt{c1}\cdot l + \mathtt{c2}\cdot l^2$.
+\item[\texttt{RelevanceLevelWeight2}:] As
+  \texttt{RelevanceLevelWeight()}, but interpreted symbols (like
+  \texttt{\$true}) always have relevance level 1.
+\item[\texttt{GDWeight}:] Parameters: \texttt{prio, fweight, vweight,
+    pos\_mult, goal\_mult, goal\_const}.\\
+  As \texttt{Clauseweight()}, but ground subterms
+  that occur in the conjecture are evaluated as $\mathtt{goal\_const}
+  + \mathtt{goal\_mult}\cdot w$, where $w$ is their normal weight. With
+  \texttt{goal\_mult} 0 and \texttt{goal\_const} equal to
+  \texttt{fweight}, this treats such terms like a constant, as the
+  prover Twee does.
+\end{description}
+
+\medskip
+\noindent\emph{Conjecture similarity weights:} These functions
+implement the clause selection strategies
+of~\cite{JU:CICM-2016}. They evaluate each term by its similarity to a
+set of \emph{related terms} derived from the conjecture. They share
+the following parameters:
+\begin{description}
+\item[\texttt{var\_norm}:] Normalization of variables before terms
+  are compared: 0 identifies all variables, 1 renames them in a
+  canonical way.
+\item[\texttt{rel\_terms}:] The set of related terms: 0 for the
+  conjecture terms, 1 for the conjecture terms and their subterms, 2
+  for these and their top-level generalizations $f(X_1,\ldots,X_n)$,
+  3 for these and all generalizations of the subterms.
+\item[\texttt{ext\_style}:] How term evaluations are combined: 0
+  evaluates the top-level terms of each literal, 1 evaluates all
+  subterms and adds the results, and 2 takes the maximum over all
+  subterms. The multipliers \texttt{max\_term}, \texttt{max\_lit}, and
+  \texttt{pos\_mult} are then applied as for
+  \texttt{Refinedweight()}.
+\end{description}
+
+\begin{description}
+\item[\texttt{ConjectureRelativeTermWeight}:] Parameters:
+    \texttt{prio, var\_norm, rel\_terms, conj\_mult, fweight, cweight,
+    pweight, vweight, ext\_style, max\_term, max\_lit, pos\_mult}.\\
+  Each term is evaluated with the
+  weight of its top symbol, where related terms get the weight
+  multiplied by \texttt{conj\_mult}.
+\item[\texttt{ConjectureTermPrefixWeight}:] Parameters: \texttt{prio,
+    var\_norm, rel\_terms, match, miss, ext\_style, max\_term,
+    max\_lit, pos\_mult}.\\
+  Each
+  term is evaluated by the longest prefix (in pre-order) it shares
+  with a related term: \texttt{match} for each symbol of this prefix,
+  \texttt{miss} for each remaining symbol.
+\item[\texttt{ConjectureLevDistanceWeight}:] Parameters: \texttt{prio,
+    var\_norm, rel\_terms, ins, del, ch, ext\_style, max\_term,
+    max\_lit, pos\_mult}.\\
+  Each
+  term is evaluated by the smallest Levenshtein distance between its
+  pre-order symbol sequence and that of a related term, with the
+  given costs for insertion, deletion, and change.
+\item[\texttt{ConjectureTreeDistanceWeight}:] Parameters as for
+  \texttt{ConjectureLevDistanceWeight()}, but uses the tree edit
+  distance between the terms.
+\item[\texttt{ConjectureStrucDistanceWeight}:] Parameters:
+    \texttt{prio, var\_norm, rel\_terms, var\_mis, sym\_mis, inst,
+    gen, ext\_style, max\_term, max\_lit, pos\_mult}.\\
+  Each term is evaluated by the smallest
+  structural distance to a related term. Replacing a variable by a
+  term $t$ costs \texttt{inst} times the size of $t$, generalizing a
+  term $t$ to a variable costs \texttt{gen} times the size of $t$,
+  and two different variables have distance \texttt{var\_mis} (at
+  most \texttt{inst}${}+{}$\texttt{gen}). If the top symbols differ,
+  the distance of the arguments is multiplied by \texttt{sym\_mis}.
+\item[\texttt{ConjectureTermTfIdfWeight}:] Parameters: \texttt{prio,
+    var\_norm, rel\_terms, update, tf\_mult, ext\_style, max\_term,
+    max\_lit, pos\_mult}.\\
+  Each term is evaluated as $1/(1+\mathit{tf}\cdot\mathit{idf})$. The
+  term frequency $\mathit{tf}$ is the number of occurrences of the
+  term in the related terms, the inverse document frequency
+  $\mathit{idf}$ is derived from the number of axioms that contain
+  the term. With \texttt{tf\_mult} 0, $\mathit{tf}$ is ignored. If
+  \texttt{update} is 1, every
+  evaluated clause is added to the documents as well.
+\end{description}
+
+\medskip
+\noindent\emph{Learning:} \texttt{TSMWeight()} and
+\texttt{TSMRWeight()} use knowledge from previous proof searches. They
+are described in Section~\ref{sec:options:learning}.
+\par\endgroup
 
 
 \subsubsection{Clause Evaluation Functions}
@@ -1233,11 +1550,13 @@ Options controlling the choice of term ordering:\\[1ex]
 \begin{supertabular}{lp{9.5cm}}
   \multicolumn{2}{l}{\texttt{-term-ordering=<arg>}}\\
   \texttt{-t<arg>} & Select a term ordering class (or automatic
-  selection). Supported arguments are at least \texttt{LPO},
-  \texttt{LPO4} (for a much faster new implementation of LPO),
-  \texttt{KBO}, and \texttt{Auto}. If \texttt{Auto} is selected, all
-  aspects of the term ordering are fixed, and additional
-  options about the ordering will be (or at least should be) silently ignored.\\[1ex]
+                     selection). Supported arguments are at least \texttt{LPO},
+                     \texttt{LPO4} (for a much faster new implementation of LPO),
+                     \texttt{KBO}, \texttt{KBO6} (for a different and usually faster
+                     implementation) and \texttt{Auto}. If \texttt{Auto} is selected, all
+                     aspects of the term ordering are fixed, and additional
+                     options about the ordering will be (or at least
+                     should be) silently ignored.\\[1ex]
 
   \multicolumn{2}{l}{\texttt{\texttt{--order-precedence-generation=<arg>}}}\\
   \texttt{-G <arg>} & Select a precedence generation scheme (see
@@ -1835,18 +2154,45 @@ been configured with \texttt{--unix-comments}, they start with
 In silent mode (\texttt{--output-level=0}, \texttt{-s} or
 \texttt{--silent}), E will not print any output during saturation. It
 will print a one-line comment documenting the state of the proof
-search after termination. The following possibilities exist:
+search after termination. This is followed by a second line with the
+\emph{SZS status} of the problem, a standardized result description
+used by the TPTP world, e.g.\ by the CASC competition and by tools
+that call E. The SZS status line has the form
+\begin{verbatim}
+% SZS status <status>
+\end{verbatim}
+where \texttt{<status>} is a single word. If the input contains a
+conjecture, the status is relative to the conjecture (e.g.\
+\texttt{Theorem}), otherwise it describes the clause set
+(e.g.\ \texttt{Unsatisfiable}). The following possibilities exist:
 
 \begin{itemize}
 \item The prover found a proof. This is denoted by the output string
 \begin{verbatim}
 % Proof found!
 \end{verbatim}
+  followed by one of these status lines:
+\begin{verbatim}
+% SZS status Theorem
+% SZS status ContradictoryAxioms
+% SZS status Unsatisfiable
+\end{verbatim}
+  \texttt{Theorem} means that the conjecture follows from the
+  axioms. If the input contains a conjecture, but the proof does not
+  use it (i.e.\ the axioms are already inconsistent on their own), the
+  status is \texttt{ContradictoryAxioms}. \texttt{Unsatisfiable} is
+  used for problems without a conjecture.
 \item The problem does not have a proof, i.e. the specification is
   satisfiable (and E can detect this):
 \begin{verbatim}
 % No proof found!
+% SZS status CounterSatisfiable
+% SZS status Satisfiable
 \end{verbatim}
+  The status is \texttt{CounterSatisfiable} (the conjecture does not
+  follow from the axioms) if there is a conjecture, and
+  \texttt{Satisfiable} otherwise.
+
   Ensuring the completeness of a prover is much harder than ensuring
   correctness. Moreover, proofs can easily be checked by analyzing the
   output of the prover, while such a check for the absence of proofs
@@ -1869,12 +2215,17 @@ search after termination. The following possibilities exist:
 % Failure: Resource limit exceeded (memory)
 % Failure: Resource limit exceeded (time)
 \end{verbatim}
+  In both cases, the status is
+\begin{verbatim}
+% SZS status ResourceOut
+\end{verbatim}
 \item A user-defined limit was reached during saturation, and the
   saturation process was stopped gracefully. Limits include number of
   processed clauses, number of total clauses, and CPU time (as set
-  with \texttt{--soft-cpu-limit}). The output string is
+  with \texttt{--soft-cpu-limit}). The output is
 \begin{verbatim}
 % Failure: User resource limit exceeded!
+% SZS status ResourceOut
 \end{verbatim}
   \ldots and the user is expected to know which limit they selected.
 \item By default, E is \emph{complete}, i.e. it will only terminate if
@@ -1885,19 +2236,45 @@ search after termination. The following possibilities exist:
   delete clauses it deems unlikely to be processed to avoid running
   out of memory. In this case, completeness cannot be ensured any
   more. This effect manifests itself extremely rarely. If it does, E
-  will print the following string:
+  will print the following:
 \begin{verbatim}
-  % Failure: Out of unprocessed clauses!
+% Failure: Out of unprocessed clauses!
+% SZS status GaveUp
 \end{verbatim}
-  This is roughly equivalent to Otter\index{Otter}'s \texttt{SOS empty} message.
-\item Finally, it is possible to choose restricted calculi when
-  starting E. This is useful if E is used as a normalization tool or
-  as a preprocessor or lemma generator. In this case, E will print a
+  This is roughly equivalent to Otter\index{Otter}'s \texttt{SOS
+    empty} message. The same output is produced if E runs out of
+  clauses on a higher-order problem, since E's higher-order calculus
+  is not complete.
+\item It is possible to choose restricted calculi when starting
+  E. This is useful if E is used as a normalization tool or as a
+  preprocessor or lemma generator. In this case, E will print a
   corresponding message:
 \begin{verbatim}
 % Clause set closed under restricted calculus!
+% SZS status GaveUp
 \end{verbatim}
+  Similarly, if the input contains interpreted symbols (such as
+  arithmetic), saturation does not imply satisfiability, and E
+  prints
+\begin{verbatim}
+% Clause set saturated up to interpreted theories!
+% SZS status GaveUp
+\end{verbatim}
+\item In automatic scheduling mode (\texttt{--auto-schedule}), E
+  reports \texttt{GaveUp} if all strategies of the schedule have
+  terminated without a result.
+\item If E only performs a part of its work (with \texttt{--cnf},
+  \texttt{--syntax-only}, or \texttt{--prune}), the status is
+  \texttt{Unknown}.
+\item Finally, with \texttt{--error-on-empty}, an input without any
+  clauses or formulas results in \texttt{InputError}. Syntax errors
+  and other fatal errors are reported on standard error, without an
+  SZS status line, and E terminates with a non-zero exit code.
 \end{itemize}
+
+If E runs a strategy schedule, the individual strategies are run as
+separate processes, and only the result of the successful strategy is
+printed (preceded by a comment naming the strategy).
 
 
 \section{Observing Saturation}
@@ -2753,14 +3130,22 @@ Th. Hillenbrand, A.~Jaeger, and B.~L{\"o}chner.
 Kry\v{s}tof Hoder and Andrei Voronkov.
 \newblock {Sine Qua Non for Large Theory Reasoning}.
 \newblock In Nikolaj Bj{\o}rner and Viorica Sofronie-Stokkermans, editors, {\em
-  Proc.\ of the 23rd CADE, Wroc{\l}aw, Poland}, volume 6803 of {\em LNAI}, pages
+  Proc.\ of the 23rd CADE, Wroclav, Poland}, volume 6803 of {\em LNAI}, pages
   299--314. Springer, 2011.
+
+\bibitem[JU16]{JU:CICM-2016}
+Jan Jakub{\r{u}}v and Josef Urban.
+\newblock {Extending E Prover with Similarity Based Clause Selection
+  Strategies}.
+\newblock In Michael Kohlhase, Moa Johansson, Bruce Miller, Leonardo de~Moura,
+  and Frank Tompa, editors, {\em Proc.\ 9th CICM, Bialystok, Poland}, volume
+  9791 of {\em LNAI}, pages 151--156. Springer, 2016.
 
 \bibitem[KMV11]{KMV:CADE-2011}
 Laura Kov{\'a}cs, Georg Moser, and Andrei Voronkov.
 \newblock {On Transfinite Knuth-Bendix Orders}.
 \newblock In Nikolaj Bj{\o}rner and Viorica Sofronie-Stokkermans, editors, {\em
-  Proc.\ of the 23rd CADE, Wroc{\l}aw, Poland}, volume 6803 of {\em LNAI}, pages
+  Proc.\ of the 23rd CADE, Wroclav, Poland}, volume 6803 of {\em LNAI}, pages
   384--399. Springer, 2011.
 
 \bibitem[KV13]{KV:CAV-2013}
@@ -2772,8 +3157,8 @@ Laura Kov{\'a}cs and Andrei Voronkov.
 \bibitem[LW07]{LW:LPAR-2007}
 Michel Ludwig and Uwe Waldmann.
 \newblock {An Extension of the Knuth-Bendix Ordering with LPO-Like Properties}.
-\newblock In Nachum Dershowitz and Andrei Voronkov, editors, {\em Proc.\ of the
-  14th LPAR, Yerevan, Armenia}, volume 4790 of {\em LNCS}, pages 348--362.
+\newblock In Nachum Dershowitz and Andei Voronkov, editors, {\em Proc.\ of the
+  14th LPAR, Yerevan, Armenia}, volume 4790 of {\em LNCS}, pages 348–--362.
   Springer, 2007.
 
 \bibitem[McC94]{Mc94}
@@ -2876,7 +3261,7 @@ S.~Schulz.
 Stephan Schulz, Simon Cruanes, and Petar Vukmirovi{\'c}.
 \newblock Faster, higher, stronger: {E} 2.3.
 \newblock In Pascal Fontaine, editor, {\em Proc.\ of the 27th CADE, Natal,
-  Brazil}, number 11716 in LNAI, pages 495--507. Springer, 2019.
+  Brasil}, number 11716 in LNAI, pages 495--507. Springer, 2019.
 
 \bibitem[SS02]{SS:CADE-2002}
 S.~Schulz and G.~Sutcliffe.
@@ -2895,7 +3280,7 @@ Geoff Sutcliffe, Stephan Schulz, Koen Claessen, and Peter Baumgartner.
 Geoff Sutcliffe, Stephan Schulz, Koen Claessen, and Allen~Van Gelder.
 \newblock {Using the TPTP Language for Writing Derivations and Finite
   Interpretations }.
-\newblock In Ulrich Furbach and Natarajan Shankar, editors, {\em Proc.\ of the
+\newblock In Ulrich Fuhrbach and Natarajan Shankar, editors, {\em Proc.\ of the
   3rd IJCAR, Seattle}, volume 4130 of {\em LNAI}, pages 67--81. Springer, 2006.
 
 \bibitem[SSSU]{SSSU:TPTP-ANS}
