@@ -2703,7 +2703,7 @@ E " VERSION " \"" E_NICKNAME "\"\n\
 \n\
 Usage: " NAME " [options] [files]\n\
 \n\
-Read a set of first-order (or, in the -ho-version, higher-order)\n\
+Read a set of first-order (or, with eprover-ho, higher-order)\n\
 clauses and formulae and try to prove the conjecture (if given)\n\
 or show the set unsatisfiable.\n\
 \n");

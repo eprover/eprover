@@ -452,12 +452,26 @@ documentation: README
 	cd DOC && $(MAKE)
 
 # A sub-make, as the configuration may just have been changed (distrib).
+# The version string drops the commit id. help2man fills the "- item"
+# lines of the bug report list in the footer into one paragraph, so the
+# awk script turns them (only in the COPYRIGHT section) into a compact
+# bullet list.
 man:
 	$(MAKE) programs
 	mkdir -p DOC/man
 	for p in $(MAN_PAGES); do \
-	   help2man -N -i DOC/bug_reporting PROVER/$$p > DOC/man/$$p.1 \
+	   v=`PROVER/$$p --version | sed -e '1!d' -e "s/^[^ ]* /$$p /" \
+	      -e 's/ *([0-9a-f]*\(-dirty\)\{0,1\})$$//'`; \
+	   help2man -N --version-string="$$v" PROVER/$$p > DOC/man/$$p.tmp \
 	      || exit 1; \
+	   awk '/^\.SH COPYRIGHT/ { c = 1 } \
+	      c && /^\\- / { if (!l) print ".PD 0"; l = 1; \
+	                     print ".IP \\(bu 2"; \
+	                     sub(/^\\- /, ""); print; next } \
+	      { if (l) print ".PD"; l = 0; print } \
+	      END { if (l) print ".PD" }' \
+	      DOC/man/$$p.tmp > DOC/man/$$p.1 || exit 1; \
+	   rm DOC/man/$$p.tmp; \
 	done
 
 tags:
