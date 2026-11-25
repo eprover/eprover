@@ -694,14 +694,14 @@ static bool select_preproc_strategy(int argc, char* argv[], ProverRun_p run)
       reapply_user_options(argc, argv);
    }
 
-//#ifndef NDEBUG
+#ifndef NDEBUG
    CommentPrint(stdout, " (lift_lambdas = %d, lambda_to_forall = %d,"
                 "unroll_only_formulas = %d, sine = %s)\n",
                 h_parms->lift_lambdas,
                 h_parms->lambda_to_forall,
                 h_parms->unroll_only_formulas,
                 h_parms->sine);
-//#endif
+#endif
    if(!strategy_io(h_parms, hcb_definitions))
    {
       run->retval = NO_ERROR;
