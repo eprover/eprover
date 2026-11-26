@@ -115,11 +115,6 @@ Version 3.2.5 -> 3.5 Countess Grey
   conjunction of the pairwise disequations (inference
   expand_distinct, which was misspelled as epxand_distinct). $distinct
   is still not supported in clauses (cnf).
-- Runs of eprover-ho are now reproducible, too: the ExtSup inference
-  and the variable alternatives of the discrimination trees
-  (demodulation, prefix weight, tf-idf weight) no longer depend on
-  object addresses. This changes the search order on some FO and HO
-  problems.
 - The conjecture term weights (ConjectureTermPrefixWeight,
   ConjectureTermTfIdfWeight and the related term normalization and
   generalization) now work with typed and HO terms: variables are
@@ -153,7 +148,7 @@ Version 3.2.5 -> 3.5 Countess Grey
 - ConjectureRelativeTermWeight is much faster: it no longer copies
   conjecture frequencies to the subterms of every evaluated term
   (these were never looked up). Results are unchanged.
-- THF: $ite is now also accepted in application syntax,
+- THF: $ite is now also accepted in applicative syntax,
   $ite @ c @ t @ e (as used by TPTP since v8.1.1), optionally applied
   to further arguments. Partial applications of $ite are rejected
   with a syntax error.
@@ -167,6 +162,13 @@ Version 3.2.5 -> 3.5 Countess Grey
   Fixed the choice of the minimal constant for unbound RHS variables
   in demodulation. Non-indexed plain paramodulation (NoIndex) missed
   some inferences and performed some unnecessary ones.
+  The new option --rw-bw-legacy-depth (strategy parameter
+  rw_bw_legacy_depth) restricts backward rewriting to literal sides
+  and their arguments, as with the buggy index before 3.5. The
+  built-in strategies were tuned with that restriction and enable it,
+  so automatic modes behave as before; default mode and user
+  strategies rewrite all subterms. This option will likely be removed
+  when strategies are retuned.
 - Backward rewriting now gives the same search for every
   rw_bw_index_type, including NoIndex (which is slower).
 - The term bank hash table now grows with the number of terms (it had
@@ -177,13 +179,6 @@ Version 3.2.5 -> 3.5 Countess Grey
   depends on the choice of fingerprint index (pm_from_index_type,
   pm_into_index_type, rw_bw_index_type). --print-statistics reports
   paramodulation unification attempts and successes.
-- New option --rw-bw-legacy-depth (strategy parameter
-  rw_bw_legacy_depth) restricts backward rewriting to literal sides
-  and their arguments, as with the buggy index before 3.5. The
-  built-in strategies were tuned with that restriction and enable it,
-  so automatic modes behave as before; default mode and user
-  strategies rewrite all subterms. Transitional, to be removed when
-  the strategies are retuned.
 - Fixed an incompleteness with --strong-rw-inst (strategy
   parameter rewrite_strong_rhs_inst): an unorientable equation could
   rewrite a variant of its own side, and later rewrite and delete
