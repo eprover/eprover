@@ -31,9 +31,9 @@ Contents
 /*                Exported Functions and Variables                     */
 /*---------------------------------------------------------------------*/
 
-/* git tag E-3.5.13 */
+/* git tag E-3.6.0 */
 
-#define PVERSION      "3.5.13"
+#define PVERSION      "3.6.0"
 
 #ifdef ENABLE_LFHO
 #define LFH "-ho"
@@ -47,7 +47,7 @@ Contents
 #define VERSION PVERSION LFH "-DEBUG"
 #endif
 
-#define E_NICKNAME     "Countess Grey"
+#define E_NICKNAME     "Singell"
 
 #define E_URL "https://www.eprover.org"
 
