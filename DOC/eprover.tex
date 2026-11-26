@@ -26,6 +26,10 @@
     version--}}
 
 \makeindex{}
+% Long option and weight function names do not fit the index columns
+% when justified
+\let\origtheindex\theindex
+\renewcommand{\theindex}{\origtheindex\small\raggedright}
 
 \begin{document}
 \maketitle{}
@@ -110,21 +114,21 @@ for higher-order logic.
   \small
   \begin{tabular}{lp{8cm}}
     \hline
-    \texttt{--satauto}
+    \texttt{--satauto}\index{satauto@\texttt{--satauto}}
     & Choose literal selection strategy,  clause
       evaluation heuristic, term ordering and other search parameters
       automagically\index{xyzzy}, based on problem features.\\
-    \texttt{--auto}
+    \texttt{--auto}\index{auto@\texttt{--auto}}
     & As \texttt{--satauto}, but add heuristic
       specification pruning using one of several instantiations of the SInE
       algorithm~\cite{HV:CADE-2011} for large specifications. This makes
       the prover potentially incomplete.\\
-    \texttt{--auto-schedule[=k]}
+    \texttt{--auto-schedule[=k]}\index{auto-schedule@\texttt{--auto-schedule}}\index{strategy scheduling}
     & As \texttt{--auto}, but try not one, but
       several different strategies. If the optional argument is given, E
       will use up to that number of cores to run the schedule in
       parallel.\\
-    \texttt{--memory-limit=xx}
+    \texttt{--memory-limit=xx}\index{memory-limit@\texttt{--memory-limit}}\index{resource limits!memory}
     & Tell the prover how much memory
       (measured in MB) to use at most. In automatic mode E will optimize
       its behaviour for this amount (32~MB will work, 256~MB is
@@ -146,7 +150,7 @@ for higher-order logic.
 
 E is controlled by a very wide range of parameters. However, if you do
 not want to bother with the details, you can leave configuration for a
-problem to the prover. To use this feature, use the command
+problem to the prover.\index{automatic mode} To use this feature, use the command
 line options from Table~\ref{tab:auto_options}.
 
 \begin{example}
@@ -171,17 +175,17 @@ paramodulation and rewriting. As such, it implements an instance of
 the superposition calculus described in~\cite{BG94}. We have added
 some stronger contraction rules and a more general approach to literal
 selection, and have also extended the calculus to simple, monomorphic
-many-sorted logic (in the sense of the TPTP-3 TFF
+many-sorted logic\index{many-sorted logic} (in the sense of the TPTP-3 TFF
 format~\cite{SSCB:LPAR-2012}).
 
-The core proof procedure is a variant of the \emph{given-clause}
-algorithm. However, before proof search in clause normal form (CNF)
+The core proof procedure is a variant of the \emph{given-clause}\index{given clause}
+algorithm. However, before proof search in clause normal form (CNF)\index{clause normal form}\index{CNF|see{clause normal form}}
 begins, various transformations can be applied to the input
 problem. In particular, E processes not only clausal problems, but can
 read full first order format, including a rich set of formula roles,
 logical operators and quantifiers. This format is reduced to clause
 normal form in a way that the CNF is unsatisfiable if and only if the
-original problem is provable (if an explicit \emph{conjecture} is
+original problem is provable (if an explicit \emph{conjecture}\index{conjecture} is
 given) or itself unsatisfiable.
 
 
@@ -234,7 +238,7 @@ arbitrary literal.\footnote{Non-equational literals are encoded as
   simplicity.} Literals can be represented as multi-sets of multi-sets
 of terms, with \eqn{s}{t} represented as $\{\{s\},\{t\}\}$ and
 \neqn{s}{t} represented as $\{\{s, t\}\}$.  A \emph{ground reduction
-  ordering}\index{ordering}\index{reduction ordering} $>$ is a
+  ordering}\index{term ordering!reduction ordering}\index{reduction ordering|see{term ordering}}\index{ordering|see{term ordering}} $>$ is a
 Noetherian partial ordering that is stable w.r.t. the term structure
 and substitutions and total on ground terms. $>$ can be extended to an
 ordering $>_L$ on literals by comparing the multi-set representation
@@ -279,7 +283,7 @@ are explained in the following.
 
 \begin{definition}[Selection functions]
   \label{def:basics:inferences:selection}
-  \index{selection functions}
+  \index{literal!selection}\index{selection function|see{literal, selection}}
   $\mw{sel}:\mw{Clauses(F,P,V)} \rightarrow \mw{Clauses(F,P,V)}$ is a
   \emph{selection function}, if it has the following properties for
   all clauses $\mathcal{C}$:
@@ -332,9 +336,9 @@ We combine these in the notion of \emph{eligible literals}.
 
 The calculus is represented in the form of inference rules. For
 convenience, we distinguish two types of inference rules. For
-\emph{generating} inference rules, written with a single line
+\emph{generating}\index{inference!generating} inference rules, written with a single line
 separating preconditions and results, the result is added to the set
-of all clauses. For \emph{contracting} inference rules, written with a
+of all clauses. For \emph{contracting}\index{inference!contracting} inference rules, written with a
 double line, the result clauses are substituted for the clauses in the
 precondition. In the following, $u$, $v$, $s$ and $t$ are terms,
 $\sigma$ is a substitution and $R$, $S$ and $T$ are (partial) clauses.
@@ -381,7 +385,7 @@ variables.
 
 
  \item \emph{Simultaneous superposition into negative
-     literals}\index{simultaneous superposition}
+     literals}\index{superposition!simultaneous}
 
     \bigskip (SSN) \GInferenz{\eqn{s}{t} \vee S \phantom{ae} \neqn{u}{v} \vee
      R}{\sigma(S \vee (\neqn{u}{v} \vee R)[u|_p\leftarrow{}t])}{if
@@ -398,7 +402,7 @@ variables.
    sequence of conventional superpositions in practice.
 
 \item \emph{Simultaneous superposition into positive literals}
-  \index{simultaneous superposition}
+  \index{superposition!simultaneous}
 
   \bigskip (SSP) \GInferenz{\eqn{s}{t} \vee S \phantom{ae} \eqn{u}{v}
     \vee R}{\sigma(S \vee (\eqn{u}{v} \vee R)[u|_p\leftarrow
@@ -457,13 +461,13 @@ variables.
      \eqn{u}{v} is not eligible for paramodulation or $v > u$ or $p
      \not= \lambda$.}
 
- \item \emph{Clause subsumption}\index{subsumption}:
+ \item \emph{Clause subsumption}\index{subsumption!clause}:
 
    \bigskip (CS) \CInferenz{C \phantom{ae} \sigma(C \vee R)}{C}{where
      $C$ and $R$ are arbitrary (partial) clauses and $\sigma$ is a
      substitution.}
 
- \item \emph{Equality subsumption}\index{subsumption}:
+ \item \emph{Equality subsumption}\index{subsumption!equality}:
 
    \bigskip (ES) \CInferenz{\eqn{s}{t} \phantom{ae}
      \eqn{u[p\leftarrow{} \sigma(s)]}{u[p\leftarrow{}
@@ -485,8 +489,7 @@ variables.
    \bigskip (NS) \CInferenz{\neqn{s}{t} \phantom{ae}
      \eqn{\sigma(s)}{\sigma(t)\vee R}}{\neqn{s}{t} \phantom{aee} R}{}
 
-% \item \emph{Contextual (top level) simplify-reflect\index{contextual
-%       simplify-reflect}}
+% \item \emph{Contextual (top level) simplify-reflect\index{contextual %       simplify-reflect}}
 %
 %   \bigskip (CSR) \CInferenz{\sigma(C \vee R \vee \doteqn{s}{t})
 %     \hspace{2em} C \vee \overline{\doteqn{s}{t}}}{\sigma(C \vee R)
@@ -511,14 +514,12 @@ variables.
 
    \bigskip (DR) \CInferenz{\neqn{s}{s} \vee R}{R}{}
 
- \item \emph{Destructive equality resolution}\index{equality
-     resolution}:
+ \item \emph{Destructive equality resolution}\index{equality resolution!destructive}:
 
    \bigskip (DE) \CInferenz{\neqn{x}{y} \vee R}{\sigma(R)}{if $x,y \in
      V, \sigma = mgu(x,y)$}
 
- \item \emph{Contextual literal cutting}\index{contextual literal
-     cutting}:
+ \item \emph{Contextual literal cutting}\index{contextual literal cutting}:
 
    \bigskip (CLC) \CInferenz{\sigma(C \vee R \vee
      \ueqn{s}{t}) \hspace{2em} C \vee \overline{\ueqn{s}{t}}}{\sigma(C
@@ -526,8 +527,8 @@ variables.
      $\overline{\ueqn{s}{t}}$ is the negation of $\ueqn{s}{t}$ and
      $\sigma$ is a substitution}
 
-   This rule is also known as \emph{subsumption resolution} or
-   \emph{clausal simplification}.
+   This rule is also known as \emph{subsumption resolution}\index{subsumption resolution} or
+   \emph{clausal simplification}\index{clausal simplification}.
 
 
 \item \emph{Condensing}\index{condensing}:
@@ -538,8 +539,7 @@ variables.
 
 
 
- \item \emph{Introduce definition\index{clause
-       splitting}}\footnote{This rule is always exhaustively applied to
+ \item \emph{Introduce definition\index{clause splitting}}\footnote{This rule is always exhaustively applied to
      any clause, leaving n split-off clauses and one final link clause of
      all negative propositions.}
 
@@ -569,11 +569,11 @@ variables.
 
 
 
-As \textbf{SP} only removes clauses that are \emph{composite} with
+As \textbf{SP} only removes clauses that are \emph{composite}\index{completeness} with
 respect to the remaining set of clauses, the calculus is complete. For
-the case of unit clauses, it degenerates into \emph{unfailing}
+the case of unit clauses, it degenerates into \emph{unfailing}\index{unfailing completion}
 completion~\cite{BDP89} as implemented in DISCOUNT\index{DISCOUNT}. E
-can also simulate the positive unit strategy for Horn clauses
+can also simulate the positive unit strategy\index{positive unit strategy} for Horn clauses
 described in~\cite{Dershowitz:IJCAI-91} using appropriate selection
 functions.
 
@@ -604,19 +604,19 @@ conjecture, and then recursively apply this process again.
   axiom that shares such a symbol is considered relevant. Symbols in
   relevant axioms become relevant themselves. The process is then
   repeated for a selected number of iterations. The option
-  \texttt{--rel-pruning-level} determines how many iterations are
+  \texttt{--rel-pruning-level}\index{rel-pruning-level@\texttt{--rel-pruning-level}} determines how many iterations are
   performed.  Relevance pruning is complete in the non-equational case
   if allowed to reach a fixed point. It only provides a relatively
   coarse measure, however.
 \item More fine-grained control is offered by the SInE\index{SInE}
   method~\cite{HV:CADE-2011}. SInE does not consider \emph{all}
   symbols in already selected clauses and formulas to be relevant, but
-  defines a \emph{D-relation} that determines which symbols to
+  defines a \emph{D-relation}\index{D-relation} that determines which symbols to
   consider relevant. E implements a frequency-based D-relation: in
   every clause or formula, the least frequently occurring symbols are
   considered relevant.
 
-  SInE in E is controlled via the option \texttt{--sine}. It takes as
+  SInE in E is controlled via the option \texttt{--sine}\index{sine@\texttt{--sine}}. It takes as
   its argument either the name of a predefined SInE filter
   specification, or a newly defined strategy. The default is
   equivalent to \texttt{--sine=Auto} and will automatically determine
@@ -679,15 +679,15 @@ algorithm has the following modifications:
   from exponential explosion. E will introduce a definition for a
   sub-formula, if it can determine that it will be duplicated more than
   a given number of times in the naive output. The limit can be set
-  with the option \texttt{--definitional-cnf}. E will reuse
+  with the option \texttt{--definitional-cnf}\index{definitional-cnf@\texttt{--definitional-cnf}}\index{clausification!definitions}. E will reuse
   definitions generated for one input formula for syntactically
   identical formulae in other formulas of the same specification.
-\item E supports mini-scoping, but not the more advanced forms of
-  Skolemization.
+\item E supports mini-scoping\index{miniscoping}, but not the more advanced forms of
+  Skolemization\index{Skolemization}.
 \end{itemize}
 
 It is possible to use E as a clausifier only. When given the
-\texttt{--cnf} option, E will just perform clausification and print
+\texttt{--cnf}\index{cnf@\texttt{--cnf}} option, E will just perform clausification and print
 the resulting clause set.
 
 
@@ -704,16 +704,16 @@ be significant.
 
 E controls equational definition unfolding with the following options:
 
-\texttt{--eq-unfold-limit=<arg>} limits unfolding (and removing) of
+\texttt{--eq-unfold-limit=<arg>}\index{eq-unfold-limit@\texttt{--eq-unfold-limit}} limits unfolding (and removing) of
 equational definitions to those where the expanded definition is at
 most the given limit bigger (in terms of standard term weight) than
 the defined term.
 
-\texttt{--eq-unfold-maxclauses=<arg>} inhibits unfolding of
+\texttt{--eq-unfold-maxclauses=<arg>}\index{eq-unfold-maxclauses@\texttt{--eq-unfold-maxclauses}} inhibits unfolding of
 equational definitions if the problem has more than the stated limit
 of clauses.
 
-\texttt{--no-eq-unfolding} disables equational definition unfolding
+\texttt{--no-eq-unfolding}\index{no-eq-unfolding@\texttt{--no-eq-unfolding}} disables equational definition unfolding
 completely.
 
 
@@ -721,7 +721,7 @@ completely.
 \subsubsection{Presaturation Interreduction}
 \label{sec:presat}
 
-If the option \texttt{--presat-simplify} is set, E will perform an
+If the option \texttt{--presat-simplify}\index{presat-simplify@\texttt{--presat-simplify}}\index{interreduction!presaturation} is set, E will perform an
 initial interreduction\index{interreduction} of the clause set. It will
 exhaustively apply simplifying inferences by running its main proof
 procedure while disabling generating inferences.
@@ -803,7 +803,7 @@ specifications.
 Fig.~\ref{fig:procedure} shows a (slightly simplified) pseudocode
 sketch of the quite straightforward proof procedure of E. The set of
 all clauses is split into two sets, a set \texttt{P} of
-\emph{processed} clauses and a set \texttt{U} of \emph{unprocessed}
+\emph{processed}\index{processed clauses} clauses and a set \texttt{U} of \emph{unprocessed}\index{unprocessed clauses}
 clauses. Initially, all input clauses are in \texttt{U}, and
 \texttt{P} is empty. In its normal mode of operation, at each
 iteration of the loop the algorithm selects a new clause (sometimes
@@ -820,8 +820,7 @@ ordering (described in section~\ref{sec:options:orderings}), the
 literal selection function, and the order in which the \texttt{select}
 operation selects the next \emph{given clause} to process.
 
-E implements two different classes of term orderings\index{term
-  ordering}, lexicographic term orderings and Knuth-Bendix
+E implements two different classes of term orderings\index{term ordering}, lexicographic term orderings and Knuth-Bendix
 orderings. A given ordering is determined by instantiating one of the
 classes with a variety of parameters (described in
 section~\ref{sec:options:orderings}).
@@ -831,7 +830,7 @@ to one of more than 50 predefined
 functions. Section~\ref{sec:options:strategies} describes this
 feature.
 
-Clause selection is determined by a heuristic evaluation function,
+Clause selection\index{clause selection} is determined by a heuristic evaluation function,
 which conceptually sets up a set of priority queues and a weighted
 round robin scheme that determines from which queue the next clause is
 to be picked. The order within each queue is determined by a priority
@@ -845,13 +844,12 @@ describes the user interface to this mechanism.
 \label{sec:cdcl}
 
 As of E 2.1, and with a more refined implementation in E 2.2, the
-prover supports efficient propositional reasoning\index{propositional
-  reasoning} by integrating
-PicoSAT\index{PicoSAT}~\cite{Biere:JSBC-2008}. The prover periodically
+prover supports efficient propositional reasoning\index{propositional reasoning} by integrating
+PicoSAT\index{PicoSAT}\index{SAT solver}~\cite{Biere:JSBC-2008}. The prover periodically
 grounds all clauses in the proof state and encodes the set of ground
 clauses for the propositional solver. If the propositional solver
 finds a proof for unsatisfiability of the ground problem, Herbrand's
-theorem allows us to lift this to the first-order level. In the
+theorem allows\index{Herbrand's theorem} us to lift this to the first-order level. In the
 implementation, the prover extracts the unsatisfiable core of the
 grounded clause set, retrieves the corresponding first-order clauses,
 and adds a suitable pseudo-inference to the first-order proof
@@ -877,16 +875,16 @@ but not insignificant importance.
 \section{Search Control Heuristics}
 \label{sec:options:heuristics}
 
-Search control heuristics define the order in which the prover
+Search control heuristics define\index{heuristic} the order in which the prover
 considers newly generated clauses. A heuristic is defined by a set of
-\emph{clause evaluation functions} and a selection scheme which defines
+\emph{clause evaluation functions}\index{clause evaluation} and a selection scheme which defines
 how many clauses are selected according to each evaluation function. A
-clause evaluation function consists of a \emph{priority function} and
-an instance of a generic \emph{weight function}.
+clause evaluation function consists of a \emph{priority function}\index{priority function} and
+an instance of a generic \emph{weight function}\index{weight function}.
 
 \subsubsection{Priority functions}
 
-Priority functions define a partition on the set of clauses.  A single
+Priority functions define\index{priority function} a partition on the set of clauses.  A single
 clause evaluation consists of a priority (which is the first selection
 criterion) and an evaluation. Priorities are usually \emph{not}
 suitable to encode heuristic control knowledge, but rather are used to
@@ -966,7 +964,7 @@ The priority functions are interpreted as follows:
 \item[\texttt{ByGoalDifficulty}:] Prefer goals to non-goals. Select
   goals based on a simple estimate of their difficulty: First unit
   ground goals, then unit goals, then ground goals, then other goals.
-\item[\texttt{SimulateSOS}:] Use the priority system to simulate
+\item[\texttt{SimulateSOS}:]\index{SimulateSOS@\texttt{SimulateSOS}}\index{set of support} Use the priority system to simulate
   Set-Of-Support. This prefers all initial clauses and all
   Set-Of-Support clauses. Some non-SOS-clauses will be generated, but
   not selected for processing. This is neither well tested nor
@@ -986,9 +984,9 @@ The priority functions are interpreted as follows:
   clauses. Clauses generated from the same given clause are grouped
   together (and can be ordered with any evaluation function among each
   other).
-\item[\texttt{PreferWatchlist}:] Prefer clauses on the watchlist
+\item[\texttt{PreferWatchlist}:]\index{PreferWatchlist@\texttt{PreferWatchlist}} Prefer clauses on the watchlist
   (see~\ref{sec:options:watchlist}).
-\item[\texttt{DeferWatchlist}:] Defer clauses on the watchlist (see
+\item[\texttt{DeferWatchlist}:]\index{DeferWatchlist@\texttt{DeferWatchlist}} Defer clauses on the watchlist (see
   above).
 \end{description}
 
@@ -998,7 +996,7 @@ the prover incomplete for the general case.
 
 \subsubsection{Generic Weight Functions}
 
-Generic weight functions are templates for functions taking a clause
+Generic weight functions are templates\index{weight function} for functions taking a clause
 and returning a weight (i.e. an estimate of the usefulness) for it,
 where a lower weight means that the corresponding clause should be
 processed before a clause with a higher weight.  A generic weight
@@ -1031,7 +1029,7 @@ described in Section~\ref{sec:options:moreweights}):
 \normalsize
 
 \medskip
-\noindent{}\texttt{Clauseweight(prio, fweight, vweight, pos\_mult)}:
+\noindent{}\index{Clauseweight@\texttt{Clauseweight}}\texttt{Clauseweight(prio, fweight, vweight, pos\_mult)}:
 This is the basic symbol counting heuristic. Variables are counted
 with weight \texttt{vweight}, function symbols with weight
 \texttt{fweight}. The weight of positive literals is multiplied by
@@ -1039,7 +1037,7 @@ with weight \texttt{vweight}, function symbols with weight
 
 \medskip
 \begin{sloppypar}
-\noindent{}\texttt{Refinedweight(prio, fweight, vweight,
+\noindent{}\index{Refinedweight@\texttt{Refinedweight}}\texttt{Refinedweight(prio, fweight, vweight,
     term\_pen, lit\_pen, pos\_mult)}:
 This weight function is very similar to the first one. It differs only
 in that it takes the effect of the term ordering into account. In
@@ -1050,7 +1048,7 @@ literals is multiplied by \texttt{lit\_pen}.
 
 \medskip
 \begin{sloppypar}
-\noindent{}\texttt{Orientweight(prio, fweight, vweight,
+\noindent{}\index{Orientweight@\texttt{Orientweight}}\texttt{Orientweight(prio, fweight, vweight,
     term\_pen, lit\_pen, pos\_mult)}: This weight function is a
 slight variation of \texttt{Refinedweight()}. In this case, the weight
 of \emph{both} terms of an unorientable literal is multiplied by a
@@ -1059,7 +1057,7 @@ penalty \texttt{term\_pen}.
 
 \medskip
 \begin{sloppypar}
-\noindent{}\texttt{Simweight(prio, equal\_weight,
+\noindent{}\index{Simweight@\texttt{Simweight}}\texttt{Simweight(prio, equal\_weight,
   vv\_clash, vt\_clash, tt\_clash)}: This weight function is intended
 to return a low weight for literals in which the two terms are very
 similar. It does not currently work very well even for unit clauses --
@@ -1068,25 +1066,25 @@ RTFS (in \texttt{<che\_simweight.c>}) to find out more.
 
 \medskip
 \begin{sloppypar}
-\noindent{}\texttt{FIFOWeight(prio)}:
+\noindent{}\index{FIFOWeight@\texttt{FIFOWeight}}\texttt{FIFOWeight(prio)}:
 This weight function assigns weights that increase in a strictly
-monotonic manner, i.e. it realizes a \emph{first-in/first-out}
+monotonic manner, i.e. it realizes a \emph{first-in/first-out}\index{FIFO}
 strategy if used all by itself. This is the most obviously fair
 strategy.
 \end{sloppypar}
 
 \medskip
 \begin{sloppypar}
-\noindent{}\texttt{LIFOWeight(prio)}:
+\noindent{}\index{LIFOWeight@\texttt{LIFOWeight}}\texttt{LIFOWeight(prio)}:
 This weight function assigns weights that decrease in a strictly
-monotonic manner, i.e. it realizes a \emph{last-in/first-out}
+monotonic manner, i.e. it realizes a \emph{last-in/first-out}\index{LIFO}
 strategy if used all by itself (which, of course, would be unfair and
 result in an extremely incomplete prover).
 \end{sloppypar}
 
 \medskip
 \begin{sloppypar}
-  \noindent{}\texttt{FunWeight(prio, fweight, vweight,
+  \noindent{}\index{FunWeight@\texttt{FunWeight}}\texttt{FunWeight(prio, fweight, vweight,
     term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}:
   This evaluation function is a variant of \texttt{Refinedweight}. The
   first 6 parameters are identical in meaning. The function takes an
@@ -1101,7 +1099,7 @@ result in an extremely incomplete prover).
 
 \medskip
 \begin{sloppypar}
-  \noindent{}\texttt{SymOffsetWeight(prio, fweight, vweight,
+  \noindent{}\index{SymOffsetWeight@\texttt{SymOffsetWeight}}\texttt{SymOffsetWeight(prio, fweight, vweight,
     term\_pen, lit\_pen, pos\_mult, fun:fweight \ldots)}:
   This evaluation function is similar to \texttt{FunWeight}. The first
   6 parameters are identical in meaning.  The extra arguments allow
@@ -1150,69 +1148,69 @@ applied variables (default 1).
 \noindent\emph{Variants of the basic symbol-counting weights:}
 
 \begin{description}
-\item[\texttt{Refinedweight2}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{Refinedweight2}:]\index{Refinedweight2@\texttt{Refinedweight2}} Parameters: \texttt{prio, fweight,
     vweight, max\_term, max\_lit, pos\_mult}.\\
   As \texttt{Refinedweight()}, but literals
   are weighted in E's internal encoding: a non-equational literal
   $p(\ldots)$ is counted as the equation \eqn{p(\ldots)}{\top}, and
   the equality symbol itself has no weight.
-\item[\texttt{PNRefinedweight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{PNRefinedweight}:]\index{PNRefinedweight@\texttt{PNRefinedweight}} Parameters: \texttt{prio, fweight,
     vweight, nfweight, nvweight, max\_term, max\_lit, pos\_mult}.\\
   As
   \texttt{Refinedweight()}, but symbols and variables in negative
   literals are counted with \texttt{nfweight} and \texttt{nvweight}.
-\item[\texttt{SymbolTypeweight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{SymbolTypeweight}:]\index{SymbolTypeweight@\texttt{SymbolTypeweight}} Parameters: \texttt{prio, fweight,
     vweight, cweight, pweight, max\_term, max\_lit, pos\_mult}.\\
   As
   \texttt{Refinedweight()}, but with separate weights for
   non-constant function symbols, constants, and predicate symbols.
-\item[\texttt{NLweight}:] Parameters: \texttt{prio, fweight, vlweight,
+\item[\texttt{NLweight}:]\index{NLweight@\texttt{NLweight}} Parameters: \texttt{prio, fweight, vlweight,
     vweight, max\_term, max\_lit, pos\_mult}.\\
   As \texttt{Refinedweight()}, but
   distinguishes linear and non-linear variables: the first occurrence
   of a variable in a term counts \texttt{vlweight}, each further
   occurrence counts \texttt{vweight}. Note the order of the
   parameters.
-\item[\texttt{ClauseLMaxWeight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{ClauseLMaxWeight}:]\index{ClauseLMaxWeight@\texttt{ClauseLMaxWeight}} Parameters: \texttt{prio, fweight,
     vweight, pos\_mult}.\\
   Each literal is weighted with the weight of its heaviest term,
   multiplied by \texttt{pos\_mult} for positive literals.
-\item[\texttt{ClauseCMaxWeight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{ClauseCMaxWeight}:]\index{ClauseCMaxWeight@\texttt{ClauseCMaxWeight}} Parameters: \texttt{prio, fweight,
     vweight, pos\_mult}.\\
   Determines the weight $w$ of the heaviest term in the clause, and
   returns $w$ times the number of literals (with $w$ multiplied by
   \texttt{pos\_mult} for positive literals).
-\item[\texttt{OrientLMaxWeight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{OrientLMaxWeight}:]\index{OrientLMaxWeight@\texttt{OrientLMaxWeight}} Parameters: \texttt{prio, fweight,
     vweight, unorient\_mult, max\_lit, pos\_mult}.\\
   Each literal is weighted with the weight
   of its heaviest term. This is multiplied by \texttt{pos\_mult} for
   positive literals, by \texttt{max\_lit} for maximal literals, and
   by \texttt{unorient\_mult} for literals that cannot be oriented by
   the term ordering.
-\item[\texttt{Diversityweight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{Diversityweight}:]\index{Diversityweight@\texttt{Diversityweight}} Parameters: \texttt{prio, fweight,
     vweight, max\_term, max\_lit, pos\_mult, f1, f2, v1, v2}.\\
   The weight computed by
   \texttt{Refinedweight()}, plus $f\cdot(\mathtt{f2}\cdot f +
   \mathtt{f1}) + v\cdot(\mathtt{v2}\cdot v + \mathtt{v1})$, where $f$
   is the number of different function symbols and $v$ the number of
   different variables in the clause.
-\item[\texttt{Sigweight}:] Parameters: \texttt{prio, fweight, vweight,
+\item[\texttt{Sigweight}:]\index{Sigweight@\texttt{Sigweight}} Parameters: \texttt{prio, fweight, vweight,
     max\_term, max\_lit, pos\_mult, sig\_mult}.\\
   The weight computed by
   \texttt{Refinedweight()}, multiplied by $1+\mathtt{sig\_mult}\cdot
   s/S$, where $s$ is the number of different symbols in the clause and
   $S$ the number of symbols in the signature.
-\item[\texttt{Depthweight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{Depthweight}:]\index{Depthweight@\texttt{Depthweight}} Parameters: \texttt{prio, fweight,
     vweight, max\_term, max\_lit, pos\_mult, tw\_mult}.\\
   Each term is evaluated as its depth plus
   \texttt{tw\_mult} times its weight. The multipliers are applied as
   for \texttt{Refinedweight()}.
-\item[\texttt{WLessDWeight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{WLessDWeight}:]\index{WLessDWeight@\texttt{WLessDWeight}} Parameters: \texttt{prio, fweight,
     vweight, max\_term, max\_lit, pos\_mult, depth\_mult}.\\
   Each term is evaluated as its weight
   minus \texttt{depth\_mult} times its depth. The multipliers are
   applied as for \texttt{Refinedweight()}.
-\item[\texttt{Proofweight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{Proofweight}:]\index{Proofweight@\texttt{Proofweight}} Parameters: \texttt{prio, fweight,
     vweight, max\_term, max\_lit, pos\_mult, size\_mult,
     depth\_mult}.\\
   The weight computed by
@@ -1221,32 +1219,32 @@ applied variables (default 1).
   where $d$ is the derivation depth and $s$ the derivation size of the
   clause (compare the priority functions \texttt{ByDerivationDepth}
   and \texttt{ByDerivationSize}).
-\item[\texttt{TPTPTypeweight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{TPTPTypeweight}:]\index{TPTPTypeweight@\texttt{TPTPTypeweight}} Parameters: \texttt{prio, fweight,
     vweight, max\_term, max\_lit, pos\_mult, conj\_mult,
     hyp\_mult}.\\
   The weight
   computed by \texttt{Refinedweight()}, multiplied by
   \texttt{conj\_mult} for clauses of TPTP type \texttt{conjecture} and
   by \texttt{hyp\_mult} for clauses of type \texttt{hypothesis}.
-\item[\texttt{ClauseWeightAge}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{ClauseWeightAge}:]\index{ClauseWeightAge@\texttt{ClauseWeightAge}} Parameters: \texttt{prio, fweight,
     vweight, pos\_mult, w\_mult}.\\
   The weight computed by \texttt{Clauseweight()},
   multiplied by \texttt{w\_mult}, plus the creation date of the
   clause. This combines symbol counting and FIFO in a single
   evaluation.
-\item[\texttt{Defaultweight}:] Parameters: \texttt{prio}.\\
+\item[\texttt{Defaultweight}:]\index{Defaultweight@\texttt{Defaultweight}} Parameters: \texttt{prio}.\\
   The standard weight of the
   clause (function symbols count 2, variables 1).
-\item[\texttt{Uniqweight}:] Parameters: \texttt{prio}.\\
+\item[\texttt{Uniqweight}:]\index{Uniqweight@\texttt{Uniqweight}} Parameters: \texttt{prio}.\\
   A weight designed to differ for
   clauses of different shape, but to be invariant under renaming of
   symbols. It is mostly of use for experiments.
-\item[\texttt{StaggeredWeight}:] Parameters: \texttt{prio, factor}.\\
+\item[\texttt{StaggeredWeight}:]\index{StaggeredWeight@\texttt{StaggeredWeight}} Parameters: \texttt{prio, factor}.\\
   Divides the clauses
   into classes by standard weight. The class size is \texttt{factor}
   times the standard weight of the largest input clause. Within a
   class, clauses are processed in FIFO order.
-\item[\texttt{RandomWeight}:] Parameters: \texttt{prio, range,
+\item[\texttt{RandomWeight}:]\index{RandomWeight@\texttt{RandomWeight}} Parameters: \texttt{prio, range,
     fifo\_w, sc\_w [, seed1 [, seed2 [, seed3]]]}.\\
   A random number between 0 and
   \texttt{range}, plus \texttt{fifo\_w} times the creation number and
@@ -1260,7 +1258,7 @@ occurrences of the same subterm (which E stores only once) with a
 separate weight \texttt{dup\_weight}.
 
 \begin{description}
-\item[\texttt{DAGweight}:] Parameters: \texttt{prio, fweight, vweight,
+\item[\texttt{DAGweight}:]\index{DAGweight@\texttt{DAGweight}} Parameters: \texttt{prio, fweight, vweight,
     pos\_mult, dup\_weight, pos\_dag, pos\_term\_reset,
     pos\_lit\_reset, neg\_dag, neg\_term\_reset, neg\_lit\_reset,
     pos\_neg\_reset}.\\
@@ -1276,7 +1274,7 @@ separate weight \texttt{dup\_weight}.
   sides of a literal are considered separately. If
   \texttt{pos\_neg\_reset} is set, subterms of positive literals are
   not considered repeated in negative literals.
-\item[\texttt{RDAGweight}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{RDAGweight}:]\index{RDAGweight@\texttt{RDAGweight}} Parameters: \texttt{prio, fweight,
     vweight, dup\_weight, uniqmax\_mult, max\_term, max\_lit,
     pos\_mult}.\\
   DAG weight per
@@ -1284,13 +1282,13 @@ separate weight \texttt{dup\_weight}.
   larger side of an oriented literal is in addition multiplied by
   \texttt{uniqmax\_mult}. The parameter \texttt{max\_lit} is
   currently ignored.
-\item[\texttt{RDAGweight2}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{RDAGweight2}:]\index{RDAGweight2@\texttt{RDAGweight2}} Parameters: \texttt{prio, fweight,
     vweight, dup\_weight, heavy\_mult, pos\_mult}.\\
   A variant inspired by the prover
   Twee: both sides of a literal are evaluated as separate DAGs, and
   the heavier one is multiplied by \texttt{heavy\_mult}. The term
   ordering is not considered.
-\item[\texttt{RDAGweight3}:] Parameters: \texttt{prio, fweight,
+\item[\texttt{RDAGweight3}:]\index{RDAGweight3@\texttt{RDAGweight3}} Parameters: \texttt{prio, fweight,
     vweight, nfweight, nvweight, dup\_weight, heavy\_mult, pos\_mult,
     pos\_eq\_mult, neg\_eq\_mult}.\\
   As \texttt{RDAGweight2()} for positive
@@ -1308,7 +1306,7 @@ conjecture, i.e.\ the clauses of type
 weight functions in E's automatic modes.
 
 \begin{description}
-\item[\texttt{ConjectureGeneralSymbolWeight}:] Parameters:
+\item[\texttt{ConjectureGeneralSymbolWeight}:]\index{ConjectureGeneralSymbolWeight@\texttt{ConjectureGeneralSymbolWeight}} Parameters:
     \texttt{prio, fweight, cweight, pweight, conj\_fweight,
     conj\_cweight, conj\_pweight, vweight, max\_term, max\_lit,
     pos\_mult}.\\
@@ -1316,12 +1314,12 @@ weight functions in E's automatic modes.
   but symbols that occur in the conjecture are counted with
   \texttt{conj\_fweight}, \texttt{conj\_cweight}, and
   \texttt{conj\_pweight}.
-\item[\texttt{ConjectureSymbolWeight}:] Parameters: \texttt{prio,
+\item[\texttt{ConjectureSymbolWeight}:]\index{ConjectureSymbolWeight@\texttt{ConjectureSymbolWeight}} Parameters: \texttt{prio,
     fweight, pweight, conj\_fweight, conj\_pweight, vweight,
     max\_term, max\_lit, pos\_mult}.\\
   As \texttt{ConjectureGeneralSymbolWeight()}, but
   constants are treated as function symbols.
-\item[\texttt{ConjectureRelativeSymbolWeight}:] Parameters:
+\item[\texttt{ConjectureRelativeSymbolWeight}:]\index{ConjectureRelativeSymbolWeight@\texttt{ConjectureRelativeSymbolWeight}} Parameters:
     \texttt{prio, conj\_mult, fweight, cweight, pweight, vweight,
     max\_term, max\_lit, pos\_mult}.\\
   As
@@ -1329,16 +1327,16 @@ weight functions in E's automatic modes.
   conjecture symbols are given relative to the others, as
   \texttt{conj\_mult} times \texttt{fweight}, \texttt{cweight}, or
   \texttt{pweight}. The results are rounded down to integers.
-\item[\texttt{ConjectureRelativeTypeSymbolWeight}:] Parameters as
+\item[\texttt{ConjectureRelativeTypeSymbolWeight}:]\index{ConjectureRelativeTypeSymbolWeight@\texttt{ConjectureRelativeTypeSymbolWeight}} Parameters as
   for \texttt{ConjectureRelativeSymbolWeight()}. A symbol is treated
   as a conjecture symbol if its type occurs in the conjecture.
-\item[\texttt{ConjectureTypeBasedWeight}:] Parameters: \texttt{prio,
+\item[\texttt{ConjectureTypeBasedWeight}:]\index{ConjectureTypeBasedWeight@\texttt{ConjectureTypeBasedWeight}} Parameters: \texttt{prio,
     vweight, max\_term, max\_lit, pos\_mult}.\\
   Symbol weights are computed from the
   conjecture: the more often a symbol, and symbols of its type, occur
   in the conjecture, the lower its weight. Symbols of types that do
   not occur in the conjecture get a high weight.
-\item[\texttt{RelevanceLevelWeight}:] Parameters: \texttt{prio, c0,
+\item[\texttt{RelevanceLevelWeight}:]\index{RelevanceLevelWeight@\texttt{RelevanceLevelWeight}} Parameters: \texttt{prio, c0,
     c1, c2, penalty, fweight, cweight, pweight, vweight, max\_term,
     max\_lit, pos\_mult}.\\
   Symbol weights depend on the relevance level $l$ of the symbol:
@@ -1349,10 +1347,10 @@ weight functions in E's automatic modes.
   weight of a symbol is its base weight (\texttt{fweight},
   \texttt{cweight}, or \texttt{pweight}) times $\mathtt{c0} +
   \mathtt{c1}\cdot l + \mathtt{c2}\cdot l^2$.
-\item[\texttt{RelevanceLevelWeight2}:] As
+\item[\texttt{RelevanceLevelWeight2}:]\index{RelevanceLevelWeight2@\texttt{RelevanceLevelWeight2}} As
   \texttt{RelevanceLevelWeight()}, but interpreted symbols (like
   \texttt{\$true}) always have relevance level 1.
-\item[\texttt{GDWeight}:] Parameters: \texttt{prio, fweight, vweight,
+\item[\texttt{GDWeight}:]\index{GDWeight@\texttt{GDWeight}} Parameters: \texttt{prio, fweight, vweight,
     pos\_mult, goal\_mult, goal\_const}.\\
   As \texttt{Clauseweight()}, but ground subterms
   that occur in the conjecture are evaluated as $\mathtt{goal\_const}
@@ -1385,30 +1383,30 @@ the following parameters:
 \end{description}
 
 \begin{description}
-\item[\texttt{ConjectureRelativeTermWeight}:] Parameters:
+\item[\texttt{ConjectureRelativeTermWeight}:]\index{ConjectureRelativeTermWeight@\texttt{ConjectureRelativeTermWeight}} Parameters:
     \texttt{prio, var\_norm, rel\_terms, conj\_mult, fweight, cweight,
     pweight, vweight, ext\_style, max\_term, max\_lit, pos\_mult}.\\
   Each term is evaluated with the
   weight of its top symbol, where related terms get the weight
   multiplied by \texttt{conj\_mult}.
-\item[\texttt{ConjectureTermPrefixWeight}:] Parameters: \texttt{prio,
+\item[\texttt{ConjectureTermPrefixWeight}:]\index{ConjectureTermPrefixWeight@\texttt{ConjectureTermPrefixWeight}} Parameters: \texttt{prio,
     var\_norm, rel\_terms, match, miss, ext\_style, max\_term,
     max\_lit, pos\_mult}.\\
   Each
   term is evaluated by the longest prefix (in pre-order) it shares
   with a related term: \texttt{match} for each symbol of this prefix,
   \texttt{miss} for each remaining symbol.
-\item[\texttt{ConjectureLevDistanceWeight}:] Parameters: \texttt{prio,
+\item[\texttt{ConjectureLevDistanceWeight}:]\index{ConjectureLevDistanceWeight@\texttt{ConjectureLevDistanceWeight}} Parameters: \texttt{prio,
     var\_norm, rel\_terms, ins, del, ch, ext\_style, max\_term,
     max\_lit, pos\_mult}.\\
   Each
   term is evaluated by the smallest Levenshtein distance between its
   pre-order symbol sequence and that of a related term, with the
   given costs for insertion, deletion, and change.
-\item[\texttt{ConjectureTreeDistanceWeight}:] Parameters as for
+\item[\texttt{ConjectureTreeDistanceWeight}:]\index{ConjectureTreeDistanceWeight@\texttt{ConjectureTreeDistanceWeight}} Parameters as for
   \texttt{ConjectureLevDistanceWeight()}, but uses the tree edit
   distance between the terms.
-\item[\texttt{ConjectureStrucDistanceWeight}:] Parameters:
+\item[\texttt{ConjectureStrucDistanceWeight}:]\index{ConjectureStrucDistanceWeight@\texttt{ConjectureStrucDistanceWeight}} Parameters:
     \texttt{prio, var\_norm, rel\_terms, var\_mis, sym\_mis, inst,
     gen, ext\_style, max\_term, max\_lit, pos\_mult}.\\
   Each term is evaluated by the smallest
@@ -1418,7 +1416,7 @@ the following parameters:
   and two different variables have distance \texttt{var\_mis} (at
   most \texttt{inst}${}+{}$\texttt{gen}). If the top symbols differ,
   the distance of the arguments is multiplied by \texttt{sym\_mis}.
-\item[\texttt{ConjectureTermTfIdfWeight}:] Parameters: \texttt{prio,
+\item[\texttt{ConjectureTermTfIdfWeight}:]\index{ConjectureTermTfIdfWeight@\texttt{ConjectureTermTfIdfWeight}} Parameters: \texttt{prio,
     var\_norm, rel\_terms, update, tf\_mult, ext\_style, max\_term,
     max\_lit, pos\_mult}.\\
   Each term is evaluated as $1/(1+\mathit{tf}\cdot\mathit{idf})$. The
@@ -1458,7 +1456,7 @@ possible to define the value of an identifier more than once, in which
 case later definitions take precedence over earlier ones.
 
 Clause evaluation functions can be defined on the command line with
-the \texttt{-D} (\texttt{--define-weight-function}) option, followed
+the \texttt{-D} (\texttt{--define-weight-function})\index{define-weight-function@\texttt{--define-weight-function}} option, followed
 by a \texttt{<eval-fun-def-list>}.
 
 \begin{example}
@@ -1482,7 +1480,7 @@ which cover some of the more complex weight functions of E.
 
 \subsubsection{Heuristics}
 
-A heuristic defines how many selections are to be made according to
+A heuristic defines how many\index{heuristic} selections are to be made according to
 one of several clause evaluation functions. Syntactically,
 
 \begin{verbatim}
@@ -1500,7 +1498,7 @@ such named heuristics are predefined by the prover). A
 \texttt{<heuristic-def>} which degenerates to a simple heuristic
 defines a heuristic with name \texttt{Default} (which the prover will
 automatically choose if no other heuristic is selected with
-\texttt{-x} (\texttt{--expert-heuristic})). E allows both the
+\texttt{-x} (\texttt{--expert-heuristic})\index{expert-heuristic@\texttt{--expert-heuristic}}). E allows both the
 multiplication operator (\texttt{*}) and a simple full stop to specify
 the weight given to a single evaluation function.\footnote{\texttt{*}
   is the original syntax, but is hard to escape in some shells,
@@ -1527,9 +1525,9 @@ the weight given to a single evaluation function.\footnote{\texttt{*}
 \index{term ordering}
 
 E currently supports two families of orderings: The
-\emph{Knuth-Bendix-Ordering} (KBO), which is used by default, and the
-\emph{Lexicographic Path Ordering} (LPO). The KBO is weight-based
-and uses a precedence on function symbols to break ties. Consequently,
+\emph{Knuth-Bendix-Ordering} (KBO)\index{Knuth-Bendix ordering}\index{KBO|see{Knuth-Bendix ordering}}, which is used by default, and the
+\emph{Lexicographic Path Ordering} (LPO)\index{lexicographic path ordering}\index{LPO|see{lexicographic path ordering}}. The KBO is weight-based
+and uses a precedence\index{precedence} on function symbols to break ties. Consequently,
 to specify a concrete KBO, we need a weight function that assigns a
 weight to all function symbols, and a precedence on those symbols.
 
@@ -1548,7 +1546,7 @@ The simplest way to get a reasonable term ordering is to specify
 \noindent
 Options controlling the choice of term ordering:\\[1ex]
 \begin{supertabular}{lp{9.5cm}}
-  \multicolumn{2}{l}{\texttt{-term-ordering=<arg>}}\\
+  \multicolumn{2}{l}{\texttt{--term-ordering=<arg>}\index{term-ordering@\texttt{--term-ordering}}}\\
   \texttt{-t<arg>} & Select a term ordering class (or automatic
                      selection). Supported arguments are at least \texttt{LPO},
                      \texttt{LPO4} (for a much faster new implementation of LPO),
@@ -1558,19 +1556,19 @@ Options controlling the choice of term ordering:\\[1ex]
                      options about the ordering will be (or at least
                      should be) silently ignored.\\[1ex]
 
-  \multicolumn{2}{l}{\texttt{\texttt{--order-precedence-generation=<arg>}}}\\
+  \multicolumn{2}{l}{\texttt{\texttt{--order-precedence-generation=<arg>}}\index{order-precedence-generation@\texttt{--order-precedence-generation}}}\\
   \texttt{-G <arg>} & Select a precedence generation scheme (see
   below).\\[1ex]
 
-  \multicolumn{2}{l}{\texttt{\texttt{--order-weight-generation=<arg>}}}\\
+  \multicolumn{2}{l}{\texttt{\texttt{--order-weight-generation=<arg>}}\index{order-weight-generation@\texttt{--order-weight-generation}}}\\
   \texttt{-w <arg>} & Select a symbol weight function (see
   below).\\[1ex]
 
-  \multicolumn{2}{l}{\texttt{\texttt{--order-constant-weight=<arg>}}}\\
+  \multicolumn{2}{l}{\texttt{\texttt{--order-constant-weight=<arg>}}\index{order-constant-weight@\texttt{--order-constant-weight}}}\\
   \texttt{\texttt{-c <arg>}} & Modify any symbol weight function by
   assigning a special weight to constant function symbols.\\[1ex]
 
-  \multicolumn{2}{l}{\texttt{--precedence[=<arg>]}}\\
+  \multicolumn{2}{l}{\texttt{--precedence[=<arg>]}\index{precedence@\texttt{--precedence}}}\\
   & Describe a (partial) precedence for the term ordering. The argument
    is a comma-separated list of precedence chains, where a precedence
    chain is a list of function symbols (which all have to appear in
@@ -1592,7 +1590,7 @@ Options controlling the choice of term ordering:\\[1ex]
   long time to compute in the first place. This is unlikely to be a
   problem unless there are at least hundreds of symbols.\\[1ex]
 
-  \multicolumn{2}{l}{\texttt{--order-weights=<arg>}}\\
+  \multicolumn{2}{l}{\texttt{--order-weights=<arg>}\index{order-weights@\texttt{--order-weights}}\index{symbol weight}}\\
   & Give explicit weights to function symbols. The argument syntax is
   a comma-separated list of items of the form \texttt{f:w}, where
   \texttt{f} is a symbol from the specification, and \texttt{w} is a
@@ -1605,7 +1603,7 @@ Options controlling the choice of term ordering:\\[1ex]
   generation scheme in addition to the user-defined options. You may
   want to use \texttt{-wconstant} for predictable behaviour.\\[1ex]
 
-  \multicolumn{2}{l}{\texttt{--lpo-recursion-limit[=<arg>]}}\\
+  \multicolumn{2}{l}{\texttt{--lpo-recursion-limit[=<arg>]}\index{lpo-recursion-limit@\texttt{--lpo-recursion-limit}}}\\
   & Limits the recursion depth of LPO comparison. This is useful in rare
   cases where very large term comparisons can lead to stack overflow
   issues. It does not change completeness, but may lead to unnecessary
@@ -1618,7 +1616,7 @@ Options controlling the choice of term ordering:\\[1ex]
 
 \subsection{Precedence Generation Schemes}
 
-Precedence generation schemes are based on syntactic features of the
+Precedence generation schemes are based\index{precedence!generation} on syntactic features of the
 symbol and the input clause set, like symbol arity or number of
 occurrences in the formula. At least the following options are
 supported as argument to \texttt{--order-precedence-generation}:
@@ -1655,7 +1653,7 @@ supported as argument to \texttt{--order-precedence-generation}:
 
 \subsection{Weight Generation Schemes}
 
-Weight generation schemes are based on syntactic features of the
+Weight generation schemes are based\index{symbol weight!generation} on syntactic features of the
 symbol and the input clause set, or on the predefined
 \emph{precedence}. The following options are available for
 \texttt{--order-weight-generation}.
@@ -1730,18 +1728,18 @@ multisets of terms, as described in~\cite{BG94}. However, E also
 supports other ways to identify maximal literals, both weaker and
 potentially stronger.
 
-The option \texttt{--restrict-literal-comparisons} makes all literals
+The option \texttt{--restrict-literal-comparisons}\index{restrict-literal-comparisons@\texttt{--restrict-literal-comparisons}} makes all literals
 incomparable, i.e.\ all literals are potential inference literals
 (unless literal selection is activated --
 see~\ref{sec:options:strategies}). This will e.g.\ make the
-set-of-support strategy complete for the non-equational case. It may
+set-of-support strategy\index{set of support} complete for the non-equational case. It may
 also make some proofs easier to find. On average, however, this can be
 expected to decrease performance.
 
-The option \texttt{--literal-comparison=<arg>} allows the user to
+The option \texttt{--literal-comparison=<arg>}\index{literal-comparison@\texttt{--literal-comparison}} allows the user to
 select alternative literal comparison schemes. In particular, literals
 will be first compared by predicate symbol, and only then by full
-terms. This is a poor man's version of transfinite
+terms. This is a poor man's version of transfinite\index{transfinite KBO}
 KBO~\cite{LW:LPAR-2007,KMV:CADE-2011}, applied to literals only, but
 also extended to LPO. The argument can currently be:
 
@@ -1773,7 +1771,7 @@ performed on these literals. E supports this feature and implements it
 via manipulations of the literal ordering. Additionally, E implements
 strategies that allow inferences into maximal positive literals and
 selected negative literals. A selection strategy is selected with the
-option \texttt{--literal-selection-strategy}.  Currently, at least the
+option \texttt{--literal-selection-strategy}\index{literal-selection-strategy@\texttt{--literal-selection-strategy}}.  Currently, at least the
 following strategies are implemented:
 
 \begin{description}
@@ -1785,7 +1783,7 @@ following strategies are implemented:
   tautologies or redundant clauses.
 \item[\texttt{SelectNegativeLiterals}:] Select all negative literals. For Horn
   clauses, this implements the maximal literal positive unit
-  strategy~\cite{Dershowitz:IJCAI-91} previously realized separately in
+  strategy~\cite{Dershowitz:IJCAI-91}\index{positive unit strategy} previously realized separately in
   E.
 \item[\texttt{SelectPureVarNegLiterals}:] Select the first negative literal of
   the form \eqn{X}{Y}.
@@ -1840,27 +1838,27 @@ marginally integrated into the automatic mode, but can be controlled
 by the user via the following command line options.
 
 \begin{tabular}{lp{0.8\linewidth}}
-  \multicolumn{2}{l}{\texttt{--satcheck-proc-interval[=<arg>]}} \\
+  \multicolumn{2}{l}{\texttt{--satcheck-proc-interval[=<arg>]}\index{SAT checking}\index{satcheck-proc-interval@\texttt{--satcheck-proc-interval}}} \\
   & Enable periodic SAT checking at the given interval of main loop
     non-trivial processed clauses.\\
-  \multicolumn{2}{l}{\texttt{--satcheck-gen-interval[=<arg>]}} \\
+  \multicolumn{2}{l}{\texttt{--satcheck-gen-interval[=<arg>]}\index{satcheck-gen-interval@\texttt{--satcheck-gen-interval}}} \\
   & Enable periodic SAT checking whenever the total proof state size
     increases by the given limit. \\
-  \multicolumn{2}{l}{\texttt{--satcheck-ttinsert-interval[=<arg>]}}\\
+  \multicolumn{2}{l}{\texttt{--satcheck-ttinsert-interval[=<arg>]}\index{satcheck-ttinsert-interval@\texttt{--satcheck-ttinsert-interval}}}\\
   & Enable periodic SAT checking whenever the number of term top insertions
     matches the given limit (which grows exponentially).\\
-  \multicolumn{2}{l}{\texttt{--satcheck[=<arg>]}}\\
+  \multicolumn{2}{l}{\texttt{--satcheck[=<arg>]}\index{satcheck@\texttt{--satcheck}}}\\
   & Set the grounding strategy for periodic SAT checking. Note that to enable
     SAT checking, it is also necessary to set the interval with one of the
     previous three options. \\
-  \multicolumn{2}{l}{\texttt{--satcheck-decision-limit[=<arg>]}}\\
+  \multicolumn{2}{l}{\texttt{--satcheck-decision-limit[=<arg>]}\index{satcheck-decision-limit@\texttt{--satcheck-decision-limit}}}\\
   & Set the number of decisions allowed for each run of the SAT solver. If
     the option is not given, the built-in value is 10000. Use -1 to allow
     unlimited decisions. \\
-  \multicolumn{2}{l}{\texttt{--satcheck-normalize-const}}\\
+  \multicolumn{2}{l}{\texttt{--satcheck-normalize-const}\index{satcheck-normalize-const@\texttt{--satcheck-normalize-const}}}\\
   & Use the current normal form (as recorded in the termbank rewrite cache)
     of the selected constant as the term for the grounding substitution.\\
-  \multicolumn{2}{l}{\texttt{--satcheck-normalize-unproc}}\\
+  \multicolumn{2}{l}{\texttt{--satcheck-normalize-unproc}\index{satcheck-normalize-unproc@\texttt{--satcheck-normalize-unproc}}}\\
   & Enable re-simplification (heuristic re-evaluation) of unprocessed
     clauses before grounding for SAT checking.\\
 \end{tabular}
@@ -1869,7 +1867,7 @@ by the user via the following command line options.
 \section{The Watchlist Feature}
 \label{sec:options:watchlist}
 
-Since public release 0.81, E supports a \emph{watchlist}. A watchlist
+Since public release 0.81, E supports a \emph{watchlist}\index{watchlist}. A watchlist
 is a user-defined set of clauses. Whenever the prover
 encounters\footnote{Clauses are checked against the watchlist after
   normalization, both when they are inserted into \texttt{U} or if
@@ -1893,7 +1891,7 @@ via the \emph{priority functions} \texttt{PreferWatchlist} and
 watchlist clauses first. Similarly, \texttt{DeferWatchlist} can
 be used to put the processing of watchlist clauses off.
 
-There is a predefined clause selection heuristic \texttt{UseWatchlist}
+There is a predefined clause selection heuristic \texttt{UseWatchlist}\index{UseWatchlist@\texttt{UseWatchlist}}
 (select it with \texttt{-xUseWatchlist}) that will make sure that
 watchlist clauses are selected relatively early. It is a strong
 general-purpose heuristic, and will maintain completeness of the
@@ -1905,7 +1903,7 @@ To generate constructive proofs of clauses, just place them on the
 watchlist and select output level 4 or greater (see
 section~\ref{sec:output:lots}; note that output levels of 2 and above
 are deprecated). Steps affecting the watchlist will be marked in the
-PCL2 output file. If you run \emph{epclextract} on this output,
+PCL2 output file. If you run \emph{epclextract}\index{epclextract@\texttt{epclextract}} on this output,
 subproofs for watchlist steps will be automatically extracted.
 
 Note that this forward reasoning is not complete, i.e.\ the prover may
@@ -1914,12 +1912,12 @@ to prove it via refutation.
 
 Options controlling the use of the watchlist:\\
 \begin{tabular}{lp{5.8cm}}
-  \texttt{--watchlist=<arg>} & Select a file containing the watchlist
+  \texttt{--watchlist=<arg>}\index{watchlist@\texttt{--watchlist}} & Select a file containing the watchlist
   clauses. The syntax should be the same as that of your proof problem
   (E-LOP\index{LOP}, TPTP-1/2 or
   TPTP-3/TSTP\index{TPTP!language}). Just write down a list of
   clauses and/or formulas.\\
-  \texttt{--no-watchlist-simplification} & By default, watchlist
+  \texttt{--no-watchlist-simplification}\index{no-watchlist-simplification@\texttt{--no-watchlist-simplification}} & By default, watchlist
   clauses are simplified with respect to the current set
   \texttt{P}. Use this option to disable the feature.
 \end{tabular}
@@ -1928,13 +1926,13 @@ Options controlling the use of the watchlist:\\
 \section{Learning Clause Evaluation Functions}
 \label{sec:options:learning}
 
-E can use a knowledge base generated by analyzing many successful
+E can use a knowledge base generated\index{knowledge base}\index{learning} by analyzing many successful
 proof attempts to guide its search, i.e.\ it can \emph{learn} what
 kinds of clauses are likely to be useful for a proof and which ones
 are likely superfluous. The details of the learning mechanism can be
 found in~\cite{Schulz:Diss-2000,Schulz:KI-2001}. Essentially, an
 inference protocol is analyzed, useful and useless clauses are
-identified and generalized into \emph{clause patterns}, and the
+identified and generalized into \emph{clause patterns}\index{clause pattern}, and the
 resulting information is stored in a knowledge base. Later, new clauses
 that match a pattern are evaluated accordingly.
 
@@ -1942,7 +1940,7 @@ that match a pattern are evaluated accordingly.
 
 An E knowledge base is a directory containing a number of files,
 storing both the knowledge and configuration information. Knowledge
-bases are generated with the tool \texttt{ekb\_create}. If no argument
+bases are generated with the tool \texttt{ekb\_create}\index{ekb_create@\texttt{ekb\_create}}. If no argument
 is given, \texttt{ekb\_create} will create a knowledge base called
 \texttt{E\_KNOWLEDGE} in the current directory.
 
@@ -1958,13 +1956,13 @@ more compact form: A number of clauses is selected as training
 examples, and annotations about their role are computed. The result is
 a list of annotated clauses and a list of the axioms (initial clauses)
 of the problem, which is then integrated into the knowledge base. The
-program \texttt{ekb\_ginsert} performs both steps: it extracts all
+program \texttt{ekb\_ginsert}\index{ekb_ginsert@\texttt{ekb\_ginsert}} performs both steps: it extracts all
 pertinent information from a PCL2 protocol and inserts it into a
-designated knowledge base. (The older program \texttt{ekb\_insert}
+designated knowledge base. (The older program \texttt{ekb\_insert}\index{ekb_insert@\texttt{ekb\_insert}}
 inserts examples that have already been extracted into this compact
 form. For most applications it is obsolete.)
 
-The program \texttt{ekb\_delete} will delete an example from a
+The program \texttt{ekb\_delete}\index{ekb_delete@\texttt{ekb\_delete}} will delete an example from a
 knowledge base. This process is not particularly efficient, as the
 whole knowledge base is first parsed.
 
@@ -1972,7 +1970,7 @@ whole knowledge base is first parsed.
 \subsubsection{Using Learned Knowledge}
 
 The knowledge in a knowledge base can be utilized by the two clause
-evaluation functions \texttt{TSMWeight()} and \texttt{TSMRWeight()}.
+evaluation functions \texttt{TSMWeight()}\index{TSMWeight@\texttt{TSMWeight}} and \texttt{TSMRWeight()}\index{TSMRWeight@\texttt{TSMRWeight}}.
 Both compute a modification weight based on the learned knowledge, and
 apply it to a conventional symbol-counting base weight (similar to
 \texttt{Clauseweight()} for \texttt{TSMWeight()} and
@@ -2000,18 +1998,18 @@ TBC - run \texttt{eprover --help} for a short overview.
 \chapter{Input Language}
 \label{sec:language}
 
-E supports three different input formats and two different output
+E supports three different input formats\index{input format} and two different output
 formats. If no particular format is explicitly requested, E will
 determine the input format based on the first tokens of the input file
 and also select a matching output format.
 
 \section{LOP}
 
-E originally used E-LOP, a dialect of the LOP\index{LOP} language
+E originally used E-LOP\index{E-LOP|see{LOP}}, a dialect of the LOP\index{LOP} language
 designed for SETHEO\index{SETHEO}. At the moment, your best bet is to
 retrieve the LOP description from the E web site~\cite{E:WWW-22}
 and/or check out the examples available from it.  LOP is very close to
-Prolog, and E can usually read many fully declarative Prolog files if
+Prolog\index{Prolog}, and E can usually read many fully declarative Prolog files if
 they do not use arithmetic or rely on predefined symbols. Plain SETHEO
 files usually also work very well.  There are a couple of minor
 differences, however:
@@ -2031,10 +2029,10 @@ differences, however:
 \item E normally treats procedural clauses exactly as it treats
   declarative clauses. Query clauses (clauses with an empty head and
   starting with \texttt{?-}, e.g. \texttt{?-$\sim$p(X), q(X).}) can
-  optionally be used to define a set of \emph{goal clauses} (by
+  optionally be used to define a set of \emph{goal clauses}\index{goal clause} (by
   default, all negative clauses are considered to be goals). At the
   moment, this information is only used for the initial set of support
-  (with \texttt{--sos-uses-input-types}). Note that you can still
+  (with \texttt{--sos-uses-input-types}\index{sos-uses-input-types@\texttt{--sos-uses-input-types}}\index{set of support}). Note that you can still
   specify arbitrary clauses as query clauses, since LOP supports
   negated literals.
 \end{itemize}
@@ -2046,7 +2044,7 @@ problems for automated theorem provers. Problems in the TPTP are
 written in TPTP syntax\index{TPTP!language}. There are two major
 versions of the TPTP syntax, both of which are supported by E.
 
-Version 2\footnote{Version 1 allowed the specification of problems in
+Version 2\index{TPTP!version 2}\footnote{Version 1 allowed the specification of problems in
   clause normal form only. Version 2 is a conservative extension of
   version 1 and adds support for full first order formulas.} of the
 TPTP syntax was used for TPTP releases previous to TPTP~3.0.0.  The
@@ -2056,33 +2054,33 @@ model output using one consistent formalism. It has been used as the
 native format for TPTP releases since TPTP~3.0.0.
 
 Parsing in TPTP format version 2 is enabled by the options
-\texttt{--tptp-in}, \texttt{--tptp2-in}, \texttt{--tptp-format} and
-\texttt{--tptp2-format}. The last two options also select TPTP 2
+\texttt{--tptp-in}\index{tptp-in@\texttt{--tptp-in}}, \texttt{--tptp2-in}\index{tptp2-in@\texttt{--tptp2-in}}, \texttt{--tptp-format}\index{tptp-format@\texttt{--tptp-format}} and
+\texttt{--tptp2-format}\index{tptp2-format@\texttt{--tptp2-format}}. The last two options also select TPTP 2
 format for the output of normal clauses during and after
 saturation. Proof output will be in PCL2 format, however.
 
-TPTP syntax version 3~\cite{SSCG:IJCAR-2006,SSCB:LPAR-2012} is the
+TPTP syntax version 3\index{TPTP!version 3}\index{TSTP|see{TPTP, version 3}}~\cite{SSCG:IJCAR-2006,SSCB:LPAR-2012} is the
 currently recommended format. It is supported by many provers, it is
 more consistent than the old TPTP language, and it adds a number of
 useful features.  E supports TPTP-3 syntax with the options
-\texttt{--tstp-in}, \texttt{--tptp3-in}, \texttt{--tstp-format} and
-\texttt{--tptp3-format}. The last two options will also enable TPTP-3
+\texttt{--tstp-in}\index{tstp-in@\texttt{--tstp-in}}, \texttt{--tptp3-in}\index{tptp3-in@\texttt{--tptp3-in}}, \texttt{--tstp-format}\index{tstp-format@\texttt{--tstp-format}} and
+\texttt{--tptp3-format}\index{tptp3-format@\texttt{--tptp3-format}}. The last two options will also enable TPTP-3
 format for proof output. Note that many of E's support tools still
 require PCL2 format. Various tools for processing TPTP-3 proof format
 are available via the TPTP web-site, \url{http://www.tptp.org}.
 
 In either TPTP format, clauses and formulas with TPTP type
-\texttt{conjecture}, \texttt{negated\_conjecture}, or
+\texttt{conjecture}, \texttt{negated\_conjecture}\index{formula role}\index{conjecture}, or
 \texttt{question} (the last two in TPTP-3 only) are considered goal
 clauses for the \texttt{--sos-uses-input-types} option.
 
 \section{Higher-order extension}
 
-As part of the Matryoshka project
+As part of the Matryoshka project\index{Matryoshka project}\index{higher-order logic}
 (\url{http://matryoshka.gforge.inria.fr/}) E has been extended to
-optionally support lambda-free higher-order logic (LFHOL) and full
+optionally support lambda-free higher-order logic (LFHOL)\index{LFHOL}\index{lambda-free higher-order logic|see{LFHOL}} and full
 monomorphic higher-order logic. The option can be enabled at compile
-time by passing \texttt{--enable-ho} to the \texttt{configure} script.
+time by passing \texttt{--enable-ho}\index{enable-ho@\texttt{--enable-ho}} to the \texttt{configure} script.
 
 In this section we give a very short introduction to (LF)HOL syntax
 and semantics. A detailed description (which includes semantics) can be
@@ -2100,7 +2098,7 @@ over booleans is not allowed. LFHOL is simply typed -- each type is
 either atomic or a function type.
 
 For E~2.3 and up, LFHOL formulas are expressed using a subset of TPTP
-THF syntax. From E~3.0, the prover supports full (monomorphic)
+THF syntax\index{THF}. From E~3.0, the prover supports full (monomorphic)
 higher-order logic. More precisely, E can parse and process a subset
 of THF syntax that is monomorphic, without the constants \texttt{!!}
 and \texttt{??}, and without anything else that will give you an error
@@ -2131,7 +2129,7 @@ both with and without the axiom providing the permuting function.
 \label{sec:output}
 
 E has several different output levels, controlled by the option
-\texttt{-l} or \texttt{--output-level}. Level 0 prints nearly no
+\texttt{-l} or \texttt{--output-level}\index{output level}\index{output-level@\texttt{--output-level}}. Level 0 prints nearly no
 output except for the result. Level 1 is intended to give humans a
 somewhat readable impression of what is going on inside the inference
 engine. Levels 2 and above output increasingly more information about
@@ -2143,8 +2141,8 @@ section~\ref{sec:output:proofobj}).
 At levels 0 and 1, everything E prints is either a clause that is
 implied by the original axioms, or a comment (or, very often, both).
 
-Comments start with \verb+%+, the TPTP comment character. If E has
-been configured with \texttt{--unix-comments}, they start with
+Comments start with \verb+%+, the TPTP comment character\index{comment character}. If E has
+been configured with \texttt{--unix-comments}\index{unix-comments@\texttt{--unix-comments}}, they start with
 \verb+#+ instead.
 
 
@@ -2152,10 +2150,10 @@ been configured with \texttt{--unix-comments}, they start with
 \label{sec:output:essentials}
 
 In silent mode (\texttt{--output-level=0}, \texttt{-s} or
-\texttt{--silent}), E will not print any output during saturation. It
+\texttt{--silent}\index{silent mode}\index{silent@\texttt{--silent}}), E will not print any output during saturation. It
 will print a one-line comment documenting the state of the proof
 search after termination. This is followed by a second line with the
-\emph{SZS status} of the problem, a standardized result description
+\emph{SZS status}\index{SZS status} of the problem, a standardized result description
 used by the TPTP world, e.g.\ by the CASC competition and by tools
 that call E. The SZS status line has the form
 \begin{verbatim}
@@ -2177,10 +2175,10 @@ conjecture, the status is relative to the conjecture (e.g.\
 % SZS status ContradictoryAxioms
 % SZS status Unsatisfiable
 \end{verbatim}
-  \texttt{Theorem} means that the conjecture follows from the
+  \texttt{Theorem} means\index{SZS status!Theorem@\texttt{Theorem}} that the conjecture follows from the
   axioms. If the input contains a conjecture, but the proof does not
   use it (i.e.\ the axioms are already inconsistent on their own), the
-  status is \texttt{ContradictoryAxioms}. \texttt{Unsatisfiable} is
+  status is \texttt{ContradictoryAxioms}\index{SZS status!ContradictoryAxioms@\texttt{ContradictoryAxioms}}. \texttt{Unsatisfiable} is\index{SZS status!Unsatisfiable@\texttt{Unsatisfiable}}
   used for problems without a conjecture.
 \item The problem does not have a proof, i.e. the specification is
   satisfiable (and E can detect this):
@@ -2189,11 +2187,11 @@ conjecture, the status is relative to the conjecture (e.g.\
 % SZS status CounterSatisfiable
 % SZS status Satisfiable
 \end{verbatim}
-  The status is \texttt{CounterSatisfiable} (the conjecture does not
+  The status is \texttt{CounterSatisfiable}\index{SZS status!CounterSatisfiable@\texttt{CounterSatisfiable}} (the conjecture does not
   follow from the axioms) if there is a conjecture, and
-  \texttt{Satisfiable} otherwise.
+  \texttt{Satisfiable} otherwise\index{SZS status!Satisfiable@\texttt{Satisfiable}}.
 
-  Ensuring the completeness of a prover is much harder than ensuring
+  Ensuring the completeness\index{completeness} of a prover is much harder than ensuring
   correctness. Moreover, proofs can easily be checked by analyzing the
   output of the prover, while such a check for the absence of proofs
   is rarely possible. I do believe that the current version of E is
@@ -2204,34 +2202,34 @@ conjecture, the status is relative to the conjecture (e.g.\
   than my belief in the latter\ldots
 \item A (hard) resource limit was hit. For memory this can be either
   due to a per-process limit (set with \texttt{limit} or the prover
-  option \texttt{--memory-limit}), or due to running out of virtual
+  option \texttt{--memory-limit}\index{memory-limit@\texttt{--memory-limit}}\index{resource limits!memory}), or due to running out of virtual
   memory. For CPU time, this case is triggered if the per-process CPU
   time limit is reached and signalled to the prover via a
   \texttt{SIGXCPU} signal. This limit can be set with \texttt{limit}
-  or, more reliably, with the option \texttt{--cpu-limit}. The output
+  or, more reliably, with the option \texttt{--cpu-limit}\index{cpu-limit@\texttt{--cpu-limit}}\index{resource limits!CPU time}. The output
   string is one of the following two, depending on the exact reason
   for termination:
 \begin{verbatim}
 % Failure: Resource limit exceeded (memory)
 % Failure: Resource limit exceeded (time)
 \end{verbatim}
-  In both cases, the status is
+  In both cases, the status is\index{SZS status!ResourceOut@\texttt{ResourceOut}}
 \begin{verbatim}
 % SZS status ResourceOut
 \end{verbatim}
 \item A user-defined limit was reached during saturation, and the
   saturation process was stopped gracefully. Limits include number of
   processed clauses, number of total clauses, and CPU time (as set
-  with \texttt{--soft-cpu-limit}). The output is
+  with \texttt{--soft-cpu-limit}\index{soft-cpu-limit@\texttt{--soft-cpu-limit}}\index{resource limits!user-defined}). The output is
 \begin{verbatim}
 % Failure: User resource limit exceeded!
 % SZS status ResourceOut
 \end{verbatim}
   \ldots and the user is expected to know which limit they selected.
-\item By default, E is \emph{complete}, i.e. it will only terminate if
+\item By default, E is \emph{complete}\index{completeness}, i.e. it will only terminate if
   either the empty clause is found or all clauses have been processed
   (in which case the processed clause set is satisfiable). However, if
-  the option \texttt{--delete-bad-limit} is given or if automatic mode
+  the option \texttt{--delete-bad-limit}\index{delete-bad-limit@\texttt{--delete-bad-limit}} is given or if automatic mode
   in connection with a memory limit is used, E will periodically
   delete clauses it deems unlikely to be processed to avoid running
   out of memory. In this case, completeness cannot be ensured any
@@ -2241,7 +2239,7 @@ conjecture, the status is relative to the conjecture (e.g.\
 % Failure: Out of unprocessed clauses!
 % SZS status GaveUp
 \end{verbatim}
-  This is roughly equivalent to Otter\index{Otter}'s \texttt{SOS
+  This is roughly equivalent to Otter\index{Otter}\index{SZS status!GaveUp@\texttt{GaveUp}}'s \texttt{SOS
     empty} message. The same output is produced if E runs out of
   clauses on a higher-order problem, since E's higher-order calculus
   is not complete.
@@ -2260,19 +2258,19 @@ conjecture, the status is relative to the conjecture (e.g.\
 % Clause set saturated up to interpreted theories!
 % SZS status GaveUp
 \end{verbatim}
-\item In automatic scheduling mode (\texttt{--auto-schedule}), E
+\item In automatic scheduling mode (\texttt{--auto-schedule})\index{strategy scheduling}, E
   reports \texttt{GaveUp} if all strategies of the schedule have
   terminated without a result.
 \item If E only performs a part of its work (with \texttt{--cnf},
   \texttt{--syntax-only}, or \texttt{--prune}), the status is
-  \texttt{Unknown}.
+  \texttt{Unknown}\index{SZS status!Unknown@\texttt{Unknown}}.
 \item Finally, with \texttt{--error-on-empty}, an input without any
-  clauses or formulas results in \texttt{InputError}. Syntax errors
+  clauses or formulas results in \texttt{InputError}\index{SZS status!InputError@\texttt{InputError}}. Syntax errors
   and other fatal errors are reported on standard error, without an
   SZS status line, and E terminates with a non-zero exit code.
 \end{itemize}
 
-If E runs a strategy schedule, the individual strategies are run as
+If E runs a strategy\index{strategy scheduling} schedule, the individual strategies are run as
 separate processes, and only the result of the successful strategy is
 printed (preceded by a comment naming the strategy).
 
@@ -2290,7 +2288,7 @@ sequence of these characters.
 This mode gives some indication of progress, and as the output is
 fairly restricted, does not slow the prover down too much.
 
-For any output level greater than 0, E will also print statistical
+For any output level greater than 0\index{statistics}, E will also print statistical
 information about the proof search and final clause sets. The data
 should be fairly self-explanatory.
 
@@ -2301,14 +2299,14 @@ should be fairly self-explanatory.
 \emph{Output levels of 2 and above are deprecated. Their role has
   been taken over by proof objects (see the next section).}
 
-At output levels greater than 1, E prints certain inferences in
+At output levels greater than 1\index{inference protocol}, E prints certain inferences in
 PCL2\index{PCL} format\footnote{PCL2 is a proof output designed as a
   successor to PCL~\cite{DS94a,DS94b,DS96a}.} or TPTP-3 output
 format\index{TPTP!language}. At level 2, it only prints generating
 inferences. Higher levels add modifying inferences and, finally,
 PCL/TPTP-3 steps that don't correspond to inferences, but give some
 insight into the internal operation of the inference engine. The
-\texttt{epclextract} utility in \texttt{E/PROVER/} can extract a
+\texttt{epclextract}\index{epclextract@\texttt{epclextract}} utility in \texttt{E/PROVER/} can extract a
 proof from such a protocol.
 
 This feature is no longer actively maintained. As a result, strange
@@ -2320,8 +2318,8 @@ useful for debugging.
 \label{sec:output:proofobj}
 
 
-E~1.9 and later can internally record all necessary information for
-proof output. It makes use of the DISCOUNT loop property that only
+E~1.9 and later can internally record\index{proof object} all necessary information for
+proof output. It makes use of the DISCOUNT loop\index{DISCOUNT loop} property that only
 processed clauses (usually a small subset of all clauses in the search
 state) can ever participate in generating inferences or be used to
 simplify other clauses. For each clause, the system stores its origin
@@ -2341,7 +2339,7 @@ objects can typically be processed with the same tools as full
 inference protocols.
 
 Proof-object generation and output are activated by
-\texttt{--proof-object}. The optional argument selects the level of
+\texttt{--proof-object}\index{proof-object@\texttt{--proof-object}}. The optional argument selects the level of
 detail. Level 1 (used if no argument is given) gives a compact proof
 object that lists each inference rule with its premises. At level 3,
 the clause after each simplification step (rewriting, unfolding,
@@ -2405,14 +2403,14 @@ has been kept intentionally simple, the system also supports complex
 terms and variables as parts of answers, in that case representing the
 set of all instances.
 
-The \texttt{--answers=<x>} option controls the number of answers
+The \texttt{--answers=<x>}\index{answers@\texttt{--answers}} option controls the number of answers
 generated. By default, the prover terminates after the first
 successful proof, and thus only provides one answer. Using the option
 without an argument will make the prover search for \texttt{LONG\_MAX}
 answers, i.e.\ a practically unlimited number. Using a positive integer
 argument limits the number of answers to the limit given.
 
-The option \texttt{--conjectures-are-questions} will make the prover
+The option \texttt{--conjectures-are-questions}\index{conjectures-are-questions@\texttt{--conjectures-are-questions}} will make the prover
 treat any formula of type \texttt{conjecture} as a question, not just
 formulas with explicit type \texttt{question}.
 
@@ -2429,13 +2427,13 @@ clause sets (with additional information).
 First, E can give you some technical information about the conditions
 it runs under.
 
-The option \texttt{--print-pid} will make E print its process id as a
+The option \texttt{--print-pid}\index{print-pid@\texttt{--print-pid}} will make E print its process id as a
 comment, in the format \texttt{\% Pid: XXX}, where \texttt{XXX} is an
 integer number. This is useful if you want to send signals to the
 prover (in particular, if you want to terminate the prover) to control
 it from the outside.
 
-The option \texttt{-R} (\texttt{--resources-info}) will make E print a
+The option \texttt{-R} (\texttt{--resources-info})\index{resources-info@\texttt{--resources-info}} will make E print a
 summary of used system resources after graceful termination:
 
 \begin{verbatim}
@@ -2451,11 +2449,11 @@ not depend on the last value to carry any meaningful information. The
 time information is required by most standards and should be useful
 for all tested operating systems.
 
-E can be used not only as a prover, but as a normalizer for formulae
-or as a lemma generator. In these cases, you will not only want to know
+E can be used not only as a prover, but as a normalizer for formulae\index{normalization}
+or as a lemma generator\index{lemma generation}. In these cases, you will not only want to know
 if E found a proof, but also need some or all of the derived clauses,
 possibly with statistical information for filtering. This is supported
-with the \texttt{--print-saturated} and \texttt{--print-sat-info}
+with the \texttt{--print-saturated}\index{print-saturated@\texttt{--print-saturated}} and \texttt{--print-sat-info}\index{print-sat-info@\texttt{--print-sat-info}}
 options for E.
 
 The option \texttt{--print-saturated} takes as its argument a string
@@ -2475,7 +2473,7 @@ individual letters:
   \texttt{I} & Unprocessed negative unit clauses.\\
   \texttt{G} & Unprocessed non-unit clauses (this set may contain the
   empty clause in very rare cases).\\
-  \texttt{a} & Print equality axioms (if equality is present in the
+  \texttt{a} & Print equality axioms\index{equality axioms} (if equality is present in the
   problem). This letter prints axioms for reflexivity, symmetry, and
   transitivity, and a set of substitutivity axioms, one for each
   argument position of every function symbol and predicate symbol.\\
@@ -2564,12 +2562,12 @@ Table~\ref{tab:opts}.
 
 
 \section{Grounding: \texttt{eground}}
-\index{eground|texttt}
+\index{eground@\texttt{eground}}
 
-The Bernays-Sch{\"o}nfinkel class is a decidable fragment of
+The Bernays-Sch{\"o}nfinkel class\index{Bernays-Sch\"onfinkel class} is a decidable fragment of
 first-order logic. Problems from this class can be clausified into
 clause normal form without non-constant function symbols. This clausal
-class is \emph{effectively propositional} (EPR), since the Herbrand
+class is \emph{effectively propositional} (EPR)\index{effectively propositional}\index{EPR|see{effectively propositional}}, since the Herbrand
 universe is finite. The program \texttt{eground} takes a problem from
 the Bernays-Sch{\"o}nfinkel class, or an EPR clause normal form
 problem, and tries to convert it into an equisatisfiable propositional
@@ -2582,7 +2580,7 @@ principle is GrAnDe~\cite{SS:CADE-2002}.
 \texttt{Eground} uses a number of techniques to reduce the number of
 instances generated. The technical background is described
 in~\cite{Schulz:FLAIRS-2002}. The program can generate output in LOP,
-TPTP-2 and TPTP-3 format, but also directly in the DIMACS format used
+TPTP-2 and TPTP-3 format, but also directly in the DIMACS format\index{DIMACS} used
 by many propositional reasoners.
 
 A typical command line for starting \texttt{eground} is:
@@ -2594,7 +2592,7 @@ A typical command line for starting \texttt{eground} is:
 
 
 \section{Rewriting: \texttt{enormalizer}}
-\index{enormalizer|texttt}
+\index{enormalizer@\texttt{enormalizer}}
 
 The program \texttt{enormalizer} uses E's shared terms, cached
 rewriting, and indexing to implement an efficient normalizer. It reads
@@ -2620,7 +2618,7 @@ A typical command line for starting \texttt{enormalizer} is:
 
 
 \section{Multiple queries: \texttt{e\_ltb\_runner}}
-\index{e\_ltb\_runner|texttt}\index{batch processing}
+\index{e_ltb_runner@\texttt{e\_ltb\_runner}}\index{batch processing}
 
 E is designed to handle individual proof problems, one at a time. The
 prover has mechanisms to handle even large specifications. However, in
@@ -2632,7 +2630,7 @@ once, and then run E with additional axioms and different conjectures
 against this background theory without re-parsing the full theory.
 
 The program was originally designed for running sets of queries
-against \emph{large theories} in \emph{batch mode}, but now also
+against \emph{large theories}\index{large theories} in \emph{batch mode}, but now also
 supports interactive queries. However, \texttt{e\_ltb\_runner} is in a
 more prototypical state than most of the E distribution. In
 particular, any syntax error in the input will cause the whole program
@@ -2865,7 +2863,7 @@ go.
 \end{figure}
 
 \section{Specification pruning: \texttt{e\_axfilter}}
-\index{e\_axfilter|texttt}
+\index{e_axfilter@\texttt{e\_axfilter}}
 
 One of the problems of automated deduction is the handling of large
 specifications that contain a lot of axioms that are not relevant for
@@ -2908,7 +2906,7 @@ basic idea of this filter is to rate function- and predicate symbols
 by their rarity - the less often a symbol occurs in the specification,
 the more important any given formula or clause that handles the symbol
 is for the definition of that symbol. The algorithm starts by
-computing the \emph{D-relation} between clauses/formulas and
+computing the \emph{D-relation}\index{D-relation} between clauses/formulas and
 symbols. A clause/formula is in the \emph{D-relation} with the rarest
 symbols that occur in it. The exact details of ``rarest'' are
 configurable in a number of ways - see below.
@@ -3026,8 +3024,7 @@ The parameters have the following type and meaning:
   to. Also, your version of E is severely outdated, and you should
   probably update to the current free version. If you are in doubt
   about which version of E you have, run \texttt{eprover -V} or
-  \texttt{eprover -h}\index{GPL}\index{GNU General Public
-    License}\index{LGPL}\index{GNU Lesser General Public License}.
+  \texttt{eprover -h}\index{GPL|see{GNU General Public License}}\index{GNU General Public License}\index{LGPL|see{GNU Lesser General Public License}}\index{GNU Lesser General Public License}.
 
   See the file COPYING in the main directory for the full text of the
   licenses.
