@@ -48,6 +48,12 @@ typedef struct rw_desc_cell
    ClauseSet_p  step_archive;  /* Copies before each step for a full
                                   proof object, or NULL */
    PStack_p     step_sides;    /* The sides of these copies */
+   PStack_p     steps;         /* Steps of the side being normalized
+                                  (demodulator, result, path), or NULL
+                                  if steps are not recorded */
+   PStack_p     path;          /* Position of the current subterm in
+                                  that side, or NULL if steps are
+                                  recorded without positions */
    long         rw_steps;      /* Return value, rewrite steps done */
    bool         sos_rewritten; /* Return value! */
 }RWDescCell, *RWDesc_p;

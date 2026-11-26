@@ -134,15 +134,74 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 
 /*-----------------------------------------------------------------------
 //
+// Function: rw_record_step()
+//
+//   Record a rewrite step with demod that produced the subterm res at
+//   the current position desc->path as demodulator, result and a copy
+//   of the path (NULL if desc->path is NULL). The steps are recorded
+//   when they are done, not reconstructed later from the rewrite
+//   links: a link can be replaced by a link to another normal form
+//   (rewriting with unorientable equations is not confluent), and a
+//   chain through the old link then no longer reaches its end.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void rw_record_step(RWDesc_p desc, Clause_p demod, Term_p res)
+{
+   assert(desc->steps);
+   assert(demod);
+
+   PStackPushP(desc->steps, demod);
+   PStackPushP(desc->steps, res);
+   PStackPushP(desc->steps, desc->path?PStackCopy(desc->path):NULL);
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: rw_steps_reset()
+//
+//   Discard the recorded steps in desc.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void rw_steps_reset(RWDesc_p desc)
+{
+   PStackPointer i;
+   PStack_p path;
+
+   for(i=2; i<PStackGetSP(desc->steps); i+=3)
+   {
+      path = PStackElementP(desc->steps, i);
+      if(path)
+      {
+         PStackFree(path);
+      }
+   }
+   PStackReset(desc->steps);
+}
+
+
+/*-----------------------------------------------------------------------
+//
 // Function: term_follow_top_RW_chain()
 //
 //   Return the last term in an existing rewrite link chain, following
 //   only top rewrite links. If one of those is induced by a SoS
-//   clause, set desc->sos.
+//   clause, set desc->sos. If desc->steps is set, record each link
+//   followed as a step, see rw_record_step().
 //
 // Global Variables: -
 //
-// Side Effects    : May change desc->sos_rewritten.
+// Side Effects    : May change desc->sos_rewritten and desc->steps.
 //
 /----------------------------------------------------------------------*/
 
@@ -166,6 +225,10 @@ static bool instance_is_rule(OCB_p ocb, TB_p bank,
 
       // assert(TOGreater(desc->ocb, term, TermRWReplaceField(term),
       //                   DEREF_NEVER, DEREF_NEVER));
+      if(desc->steps)
+      {
+         rw_record_step(desc, TermRWDemod(term), TermRWReplaceField(term));
+      }
       term = TermRWReplaceField(term);
       assert(term);
    }
@@ -476,7 +539,15 @@ static bool term_subterm_rewrite(RWDesc_p desc, Term_p *term, bool lambda_demod)
 
    for(i=0; i<(*term)->arity; i++)
    {
+      if(desc->path)
+      {
+         PStackPushInt(desc->path, i);
+      }
       new_term->args[i] = term_li_normalform(desc, (*term)->args[i], false, lambda_demod);
+      if(desc->path)
+      {
+         PStackDiscardTop(desc->path);
+      }
       modified = modified || (new_term->args[i]!= (*term)->args[i]);
    }
    if(modified)
@@ -579,59 +650,15 @@ static Term_p term_li_normalform(RWDesc_p desc, Term_p term,
 
 /*-----------------------------------------------------------------------
 //
-// Function: collect_rw_steps()
-//
-//   Follow the rewrite links that rewrote from into to and push each
-//   step as its demodulator, the subterm it produced and a copy of
-//   path, the position of from in the side.
-//
-// Global Variables: -
-//
-// Side Effects    : Memory operations
-//
-/----------------------------------------------------------------------*/
-
-static void collect_rw_steps(PStack_p steps, PStack_p path, Term_p from,
-                             Term_p to)
-{
-   Term_p next;
-   int i;
-
-   while(from != to)
-   {
-      assert(TermIsRewritten(from));
-      next = TermRWReplaceField(from);
-      if(TermRWDemod(from))
-      {
-         PStackPushP(steps, TermRWDemod(from));
-         PStackPushP(steps, next);
-         PStackPushP(steps, PStackCopy(path));
-      }
-      else
-      {
-         assert(from->f_code == next->f_code && from->arity == next->arity);
-         for(i=0; i<from->arity; i++)
-         {
-            PStackPushInt(path, i);
-            collect_rw_steps(steps, path, from->args[i], next->args[i]);
-            PStackDiscardTop(path);
-         }
-      }
-      from = next;
-   }
-}
-
-
-/*-----------------------------------------------------------------------
-//
 // Function: record_rw_steps()
 //
 //   Set the designated side of the literal at pos to its normal
-//   form nf and record the rewrite steps that led there in the
-//   derivation of the clause. For a full proof object, each step
-//   becomes a separate inference, see ClauseArchiveSteps().
+//   form nf and record the rewrite steps that led there (collected in
+//   desc->steps while nf was computed) in the derivation of the
+//   clause. For a full proof object, each step becomes a separate
+//   inference, see ClauseArchiveSteps().
 //
-// Global Variables: PrintProofObject
+// Global Variables: -
 //
 // Side Effects    : Changes the literal and the derivation
 //
@@ -642,28 +669,12 @@ static void record_rw_steps(RWDesc_p desc, ClausePos_p pos, Term_p nf)
    Clause_p clause = pos->clause;
    Eqn_p eqn = pos->literal;
    Term_p *side = pos->side == LeftSide?&(eqn->lterm):&(eqn->rterm);
-   PStack_p steps, path;
-   PStackPointer sp;
 
-   FORMULA_OR_CLAUSE_ENSURE_DERIVATION(clause);
-   if(PrintProofObject < POSingleStepDerivation)
-   {
-      sp = PStackGetSP(clause->derivation);
-      TermComputeRWSequence(clause->derivation, *side, nf, DCRewrite);
-      desc->rw_steps += (PStackGetSP(clause->derivation)-sp)/2;
-      *side = nf;
-   }
-   else
-   {
-      steps = PStackAlloc();
-      path  = PStackAlloc();
-      collect_rw_steps(steps, path, *side, nf);
-      desc->rw_steps += PStackGetSP(steps)/3;
-      ClauseArchiveSteps(desc->step_archive, desc->step_sides, clause,
-                         side, nf, steps, DCRewrite);
-      PStackFree(path);
-      PStackFree(steps);
-   }
+   assert(PStackGetSP(desc->steps));
+   desc->rw_steps += PStackGetSP(desc->steps)/3;
+   ClauseArchiveSteps(desc->step_archive, desc->step_sides, clause,
+                      side, nf, desc->steps, DCRewrite);
+   PStackReset(desc->steps);
 }
 
 
@@ -690,6 +701,8 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
       EqnIsOriented(eqn) && interred_rw;
    EqnSide res = NoSide;
 
+   assert(desc->steps);
+   rw_steps_reset(desc);
    nf = term_li_normalform(desc, eqn->lterm, restricted_rw, lambda_demod);
    if(l_old!=nf)
    {
@@ -702,6 +715,7 @@ EqnSide eqn_li_normalform(RWDesc_p desc, ClausePos_p pos,
          DocClauseRewriteDefault(pos, l_old);
       }
    }
+   rw_steps_reset(desc);
    nf = term_li_normalform(desc, eqn->rterm, false, lambda_demod);
    if(r_old!=nf)
    {
@@ -763,10 +777,39 @@ static __inline__ RWDesc_p rw_desc_cell_alloc(OCB_p ocb, TB_p bank,
    desc->prefer_general = prefer_general;
    desc->step_archive   = step_archive;
    desc->step_sides     = step_sides;
+   desc->steps          = NULL;
+   desc->path           = NULL;
    desc->rw_steps       = 0;
    desc->sos_rewritten  = false;
 
    return desc;
+}
+
+
+/*-----------------------------------------------------------------------
+//
+// Function: rw_desc_cell_free()
+//
+//   Free an RWDescCell and its step stacks.
+//
+// Global Variables: -
+//
+// Side Effects    : Memory operations
+//
+/----------------------------------------------------------------------*/
+
+static void rw_desc_cell_free(RWDesc_p desc)
+{
+   if(desc->steps)
+   {
+      rw_steps_reset(desc);
+      PStackFree(desc->steps);
+   }
+   if(desc->path)
+   {
+      PStackFree(desc->path);
+   }
+   RWDescCellFree(desc);
 }
 
 
@@ -1145,7 +1188,7 @@ Term_p TermComputeLINormalform(OCB_p ocb, TB_p bank, Term_p term,
                                       prefer_general, NULL, NULL);
 
    res = term_li_normalform(desc, term, restricted_rw, lambda_demod);
-   RWDescCellFree(desc);
+   rw_desc_cell_free(desc);
    return res;
 }
 
@@ -1177,6 +1220,12 @@ long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
                                       step_sides);
    ClausePosCell pos;
    bool done = false;
+
+   desc->steps = PStackAlloc();
+   if(step_archive && PrintProofObject >= POSingleStepDerivation)
+   {
+      desc->path = PStackAlloc();
+   }
 
    assert(demodulators);
    assert(desc->demods);
@@ -1221,7 +1270,7 @@ long ClauseComputeLINormalform(OCB_p ocb, TB_p bank, Clause_p clause,
    {
       ClauseDelProp(clause, CPInitial);
    }
-   RWDescCellFree(desc);
+   rw_desc_cell_free(desc);
 
    return res;
 }

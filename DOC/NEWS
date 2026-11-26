@@ -74,6 +74,11 @@ Version 3.2.5 -> 3.5 Countess Grey
   modified) and has a new option --debug. After reconfiguring, make
   rebuilds what is needed. SIMPLE_APPS and EXTERNAL are built with
   "make extras".
+- Fixed a rare segmentation fault in rewriting (with or without proof
+  objects). The rewrite steps of a clause were reconstructed afterwards
+  from the cached rewrite links of its terms, but a link can since have
+  been replaced by one to a different normal form. The steps are now
+  recorded while they are done.
 - Minor fixes: constants no longer get KBO weight 0 from some weight
   generators (changes strategies sh2 and sh2lt slightly). In TFF, an
   untyped quantified variable no longer inherits the type of an

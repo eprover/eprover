@@ -648,7 +648,8 @@ void ClauseArchiveStepEnd(ClauseSet_p step_archive, Clause_p clause,
 //   to nf as inferences with code op, and set side to nf. steps
 //   holds three entries per step, its demodulator, the subterm it
 //   produced and the position of that subterm as a stack of argument
-//   indices. These stacks are freed here.
+//   indices (NULL if no full proof object is built). These stacks are
+//   freed here.
 //
 //   For a full proof object, the clause is archived in step_archive
 //   before each step. New terms in the bank would change the search,
@@ -697,7 +698,11 @@ void ClauseArchiveSteps(ClauseSet_p step_archive, PStack_p step_sides,
    }
    for(i=2; i<PStackGetSP(steps); i+=3)
    {
-      PStackFree(PStackElementP(steps, i));
+      path = PStackElementP(steps, i);
+      if(path)
+      {
+         PStackFree(path);
+      }
    }
    *side = nf;
 }
