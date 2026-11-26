@@ -1635,7 +1635,7 @@ supported as argument to \texttt{--order-precedence-generation}:
   arity are smaller).
 \item[\texttt{const\_max}:] Sort symbols by arity (symbols with higher
   arity are larger), but make constants the largest symbols. This is allegedly
-  used by SPASS~\cite{Weidenbach:SPASS-2001} in some configurations.
+  used in some configurations by SPASS~\cite{Weidenbach:SPASS-2001}.
 \item[\texttt{const\_min}:] Sort symbols by arity (symbols with higher
   arity are smaller), but make constants the smallest symbols.
   Provided for reasons of symmetry.
@@ -2129,7 +2129,8 @@ both with and without the axiom providing the permuting function.
 \label{sec:output}
 
 E has several different output levels, controlled by the option
-\texttt{-l} or \texttt{--output-level}\index{output level}\index{output-level@\texttt{--output-level}}. Level 0 prints nearly no
+\texttt{--output-level}\index{output level}\index{output-level@\texttt{--output-level}}
+(short \texttt{-l}). Level 0 prints nearly no
 output except for the result. Level 1 is intended to give humans a
 somewhat readable impression of what is going on inside the inference
 engine. Levels 2 and above output increasingly more information about
